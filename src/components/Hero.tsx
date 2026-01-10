@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const WHATSAPP_NUMBER = "5511999999999";
+const WHATSAPP_NUMBER = "551931990107";
 
 export function Hero() {
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero saber mais sobre criação de sites.`;
@@ -13,7 +13,7 @@ export function Hero() {
       <div className="absolute inset-0 bg-hero-gradient" />
       <div className="absolute inset-0 hex-pattern opacity-20" />
       
-      {/* Floating Orbs - Cyan */}
+      {/* Floating Orbs - Cyan (reduced opacity) */}
       <motion.div
         animate={{ 
           x: [0, 30, -20, 20, 0],
@@ -21,10 +21,10 @@ export function Hero() {
           scale: [1, 1.1, 0.95, 1.05, 1]
         }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-cyan-glow/20 blur-[80px] pointer-events-none"
+        className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-cyan-glow/10 blur-[80px] pointer-events-none"
       />
       
-      {/* Floating Orbs - Green */}
+      {/* Floating Orbs - Green (reduced opacity) */}
       <motion.div
         animate={{ 
           x: [0, -30, 20, -10, 0],
@@ -33,18 +33,18 @@ export function Hero() {
         }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         className="absolute top-1/3 right-1/4 w-[350px] h-[350px] rounded-full blur-[100px] pointer-events-none"
-        style={{ background: 'hsl(155 100% 50% / 0.15)' }}
+        style={{ background: 'hsl(155 100% 50% / 0.08)' }}
       />
 
-      {/* Central mixed glow */}
+      {/* Central mixed glow (reduced) */}
       <motion.div
         animate={{ 
           scale: [1, 1.05, 1],
-          opacity: [0.3, 0.5, 0.3]
+          opacity: [0.15, 0.25, 0.15]
         }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none"
-        style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.25), hsl(155 100% 50% / 0.2))' }}
+        style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.15), hsl(155 100% 50% / 0.1))' }}
       />
       
       <div className="container mx-auto px-4 relative z-10">
@@ -94,27 +94,26 @@ export function Hero() {
                   </motion.div>
                 </motion.div>
 
-                {/* Badge */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5"
-                  style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.1), hsl(155 100% 50% / 0.1))', border: '1px solid hsl(195 100% 50% / 0.2)' }}
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-xs font-medium gradient-text">+50 projetos entregues</span>
-                </motion.div>
-
-                {/* Headline */}
+                {/* Headline with text shake */}
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.6 }}
+                  transition={{ delay: 0.3, duration: 0.6 }}
                   className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight"
                 >
-                  Transformo ideias em{' '}
-                  <span className="gradient-text">sites que vendem</span>
+                  <motion.span
+                    animate={{ x: [0, -1, 1, -1, 0] }}
+                    transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 3 }}
+                  >
+                    Transformo ideias em{' '}
+                  </motion.span>
+                  <motion.span 
+                    className="gradient-text inline-block"
+                    animate={{ x: [0, 1, -1, 1, 0] }}
+                    transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 2.5, delay: 0.5 }}
+                  >
+                    sites que vendem
+                  </motion.span>
                 </motion.h1>
 
                 {/* Subheadline */}

@@ -1,12 +1,10 @@
-import { MessageCircle, Instagram, Linkedin, Mail } from 'lucide-react';
+import { MessageCircle, Instagram } from 'lucide-react';
 
-const WHATSAPP_NUMBER = "5511999999999";
+const WHATSAPP_NUMBER = "551931990107";
 
 const socialLinks = [
   { icon: MessageCircle, href: `https://wa.me/${WHATSAPP_NUMBER}`, label: 'WhatsApp' },
-  { icon: Instagram, href: 'https://instagram.com/', label: 'Instagram' },
-  { icon: Linkedin, href: 'https://linkedin.com/', label: 'LinkedIn' },
-  { icon: Mail, href: 'mailto:contato@jonatas.dev', label: 'Email' },
+  { icon: Instagram, href: 'https://instagram.com/jonii.sites', label: 'Instagram' },
 ];
 
 const footerLinks = [
