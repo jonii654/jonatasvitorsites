@@ -1,14 +1,11 @@
 import { motion } from 'framer-motion';
-import { Play, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import { VideoModal } from './VideoModal';
-import profileImage from '@/assets/jonatas-profile.webp';
+import heroImage from '@/assets/hero-image.jpg';
 
 const WHATSAPP_NUMBER = "5511999999999";
 
 export function Hero() {
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero saber mais sobre criação de sites.`;
 
   return (
@@ -52,40 +49,25 @@ export function Hero() {
             Landing pages e portfólios com design moderno, velocidade e foco em conversão.
           </motion.p>
 
-          {/* Video Card */}
+          {/* Hero Image Card */}
           <motion.div
             initial={{ opacity: 0, y: 40, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="relative max-w-2xl mx-auto mb-10"
+            className="relative max-w-3xl mx-auto mb-10"
           >
-            <div
-              className="video-card group cursor-pointer transition-all duration-500 hover:scale-[1.02]"
-              onClick={() => setIsVideoModalOpen(true)}
-            >
-              <div className="relative aspect-video bg-card overflow-hidden">
-                {/* Profile Image as Video Thumbnail */}
+            <div className="video-card group transition-all duration-500 hover:scale-[1.02]">
+              <div className="relative aspect-video bg-card overflow-hidden rounded-2xl">
                 <img
-                  src={profileImage}
-                  alt="Jonatas Vitor - Criador de Sites"
-                  className="w-full h-full object-cover object-center"
+                  src={heroImage}
+                  alt="Design de sites profissionais"
+                  className="w-full h-full object-cover"
                 />
                 
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-background/40 group-hover:bg-background/20 transition-all duration-300" />
-                
-                {/* Play Button */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center shadow-glow-intense group-hover:bg-primary transition-all duration-300"
-                  >
-                    <Play className="w-8 h-8 md:w-10 md:h-10 text-primary-foreground ml-1" fill="currentColor" />
-                  </motion.div>
-                </div>
+                {/* Subtle overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
 
-                {/* Animated Glow Ring */}
+                {/* Animated Glow Ring on Hover */}
                 <div className="absolute inset-0 rounded-2xl animate-pulse-glow pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </div>
@@ -143,11 +125,6 @@ export function Hero() {
           </motion.div>
         </div>
       </div>
-
-      <VideoModal 
-        isOpen={isVideoModalOpen} 
-        onClose={() => setIsVideoModalOpen(false)} 
-      />
     </section>
   );
 }
