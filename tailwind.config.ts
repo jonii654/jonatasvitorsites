@@ -58,6 +58,10 @@ export default {
           glow: "hsl(var(--cyan-glow))",
           light: "hsl(var(--cyan-light))",
         },
+        neon: {
+          green: "hsl(var(--neon-green))",
+          "green-light": "hsl(var(--neon-green-light))",
+        },
         blue: {
           deep: "hsl(var(--blue-deep))",
         },
@@ -125,11 +129,13 @@ export default {
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "hero-gradient": "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(220 85% 25% / 0.5) 0%, transparent 60%)",
-        "glow-gradient": "radial-gradient(circle, hsl(195 100% 50% / 0.15) 0%, transparent 70%)",
+        "glow-gradient": "radial-gradient(circle, hsl(195 100% 50% / 0.15) 0%, hsl(155 100% 50% / 0.1) 50%, transparent 70%)",
+        "neon-gradient": "linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(155 100% 50%) 100%)",
       },
       boxShadow: {
-        "glow": "0 0 40px hsl(var(--primary) / 0.3)",
-        "glow-intense": "0 0 60px hsl(var(--primary) / 0.5), 0 0 100px hsl(var(--primary) / 0.2)",
+        "glow": "0 0 40px hsl(195 100% 50% / 0.3), 0 0 60px hsl(155 100% 50% / 0.2)",
+        "glow-intense": "0 0 60px hsl(195 100% 50% / 0.5), 0 0 100px hsl(155 100% 50% / 0.3)",
+        "glow-green": "0 0 40px hsl(155 100% 50% / 0.4)",
         "card": "0 8px 32px hsl(var(--background) / 0.8)",
       },
     },

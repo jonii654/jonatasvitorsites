@@ -13,8 +13,39 @@ export function Hero() {
       <div className="absolute inset-0 bg-hero-gradient" />
       <div className="absolute inset-0 hex-pattern opacity-20" />
       
-      {/* Main Glow behind card */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
+      {/* Floating Orbs - Cyan */}
+      <motion.div
+        animate={{ 
+          x: [0, 30, -20, 20, 0],
+          y: [0, -20, 20, 10, 0],
+          scale: [1, 1.1, 0.95, 1.05, 1]
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-cyan-glow/20 blur-[80px] pointer-events-none"
+      />
+      
+      {/* Floating Orbs - Green */}
+      <motion.div
+        animate={{ 
+          x: [0, -30, 20, -10, 0],
+          y: [0, 20, -30, 15, 0],
+          scale: [1, 0.95, 1.1, 1, 1]
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute top-1/3 right-1/4 w-[350px] h-[350px] rounded-full blur-[100px] pointer-events-none"
+        style={{ background: 'hsl(155 100% 50% / 0.15)' }}
+      />
+
+      {/* Central mixed glow */}
+      <motion.div
+        animate={{ 
+          scale: [1, 1.05, 1],
+          opacity: [0.3, 0.5, 0.3]
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none"
+        style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.25), hsl(155 100% 50% / 0.2))' }}
+      />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
@@ -29,23 +60,38 @@ export function Hero() {
             {/* Animated Glow Ring Background */}
             <div className="absolute inset-0 rounded-3xl hero-glow-ring" />
             
-            {/* Card Container */}
-            <div className="relative p-1 rounded-3xl bg-gradient-to-br from-primary/50 via-primary/20 to-cyan-light/30">
-              <div className="relative bg-card/90 backdrop-blur-xl rounded-[22px] p-8 md:p-10 overflow-hidden">
+            {/* Card Container with animated border */}
+            <div className="relative p-[2px] rounded-3xl border-glow-animated overflow-hidden">
+              <div className="relative bg-card/95 backdrop-blur-xl rounded-[22px] p-8 md:p-10 overflow-hidden">
                 
-                {/* Inner glow effect */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-primary/20 blur-3xl rounded-full" />
+                {/* Inner shimmer effect */}
+                <div className="absolute inset-0 shimmer pointer-events-none" />
                 
-                {/* Sparkle Icon */}
+                {/* Inner glow effects */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-primary/15 blur-3xl rounded-full" />
+                <div className="absolute bottom-0 right-0 w-1/2 h-24 blur-3xl rounded-full" style={{ background: 'hsl(155 100% 50% / 0.1)' }} />
+                
+                {/* Sparkle Icon with glow */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
                   className="relative mb-6"
                 >
-                  <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 flex items-center justify-center">
+                  <motion.div 
+                    animate={{ 
+                      boxShadow: [
+                        '0 0 20px hsl(195 100% 50% / 0.4), 0 0 40px hsl(155 100% 50% / 0.2)',
+                        '0 0 30px hsl(155 100% 50% / 0.5), 0 0 60px hsl(195 100% 50% / 0.3)',
+                        '0 0 20px hsl(195 100% 50% / 0.4), 0 0 40px hsl(155 100% 50% / 0.2)'
+                      ]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-2xl flex items-center justify-center"
+                    style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.15), hsl(155 100% 50% / 0.1))', border: '1px solid hsl(195 100% 50% / 0.3)' }}
+                  >
                     <Sparkles className="w-8 h-8 md:w-10 md:h-10 text-primary" />
-                  </div>
+                  </motion.div>
                 </motion.div>
 
                 {/* Badge */}
@@ -53,10 +99,11 @@ export function Hero() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-5"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5"
+                  style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.1), hsl(155 100% 50% / 0.1))', border: '1px solid hsl(195 100% 50% / 0.2)' }}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-xs font-medium text-primary">+50 projetos entregues</span>
+                  <span className="text-xs font-medium gradient-text">+50 projetos entregues</span>
                 </motion.div>
 
                 {/* Headline */}
@@ -123,18 +170,27 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground"
           >
-            <div className="flex items-center gap-2">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-card"
+            >
               <CheckCircle2 className="w-4 h-4 text-primary" />
               <span>Média de 20%+ conversão</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-primary" />
+            </motion.div>
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-card"
+            >
+              <CheckCircle2 className="w-4 h-4" style={{ color: 'hsl(155 100% 50%)' }} />
               <span>Entrega em até 7 dias</span>
-            </div>
-            <div className="flex items-center gap-2">
+            </motion.div>
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full glass-card"
+            >
               <CheckCircle2 className="w-4 h-4 text-primary" />
               <span>Suporte incluído</span>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>
