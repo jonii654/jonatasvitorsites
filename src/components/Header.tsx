@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const WHATSAPP_NUMBER = "5511999999999"; // Substitua pelo número real
+const WHATSAPP_NUMBER = "551931990107";
 
 const navItems = [
   { label: 'Serviços', href: '#servicos' },

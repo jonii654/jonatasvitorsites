@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { MessageCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const WHATSAPP_NUMBER = "5511999999999";
+const WHATSAPP_NUMBER = "551931990107";
 
 export function CTASection() {
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero agendar uma conversa sobre criação de sites.`;
