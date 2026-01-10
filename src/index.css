@@ -43,15 +43,18 @@
     --blue-deep: 220 85% 25%;
     --cyan-glow: 195 100% 50%;
     --cyan-light: 195 100% 60%;
+    --neon-green: 155 100% 50%;
+    --neon-green-light: 155 100% 65%;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(220 85% 25%) 0%, hsl(195 100% 50%) 100%);
+    /* Gradients - Mixed cyan + green */
+    --gradient-primary: linear-gradient(135deg, hsl(220 85% 25%) 0%, hsl(195 100% 50%) 50%, hsl(155 100% 50%) 100%);
     --gradient-hero: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(220 85% 25% / 0.5) 0%, transparent 60%);
-    --gradient-glow: radial-gradient(circle, hsl(195 100% 50% / 0.3) 0%, transparent 70%);
+    --gradient-glow: radial-gradient(circle, hsl(195 100% 50% / 0.3) 0%, hsl(155 100% 50% / 0.2) 50%, transparent 70%);
+    --gradient-neon: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(155 100% 50%) 100%);
     
-    /* Shadows */
-    --shadow-glow: 0 0 40px hsl(195 100% 50% / 0.3);
-    --shadow-glow-intense: 0 0 60px hsl(195 100% 50% / 0.5), 0 0 100px hsl(195 100% 50% / 0.2);
+    /* Shadows - Mixed glow */
+    --shadow-glow: 0 0 40px hsl(195 100% 50% / 0.3), 0 0 60px hsl(155 100% 50% / 0.2);
+    --shadow-glow-intense: 0 0 60px hsl(195 100% 50% / 0.5), 0 0 100px hsl(155 100% 50% / 0.3);
     --shadow-card: 0 8px 32px hsl(220 50% 8% / 0.8);
 
     --sidebar-background: 220 50% 8%;
@@ -138,22 +141,83 @@
     mask-composite: exclude;
   }
 
-  /* Hero Card with Animated Glow Ring */
+  /* Hero Card with Animated Glow Ring - Cyan + Green */
   .hero-glow-ring {
     animation: heroGlow 3s ease-in-out infinite;
   }
 
   @keyframes heroGlow {
     0%, 100% {
-      box-shadow: 0 0 60px 10px hsl(var(--primary) / 0.4),
-                  0 0 100px 30px hsl(var(--primary) / 0.2),
-                  0 0 140px 60px hsl(var(--primary) / 0.1);
+      box-shadow: 0 0 60px 10px hsl(195 100% 50% / 0.4),
+                  0 0 100px 30px hsl(155 100% 50% / 0.2),
+                  0 0 140px 60px hsl(195 100% 50% / 0.1);
     }
     50% {
-      box-shadow: 0 0 80px 20px hsl(var(--primary) / 0.5),
-                  0 0 120px 40px hsl(var(--primary) / 0.3),
-                  0 0 160px 80px hsl(var(--primary) / 0.15);
+      box-shadow: 0 0 80px 20px hsl(155 100% 50% / 0.5),
+                  0 0 120px 40px hsl(195 100% 50% / 0.3),
+                  0 0 160px 80px hsl(155 100% 50% / 0.15);
     }
+  }
+
+  /* Floating orbs animation */
+  .floating-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    animation: floatOrb 8s ease-in-out infinite;
+  }
+
+  .floating-orb-cyan {
+    background: hsl(195 100% 50% / 0.3);
+  }
+
+  .floating-orb-green {
+    background: hsl(155 100% 50% / 0.25);
+  }
+
+  @keyframes floatOrb {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    25% {
+      transform: translate(30px, -20px) scale(1.1);
+    }
+    50% {
+      transform: translate(-20px, 20px) scale(0.95);
+    }
+    75% {
+      transform: translate(20px, 10px) scale(1.05);
+    }
+  }
+
+  /* Border glow animation */
+  .border-glow-animated {
+    position: relative;
+  }
+
+  .border-glow-animated::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(90deg, 
+      hsl(195 100% 50%), 
+      hsl(155 100% 50%), 
+      hsl(195 100% 50%), 
+      hsl(155 100% 50%)
+    );
+    background-size: 300% 100%;
+    animation: borderFlow 3s linear infinite;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  @keyframes borderFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
   }
 
   /* Video Card with Glow */
@@ -254,11 +318,30 @@
   .stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
   .stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
 
-  /* Gradient Text */
+  /* Gradient Text - Cyan to Green */
   .gradient-text {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--cyan-light)) 100%);
+    background: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(155 100% 55%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* Shimmer effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(195 100% 50% / 0.1) 25%,
+      hsl(155 100% 50% / 0.15) 50%,
+      hsl(195 100% 50% / 0.1) 75%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 }
