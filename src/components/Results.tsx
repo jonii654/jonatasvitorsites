@@ -1,30 +1,30 @@
 import { motion } from 'framer-motion';
-import { TrendingUp, Users, Zap, Award } from 'lucide-react';
+import { Zap, Clock, Smartphone, Shield } from 'lucide-react';
 
 const results = [
   {
-    icon: TrendingUp,
-    value: '+R$50k',
-    label: 'Faturamento gerado',
-    description: 'para clientes em 2024',
-  },
-  {
-    icon: Users,
-    value: '+50',
-    label: 'Projetos entregues',
-    description: 'landing pages e portfólios',
-  },
-  {
     icon: Zap,
-    value: '20%+',
-    label: 'Aumento em conversão',
-    description: 'média dos projetos',
+    value: 'Alta',
+    label: 'Performance',
+    description: 'Sites rápidos e otimizados',
   },
   {
-    icon: Award,
+    icon: Clock,
+    value: '7 dias',
+    label: 'Prazo de entrega',
+    description: 'do início ao lançamento',
+  },
+  {
+    icon: Smartphone,
     value: '100%',
-    label: 'Satisfação',
-    description: 'clientes satisfeitos',
+    label: 'Responsivo',
+    description: 'funciona em qualquer tela',
+  },
+  {
+    icon: Shield,
+    value: 'Total',
+    label: 'Suporte',
+    description: 'acompanhamento pós-entrega',
   },
 ];
 
@@ -61,9 +61,9 @@ export function Results() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <span className="section-label">Resultados reais</span>
+          <span className="section-label">O que você ganha</span>
           <h2 className="section-title">
-            Números que falam por si
+            Compromisso com qualidade
           </h2>
         </motion.div>
 

@@ -1,48 +1,47 @@
 import { motion } from 'framer-motion';
-import { Quote, Star } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Lightbulb, Target, Rocket } from 'lucide-react';
 
-const testimonials = [
+const values = [
   {
     id: 1,
-    name: 'Carlos Silva',
-    role: 'CEO, TechStart',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces',
-    content: 'O site superou todas as expectativas. Em 2 meses, triplicamos nossos leads qualificados. Profissionalismo e qualidade impressionantes!',
-    rating: 5,
+    icon: Lightbulb,
+    title: 'Design estratégico',
+    description: 'Cada elemento do seu site é pensado para guiar o visitante até a ação desejada. Nada é por acaso.',
   },
   {
     id: 2,
-    name: 'Ana Rodrigues',
-    role: 'Fotógrafa',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces',
-    content: 'Meu portfólio ficou incrível! Os clientes elogiam muito e as solicitações de orçamento aumentaram 60%.',
-    rating: 5,
+    icon: Target,
+    title: 'Foco em resultados',
+    description: 'Sites bonitos são ótimos, mas sites que convertem são ainda melhores. Meu objetivo é te ajudar a crescer.',
   },
   {
     id: 3,
-    name: 'Ricardo Mendes',
-    role: 'Dono, Clínica Sorriso',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces',
-    content: 'Entrega rápida e resultado excelente. O agendamento online automatizou todo nosso processo. Recomendo muito!',
-    rating: 5,
+    icon: Rocket,
+    title: 'Entrega rápida',
+    description: 'Prazo de 7 dias do início ao lançamento. Sem enrolação, sem atrasos. Seu tempo é valioso.',
   },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5 },
+  },
+};
+
 export function Testimonials() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    if (isPaused) return;
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [isPaused]);
-
   return (
     <section className="py-20 md:py-32 relative overflow-hidden">
       {/* Background Glow */}
@@ -56,75 +55,40 @@ export function Testimonials() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <span className="section-label">Depoimentos</span>
+          <span className="section-label">Por que me escolher</span>
           <h2 className="section-title">
-            O que dizem os clientes
+            Meu compromisso com você
           </h2>
         </motion.div>
 
-        <div 
-          className="max-w-3xl mx-auto"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto"
         >
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-            className="glass-card p-8 md:p-12 text-center"
-          >
-            {/* Quote Icon */}
-            <div className="w-12 h-12 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-              <Quote className="w-6 h-6 text-primary" />
-            </div>
-
-            {/* Stars */}
-            <div className="flex justify-center gap-1 mb-6">
-              {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 text-primary fill-primary" />
-              ))}
-            </div>
-
-            {/* Content */}
-            <p className="text-lg md:text-xl text-foreground leading-relaxed mb-8">
-              "{testimonials[currentIndex].content}"
-            </p>
-
-            {/* Author */}
-            <div className="flex items-center justify-center gap-4">
-              <img
-                src={testimonials[currentIndex].avatar}
-                alt={testimonials[currentIndex].name}
-                className="w-14 h-14 rounded-full object-cover ring-2 ring-primary/30"
-              />
-              <div className="text-left">
-                <div className="font-semibold text-foreground">
-                  {testimonials[currentIndex].name}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {testimonials[currentIndex].role}
-                </div>
+          {values.map((value) => (
+            <motion.div
+              key={value.id}
+              variants={itemVariants}
+              className="glass-card p-8 text-center group hover:bg-card/60 transition-colors duration-300"
+            >
+              {/* Icon */}
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
+                <value.icon className="w-8 h-8 text-primary" />
               </div>
-            </div>
-          </motion.div>
 
-          {/* Dots Navigation */}
-          <div className="flex justify-center gap-2 mt-8">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                  index === currentIndex
-                    ? 'bg-primary w-8'
-                    : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+              {/* Content */}
+              <h3 className="text-xl font-bold text-foreground mb-4">
+                {value.title}
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                {value.description}
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );
