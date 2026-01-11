@@ -93,19 +93,15 @@ export function AboutMe() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3, duration: 0.5 }}
-                className="mt-8 grid grid-cols-3 gap-4"
+                className="mt-8 grid grid-cols-2 gap-4"
               >
                 <div className="glass-card p-4 text-center">
-                  <p className="text-2xl md:text-3xl font-bold gradient-text">50+</p>
-                  <p className="text-xs text-muted-foreground">Projetos</p>
-                </div>
-                <div className="glass-card p-4 text-center">
-                  <p className="text-2xl md:text-3xl font-bold gradient-text">20%</p>
-                  <p className="text-xs text-muted-foreground">+ Conversão</p>
-                </div>
-                <div className="glass-card p-4 text-center">
                   <p className="text-2xl md:text-3xl font-bold gradient-text">7</p>
-                  <p className="text-xs text-muted-foreground">Dias entrega</p>
+                  <p className="text-xs text-muted-foreground">Dias de entrega</p>
+                </div>
+                <div className="glass-card p-4 text-center">
+                  <p className="text-2xl md:text-3xl font-bold gradient-text">100%</p>
+                  <p className="text-xs text-muted-foreground">Dedicação</p>
                 </div>
               </motion.div>
             </motion.div>

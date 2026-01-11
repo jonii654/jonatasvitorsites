@@ -9,7 +9,7 @@ interface Project {
   category: string;
   description: string;
   image: string;
-  result: string;
+  type: string;
   hasVideo?: boolean;
 }
 
@@ -20,16 +20,16 @@ const projects: Project[] = [
     category: 'E-commerce',
     description: 'Loja virtual completa com checkout otimizado e design premium.',
     image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=500&fit=crop',
-    result: '+35% vendas',
+    type: 'Protótipo',
     hasVideo: true,
   },
   {
     id: 2,
     title: 'Landing Page SaaS',
     category: 'Landing Page',
-    description: 'Página de captura com alta conversão para software B2B.',
+    description: 'Página de captura com design moderno para software B2B.',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop',
-    result: '+42% leads',
+    type: 'Protótipo',
   },
   {
     id: 3,
@@ -37,15 +37,15 @@ const projects: Project[] = [
     category: 'Portfólio',
     description: 'Galeria interativa com carregamento rápido e visual impactante.',
     image: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=800&h=500&fit=crop',
-    result: '+60% contatos',
+    type: 'Protótipo',
   },
   {
     id: 4,
     title: 'Clínica Odontológica',
     category: 'Landing Page',
-    description: 'Site institucional com agendamento online integrado.',
+    description: 'Site institucional com design profissional e moderno.',
     image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=500&fit=crop',
-    result: '+25% agendamentos',
+    type: 'Protótipo',
   },
 ];
 
@@ -90,10 +90,13 @@ export function Portfolio() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <span className="section-label">Portfólio</span>
+          <span className="section-label">Protótipos</span>
           <h2 className="section-title">
-            Projetos que convertem
+            Exemplos do que posso criar
           </h2>
+          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+            Esses são modelos e protótipos para demonstrar meu estilo e qualidade de trabalho
+          </p>
         </motion.div>
 
         {/* Category Filter */}
@@ -177,8 +180,8 @@ export function Portfolio() {
 
                   <div className="mt-6 pt-4 border-t border-border/50">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Resultado:</span>
-                      <span className="text-lg font-bold gradient-text">{project.result}</span>
+                      <span className="text-sm text-muted-foreground">Tipo:</span>
+                      <span className="text-sm font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">{project.type}</span>
                     </div>
                   </div>
                 </div>
