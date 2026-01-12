@@ -35,10 +35,10 @@ export function Hero() {
         />
         <motion.div 
           style={{ y: layer1Y }}
-          className="absolute inset-0 hex-pattern opacity-20"
+          className="absolute inset-0 hex-pattern opacity-10"
         />
         
-        {/* Floating Orbs - Layer 2 (Medium) */}
+        {/* Floating Orbs - Layer 2 (Medium) - Reduced brightness */}
         <motion.div
           style={{ y: layer2Y }}
           className="absolute inset-0 pointer-events-none"
@@ -50,7 +50,7 @@ export function Hero() {
               scale: [1, 1.1, 0.95, 1.05, 1]
             }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-cyan-glow/10 blur-[80px]"
+            className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-cyan-glow/5 blur-[100px]"
           />
           
           <motion.div
@@ -60,19 +60,19 @@ export function Hero() {
               scale: [1, 0.95, 1.1, 1, 1]
             }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute top-1/3 right-1/4 w-[350px] h-[350px] rounded-full blur-[100px]"
-            style={{ background: 'hsl(155 100% 50% / 0.08)' }}
+            className="absolute top-1/3 right-1/4 w-[350px] h-[350px] rounded-full blur-[120px]"
+            style={{ background: 'hsl(155 100% 50% / 0.04)' }}
           />
 
-          {/* Central mixed glow */}
+          {/* Central mixed glow - Reduced */}
           <motion.div
             animate={{ 
               scale: [1, 1.05, 1],
-              opacity: [0.15, 0.25, 0.15]
+              opacity: [0.08, 0.12, 0.08]
             }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[120px]"
-            style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.15), hsl(155 100% 50% / 0.1))' }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[150px]"
+            style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.08), hsl(155 100% 50% / 0.05))' }}
           />
         </motion.div>
         
@@ -123,21 +123,21 @@ export function Hero() {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="relative max-w-lg mx-auto mb-10"
             >
-              {/* Animated Glow Ring Background */}
-              <div className="absolute inset-0 rounded-3xl hero-glow-ring" />
+              {/* Animated Glow Ring Background - Reduced */}
+              <div className="absolute inset-0 rounded-3xl hero-glow-ring opacity-50" />
               
               {/* Card Container with animated border */}
               <div className="relative p-[2px] rounded-3xl border-glow-animated overflow-hidden">
                 <div className="relative bg-card/95 backdrop-blur-xl rounded-[22px] p-6 md:p-8 overflow-hidden">
                   
-                  {/* Inner shimmer effect */}
-                  <div className="absolute inset-0 shimmer pointer-events-none" />
+                  {/* Inner shimmer effect - Reduced */}
+                  <div className="absolute inset-0 shimmer pointer-events-none opacity-50" />
                   
-                  {/* Inner glow effects */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-primary/15 blur-3xl rounded-full" />
-                  <div className="absolute bottom-0 right-0 w-1/2 h-24 blur-3xl rounded-full" style={{ background: 'hsl(155 100% 50% / 0.1)' }} />
+                  {/* Inner glow effects - Reduced */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-primary/8 blur-3xl rounded-full" />
+                  <div className="absolute bottom-0 right-0 w-1/2 h-24 blur-3xl rounded-full" style={{ background: 'hsl(155 100% 50% / 0.05)' }} />
                   
-                  {/* Sparkle Icon with glow */}
+                  {/* Sparkle Icon with glow - Reduced */}
                   <motion.div
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -147,14 +147,14 @@ export function Hero() {
                     <motion.div 
                       animate={{ 
                         boxShadow: [
-                          '0 0 20px hsl(195 100% 50% / 0.4), 0 0 40px hsl(155 100% 50% / 0.2)',
-                          '0 0 30px hsl(155 100% 50% / 0.5), 0 0 60px hsl(195 100% 50% / 0.3)',
-                          '0 0 20px hsl(195 100% 50% / 0.4), 0 0 40px hsl(155 100% 50% / 0.2)'
+                          '0 0 15px hsl(195 100% 50% / 0.2), 0 0 30px hsl(155 100% 50% / 0.1)',
+                          '0 0 20px hsl(155 100% 50% / 0.25), 0 0 40px hsl(195 100% 50% / 0.15)',
+                          '0 0 15px hsl(195 100% 50% / 0.2), 0 0 30px hsl(155 100% 50% / 0.1)'
                         ]
                       }}
                       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                       className="w-14 h-14 md:w-16 md:h-16 mx-auto rounded-2xl flex items-center justify-center"
-                      style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.15), hsl(155 100% 50% / 0.1))', border: '1px solid hsl(195 100% 50% / 0.3)' }}
+                      style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.1), hsl(155 100% 50% / 0.05))', border: '1px solid hsl(195 100% 50% / 0.2)' }}
                     >
                       <Sparkles className="w-7 h-7 md:w-8 md:h-8 text-primary" />
                     </motion.div>
