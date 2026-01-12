@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ExternalLink, Play } from 'lucide-react';
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
@@ -50,20 +50,12 @@ const projects: Project[] = [
 ];
 
 export function Portfolio() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-
-  // Horizontal scroll transform based on vertical scroll
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   return (
     <section id="portfolio" className="py-20 md:py-32 relative overflow-hidden">
       {/* Background Glow */}
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-glow-gradient pointer-events-none opacity-30" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-glow-gradient pointer-events-none opacity-20" />
       
       <div className="container mx-auto px-4 relative z-10 mb-12">
         <motion.div
@@ -83,12 +75,17 @@ export function Portfolio() {
         </motion.div>
       </div>
 
-      {/* Horizontal Scrolling Portfolio with Parallax */}
-      <div ref={containerRef} className="relative">
-        <motion.div 
-          style={{ x }}
-          className="flex gap-6 px-4 md:px-8"
-        >
+      {/* Horizontal Scrolling Portfolio - Native Scroll */}
+      <div 
+        ref={scrollContainerRef}
+        className="overflow-x-auto scrollbar-hide pb-4 cursor-grab active:cursor-grabbing"
+        style={{ 
+          scrollBehavior: 'smooth',
+          WebkitOverflowScrolling: 'touch',
+          scrollSnapType: 'x mandatory'
+        }}
+      >
+        <div className="flex gap-6 px-4 md:px-8 w-max">
           {projects.map((project, index) => (
             <motion.div
               key={project.id}
@@ -96,7 +93,8 @@ export function Portfolio() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="flex-shrink-0 w-[85vw] md:w-[500px] lg:w-[600px]"
+              className="flex-shrink-0 w-[85vw] md:w-[450px] lg:w-[500px]"
+              style={{ scrollSnapAlign: 'start' }}
             >
               <div className="glass-card-hover group overflow-hidden h-full">
                 {/* Image Container */}
@@ -104,28 +102,19 @@ export function Portfolio() {
                   <motion.img
                     src={project.image}
                     alt={project.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.5 }}
                   />
                   
-                  {/* Multi-layer parallax overlay */}
-                  <motion.div 
-                    className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent"
-                    initial={{ opacity: 0.5 }}
-                    whileHover={{ opacity: 0.8 }}
-                  />
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
                   
                   {/* Video Badge */}
                   {project.hasVideo && (
-                    <motion.div 
-                      className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-primary/90 backdrop-blur-sm rounded-full"
-                      whileHover={{ scale: 1.1 }}
-                    >
+                    <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-primary/90 backdrop-blur-sm rounded-full">
                       <Play className="w-3 h-3 text-primary-foreground" fill="currentColor" />
                       <span className="text-xs font-medium text-primary-foreground">Vídeo</span>
-                    </motion.div>
+                    </div>
                   )}
 
                   {/* Category Tag */}
@@ -136,17 +125,12 @@ export function Portfolio() {
                   </div>
 
                   {/* Overlay on Hover */}
-                  <motion.div 
-                    className="absolute inset-0 bg-background/60 flex items-center justify-center"
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  >
+                  <div className="absolute inset-0 bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <Button variant="secondary" size="sm" className="gap-2">
                       <ExternalLink className="w-4 h-4" />
                       Ver projeto
                     </Button>
-                  </motion.div>
+                  </div>
                 </div>
 
                 {/* Content */}
@@ -168,32 +152,32 @@ export function Portfolio() {
               </div>
             </motion.div>
           ))}
-        </motion.div>
-
-        {/* Scroll Indicator */}
-        <motion.div 
-          className="flex justify-center mt-8 gap-2"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          <span className="text-sm text-muted-foreground flex items-center gap-2">
-            <motion.span
-              animate={{ x: [0, 10, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              ←
-            </motion.span>
-            Deslize para ver mais
-            <motion.span
-              animate={{ x: [0, -10, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              →
-            </motion.span>
-          </span>
-        </motion.div>
+        </div>
       </div>
+
+      {/* Scroll Indicator */}
+      <motion.div 
+        className="flex justify-center mt-8 gap-2"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        <span className="text-sm text-muted-foreground flex items-center gap-2">
+          <motion.span
+            animate={{ x: [0, 10, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            ←
+          </motion.span>
+          Arraste para ver mais
+          <motion.span
+            animate={{ x: [0, -10, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            →
+          </motion.span>
+        </span>
+      </motion.div>
     </section>
   );
 }

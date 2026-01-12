@@ -1,5 +1,8 @@
 import { motion } from 'framer-motion';
 import { Lightbulb, Target, Rocket } from 'lucide-react';
+import valueDesign from '@/assets/value-design.webp';
+import valueResults from '@/assets/value-results.webp';
+import valueSpeed from '@/assets/value-speed.webp';
 
 const values = [
   {
@@ -7,18 +10,21 @@ const values = [
     icon: Lightbulb,
     title: 'Design estratégico',
     description: 'Cada elemento do seu site é pensado para guiar o visitante até a ação desejada. Nada é por acaso.',
+    image: valueDesign,
   },
   {
     id: 2,
     icon: Target,
     title: 'Foco em resultados',
     description: 'Sites bonitos são ótimos, mas sites que convertem são ainda melhores. Meu objetivo é te ajudar a crescer.',
+    image: valueResults,
   },
   {
     id: 3,
     icon: Rocket,
     title: 'Entrega rápida',
     description: 'Prazo de 7 dias do início ao lançamento. Sem enrolação, sem atrasos. Seu tempo é valioso.',
+    image: valueSpeed,
   },
 ];
 
@@ -44,8 +50,8 @@ const itemVariants = {
 export function Testimonials() {
   return (
     <section className="py-20 md:py-32 relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-glow-gradient pointer-events-none opacity-30" />
+      {/* Background Glow - Reduced */}
+      <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-glow-gradient pointer-events-none opacity-15" />
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
@@ -72,20 +78,33 @@ export function Testimonials() {
             <motion.div
               key={value.id}
               variants={itemVariants}
-              className="glass-card p-8 text-center group hover:bg-card/60 transition-colors duration-300"
+              className="glass-card overflow-hidden group hover:bg-card/60 transition-colors duration-300"
             >
-              {/* Icon */}
-              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
-                <value.icon className="w-8 h-8 text-primary" />
+              {/* Image */}
+              <div className="relative h-40 overflow-hidden">
+                <img 
+                  src={value.image} 
+                  alt={value.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
+                
+                {/* Icon overlay */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
+                  <value.icon className="w-6 h-6 text-primary" />
+                </div>
               </div>
 
               {/* Content */}
-              <h3 className="text-xl font-bold text-foreground mb-4">
-                {value.title}
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                {value.description}
-              </p>
+              <div className="p-6 text-center">
+                <h3 className="text-xl font-bold text-foreground mb-4">
+                  {value.title}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {value.description}
+                </p>
+              </div>
             </motion.div>
           ))}
         </motion.div>
