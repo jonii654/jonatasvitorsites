@@ -24,7 +24,7 @@ export function Footer() {
           {/* Logo & Copyright */}
           <div className="text-center md:text-left">
             <a href="#" className="text-xl font-bold text-foreground">
-              Jonatas <span className="text-muted-foreground font-normal">— Criador de Sites</span>
+              Jônatas Vitor <span className="text-muted-foreground font-normal">— Criador de Sites</span>
             </a>
             <p className="text-sm text-muted-foreground mt-2">
               © {currentYear} Todos os direitos reservados.

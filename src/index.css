@@ -344,4 +344,20 @@
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
   }
+
+  /* Gradient shift animation for text mask */
+  @keyframes gradientShift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Text mask video effect class */
+  .text-mask-gradient {
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease-in-out infinite;
+  }
 }

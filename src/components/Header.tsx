@@ -39,7 +39,7 @@ export function Header() {
           {/* Logo */}
           <a href="#" className="flex items-center gap-2">
             <span className="text-xl md:text-2xl font-bold text-foreground">
-              Jonatas
+              Jônatas Vitor
             </span>
             <span className="text-sm md:text-base text-muted-foreground">
               — Criador de Sites

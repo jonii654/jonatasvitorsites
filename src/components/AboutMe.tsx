@@ -41,7 +41,7 @@ export function AboutMe() {
                   <div className="relative overflow-hidden rounded-[22px] aspect-[3/4] bg-card">
                     <img
                       src={profileImage}
-                      alt="Jonatas Vitor - Criador de Sites"
+                      alt="Jônatas Vitor - Criador de Sites"
                       className="w-full h-full object-cover object-center"
                     />
                     
@@ -51,7 +51,7 @@ export function AboutMe() {
                     {/* Name badge at bottom */}
                     <div className="absolute bottom-4 left-4 right-4">
                       <div className="glass-card px-4 py-3">
-                        <p className="text-lg font-bold text-foreground">Jonatas Vitor</p>
+                        <p className="text-lg font-bold text-foreground">Jônatas Vitor</p>
                         <p className="text-sm text-primary">Criador de Sites</p>
                       </div>
                     </div>
@@ -72,7 +72,7 @@ export function AboutMe() {
               
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
                 Prazer, sou o{' '}
-                <span className="gradient-text">Jonatas</span>
+                <span className="gradient-text">Jônatas</span>
               </h2>
               
               <div className="space-y-4 text-muted-foreground text-base md:text-lg">

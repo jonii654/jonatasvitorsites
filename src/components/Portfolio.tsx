@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ExternalLink, Play } from 'lucide-react';
-import { useState } from 'react';
+import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 
 interface Project {
@@ -49,46 +49,29 @@ const projects: Project[] = [
   },
 ];
 
-const categories = ['Todos', 'Landing Page', 'Portfólio', 'E-commerce'];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5 },
-  },
-};
-
 export function Portfolio() {
-  const [activeCategory, setActiveCategory] = useState('Todos');
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
 
-  const filteredProjects = activeCategory === 'Todos'
-    ? projects
-    : projects.filter(p => p.category === activeCategory);
+  // Horizontal scroll transform based on vertical scroll
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
 
   return (
     <section id="portfolio" className="py-20 md:py-32 relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-glow-gradient pointer-events-none opacity-30" />
       
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative z-10 mb-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center"
         >
           <span className="section-label">Protótipos</span>
           <h2 className="section-title">
@@ -98,96 +81,117 @@ export function Portfolio() {
             Esses são modelos e protótipos para demonstrar meu estilo e qualidade de trabalho
           </p>
         </motion.div>
+      </div>
 
-        {/* Category Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex flex-wrap justify-center gap-3 mb-12"
+      {/* Horizontal Scrolling Portfolio with Parallax */}
+      <div ref={containerRef} className="relative">
+        <motion.div 
+          style={{ x }}
+          className="flex gap-6 px-4 md:px-8"
         >
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeCategory === category
-                  ? 'bg-primary text-primary-foreground shadow-glow'
-                  : 'glass-card text-muted-foreground hover:text-foreground hover:bg-muted/50'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </motion.div>
-
-        {/* Projects Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
-        >
-          {filteredProjects.map((project) => (
+          {projects.map((project, index) => (
             <motion.div
               key={project.id}
-              variants={itemVariants}
-              layout
-              className="glass-card-hover group overflow-hidden"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="flex-shrink-0 w-[85vw] md:w-[500px] lg:w-[600px]"
             >
-              <div className="flex flex-col md:flex-row">
-                {/* Image */}
-                <div className="relative md:w-1/2 aspect-video md:aspect-auto overflow-hidden">
-                  <img
+              <div className="glass-card-hover group overflow-hidden h-full">
+                {/* Image Container */}
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <motion.img
                     src={project.image}
                     alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover"
                     loading="lazy"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.5 }}
+                  />
+                  
+                  {/* Multi-layer parallax overlay */}
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent"
+                    initial={{ opacity: 0.5 }}
+                    whileHover={{ opacity: 0.8 }}
                   />
                   
                   {/* Video Badge */}
                   {project.hasVideo && (
-                    <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-primary/90 backdrop-blur-sm rounded-full">
+                    <motion.div 
+                      className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-primary/90 backdrop-blur-sm rounded-full"
+                      whileHover={{ scale: 1.1 }}
+                    >
                       <Play className="w-3 h-3 text-primary-foreground" fill="currentColor" />
                       <span className="text-xs font-medium text-primary-foreground">Vídeo</span>
-                    </div>
+                    </motion.div>
                   )}
 
+                  {/* Category Tag */}
+                  <div className="absolute top-4 right-4">
+                    <span className="px-3 py-1 text-xs font-medium rounded-full bg-background/80 backdrop-blur-sm text-primary border border-primary/30">
+                      {project.category}
+                    </span>
+                  </div>
+
                   {/* Overlay on Hover */}
-                  <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <motion.div 
+                    className="absolute inset-0 bg-background/60 flex items-center justify-center"
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <Button variant="secondary" size="sm" className="gap-2">
                       <ExternalLink className="w-4 h-4" />
                       Ver projeto
                     </Button>
-                  </div>
+                  </motion.div>
                 </div>
 
                 {/* Content */}
-                <div className="md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
-                  <div>
-                    <span className="text-xs font-medium text-primary uppercase tracking-wider">
-                      {project.category}
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-foreground mb-2">
+                    {project.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                    {project.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                    <span className="text-sm text-muted-foreground">Tipo:</span>
+                    <span className="text-sm font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">
+                      {project.type}
                     </span>
-                    <h3 className="text-xl font-bold text-foreground mt-2 mb-3">
-                      {project.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {project.description}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-border/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Tipo:</span>
-                      <span className="text-sm font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">{project.type}</span>
-                    </div>
                   </div>
                 </div>
               </div>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Scroll Indicator */}
+        <motion.div 
+          className="flex justify-center mt-8 gap-2"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          <span className="text-sm text-muted-foreground flex items-center gap-2">
+            <motion.span
+              animate={{ x: [0, 10, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              ←
+            </motion.span>
+            Deslize para ver mais
+            <motion.span
+              animate={{ x: [0, -10, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              →
+            </motion.span>
+          </span>
         </motion.div>
       </div>
     </section>
