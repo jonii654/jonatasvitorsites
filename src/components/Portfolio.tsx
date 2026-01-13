@@ -16,35 +16,27 @@ interface Project {
 const projects: Project[] = [
   {
     id: 1,
-    title: 'E-commerce de Moda',
-    category: 'E-commerce',
-    description: 'Loja virtual completa com checkout otimizado e design premium.',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=500&fit=crop',
+    title: 'Landing Page Advocacia',
+    category: 'Landing Page',
+    description: 'Página de alta conversão para escritório de advocacia com design sofisticado.',
+    image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=500&fit=crop',
+    type: 'Protótipo',
+  },
+  {
+    id: 2,
+    title: 'Site Institucional Clínica',
+    category: 'Site Institucional',
+    description: 'Site profissional para clínica médica com agendamento integrado.',
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=500&fit=crop',
     type: 'Protótipo',
     hasVideo: true,
   },
   {
-    id: 2,
+    id: 3,
     title: 'Landing Page SaaS',
     category: 'Landing Page',
     description: 'Página de captura com design moderno para software B2B.',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop',
-    type: 'Protótipo',
-  },
-  {
-    id: 3,
-    title: 'Portfólio Fotógrafo',
-    category: 'Portfólio',
-    description: 'Galeria interativa com carregamento rápido e visual impactante.',
-    image: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=800&h=500&fit=crop',
-    type: 'Protótipo',
-  },
-  {
-    id: 4,
-    title: 'Clínica Odontológica',
-    category: 'Landing Page',
-    description: 'Site institucional com design profissional e moderno.',
-    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=500&fit=crop',
     type: 'Protótipo',
   },
 ];
@@ -67,10 +59,10 @@ export function Portfolio() {
         >
           <span className="section-label">Protótipos</span>
           <h2 className="section-title">
-            Exemplos do que posso criar
+            Especialista em Landing Pages & Sites Institucionais
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-            Esses são modelos e protótipos para demonstrar meu estilo e qualidade de trabalho
+            Foco total em criar páginas que convertem visitantes em clientes. Confira exemplos do meu trabalho.
           </p>
         </motion.div>
       </div>
@@ -93,7 +85,7 @@ export function Portfolio() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="flex-shrink-0 w-[85vw] md:w-[450px] lg:w-[500px]"
+              className="flex-shrink-0 w-[80vw] md:w-[380px] lg:w-[420px]"
               style={{ scrollSnapAlign: 'start' }}
             >
               <div className="glass-card-hover group overflow-hidden h-full">
@@ -134,15 +126,15 @@ export function Portfolio() {
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-foreground mb-2">
+                <div className="p-5">
+                  <h3 className="text-lg font-bold text-foreground mb-2">
                     {project.title}
                   </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                     {project.description}
                   </p>
                   
-                  <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                  <div className="flex items-center justify-between pt-3 border-t border-border/50">
                     <span className="text-sm text-muted-foreground">Tipo:</span>
                     <span className="text-sm font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">
                       {project.type}
