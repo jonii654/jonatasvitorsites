@@ -1,11 +1,61 @@
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { MessageCircle, ArrowRight, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
+import portfolioMosaic1 from '@/assets/portfolio-mosaic-1.webp';
+import portfolioMosaic2 from '@/assets/portfolio-mosaic-2.webp';
+import portfolioMosaic3 from '@/assets/portfolio-mosaic-3.webp';
+import portfolioMosaic4 from '@/assets/portfolio-mosaic-4.webp';
 
 const WHATSAPP_NUMBER = "551931990107";
 
+// Portfolio mosaic images with positions
+const portfolioMosaics = [
+  { src: portfolioMosaic1, position: 'top-left' },
+  { src: portfolioMosaic2, position: 'top-right' },
+  { src: portfolioMosaic3, position: 'bottom-left' },
+  { src: portfolioMosaic4, position: 'bottom-right' },
+];
+
 export function CTASection() {
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero agendar uma conversa sobre criação de sites.`;
+
+  // Mouse position for ultra-light 3D tilt effect
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  const springConfig = { damping: 35, stiffness: 80 };
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [3, -3]), springConfig);
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-3, 3]), springConfig);
+  
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+      const x = (clientX / innerWidth) - 0.5;
+      const y = (clientY / innerHeight) - 0.5;
+      mouseX.set(x);
+      mouseY.set(y);
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [mouseX, mouseY]);
+
+  const getPositionClasses = (position: string) => {
+    switch (position) {
+      case 'top-left':
+        return 'top-8 md:top-16 left-4 md:left-16';
+      case 'top-right':
+        return 'top-8 md:top-16 right-4 md:right-16';
+      case 'bottom-left':
+        return 'bottom-8 md:bottom-16 left-4 md:left-16';
+      case 'bottom-right':
+        return 'bottom-8 md:bottom-16 right-4 md:right-16';
+      default:
+        return '';
+    }
+  };
 
   return (
     <section className="py-20 md:py-32 relative overflow-hidden">
@@ -64,6 +114,38 @@ export function CTASection() {
           />
         ))}
       </div>
+
+      {/* Portfolio Mosaic Images - 4 corners with ultra-light 3D effect */}
+      {portfolioMosaics.map((mosaic, index) => (
+        <motion.div
+          key={mosaic.position}
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
+          style={{
+            rotateX,
+            rotateY,
+            transformStyle: 'preserve-3d',
+          }}
+          className={`absolute ${getPositionClasses(mosaic.position)} w-24 md:w-40 lg:w-48 pointer-events-none hidden sm:block`}
+        >
+          <motion.img
+            src={mosaic.src}
+            alt=""
+            className="w-full rounded-xl shadow-2xl opacity-40 hover:opacity-60 transition-opacity"
+            style={{
+              transform: 'translateZ(10px)',
+              border: '1px solid hsl(195 100% 50% / 0.2)',
+            }}
+          />
+          {/* Glow effect */}
+          <div 
+            className="absolute inset-0 rounded-xl blur-xl -z-10 opacity-30"
+            style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.3), hsl(155 100% 50% / 0.2))' }}
+          />
+        </motion.div>
+      ))}
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
