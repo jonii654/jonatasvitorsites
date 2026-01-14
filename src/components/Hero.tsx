@@ -1,7 +1,7 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import layoutTop from '@/assets/layout-mockup-top.webp';
 import layoutBottom from '@/assets/layout-mockup-bottom.webp';
 import layoutLeft from '@/assets/layout-mockup-left.webp';
@@ -28,6 +28,30 @@ const floatingDots = [
 export function Hero() {
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero saber mais sobre criação de sites.`;
   const sectionRef = useRef<HTMLElement>(null);
+  
+  // Mouse position for 3D tilt effect
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  // Spring physics for smooth tilt
+  const springConfig = { damping: 25, stiffness: 150 };
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [15, -15]), springConfig);
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-15, 15]), springConfig);
+  
+  // Handle mouse move for tilt effect
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+      const x = (clientX / innerWidth) - 0.5;
+      const y = (clientY / innerHeight) - 0.5;
+      mouseX.set(x);
+      mouseY.set(y);
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [mouseX, mouseY]);
   
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -97,66 +121,106 @@ export function Hero() {
           ))}
         </div>
         
-        {/* Layout Mockup Images - Top */}
+        {/* Layout Mockup Images - Top with 3D Tilt */}
         <motion.div
-          style={{ y: topImageY }}
+          style={{ 
+            y: topImageY,
+            rotateX: rotateX,
+            rotateY: rotateY,
+            transformStyle: 'preserve-3d',
+            perspective: 1000
+          }}
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
           className="absolute top-4 md:top-8 left-1/2 -translate-x-1/2 w-[95%] md:w-[75%] max-w-4xl pointer-events-none"
         >
-          <img 
+          <motion.img 
             src={layoutTop} 
             alt="" 
-            className="w-full opacity-30 blur-[0.5px] rounded-xl"
+            className="w-full opacity-30 blur-[0.5px] rounded-xl shadow-2xl"
+            style={{ 
+              transformStyle: 'preserve-3d',
+              transform: 'translateZ(20px)'
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
         </motion.div>
 
-        {/* Layout Mockup Images - Left */}
+        {/* Layout Mockup Images - Left with 3D Tilt */}
         <motion.div
-          style={{ y: leftImageY }}
+          style={{ 
+            y: leftImageY,
+            rotateX: rotateX,
+            rotateY: useSpring(useTransform(mouseX, [-0.5, 0.5], [-20, 20]), springConfig),
+            transformStyle: 'preserve-3d',
+            perspective: 1000
+          }}
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.6 }}
           className="absolute top-1/2 -translate-y-1/2 left-2 md:left-8 w-[35%] md:w-[25%] max-w-xs pointer-events-none hidden md:block"
         >
-          <img 
+          <motion.img 
             src={layoutLeft} 
             alt="" 
-            className="w-full opacity-25 blur-[0.5px] rounded-xl"
+            className="w-full opacity-25 blur-[0.5px] rounded-xl shadow-2xl"
+            style={{ 
+              transformStyle: 'preserve-3d',
+              transform: 'translateZ(30px)'
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
         </motion.div>
 
-        {/* Layout Mockup Images - Right */}
+        {/* Layout Mockup Images - Right with 3D Tilt */}
         <motion.div
-          style={{ y: rightImageY }}
+          style={{ 
+            y: rightImageY,
+            rotateX: rotateX,
+            rotateY: useSpring(useTransform(mouseX, [-0.5, 0.5], [-20, 20]), springConfig),
+            transformStyle: 'preserve-3d',
+            perspective: 1000
+          }}
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.8 }}
           className="absolute top-1/2 -translate-y-1/2 right-2 md:right-8 w-[35%] md:w-[25%] max-w-xs pointer-events-none hidden md:block"
         >
-          <img 
+          <motion.img 
             src={layoutRight} 
             alt="" 
-            className="w-full opacity-25 blur-[0.5px] rounded-xl"
+            className="w-full opacity-25 blur-[0.5px] rounded-xl shadow-2xl"
+            style={{ 
+              transformStyle: 'preserve-3d',
+              transform: 'translateZ(30px)'
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-l from-background via-transparent to-transparent" />
         </motion.div>
 
-        {/* Layout Mockup Images - Bottom */}
+        {/* Layout Mockup Images - Bottom with 3D Tilt */}
         <motion.div
-          style={{ y: bottomImageY }}
+          style={{ 
+            y: bottomImageY,
+            rotateX: rotateX,
+            rotateY: rotateY,
+            transformStyle: 'preserve-3d',
+            perspective: 1000
+          }}
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.7 }}
           className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[95%] md:w-[75%] max-w-4xl pointer-events-none"
         >
-          <img 
+          <motion.img 
             src={layoutBottom} 
             alt="" 
-            className="w-full opacity-30 blur-[0.5px] rounded-xl"
+            className="w-full opacity-30 blur-[0.5px] rounded-xl shadow-2xl"
+            style={{ 
+              transformStyle: 'preserve-3d',
+              transform: 'translateZ(20px)'
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-background" />
         </motion.div>
