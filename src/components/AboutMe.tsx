@@ -15,13 +15,7 @@ export function AboutMe() {
     offset: ["start end", "end start"]
   });
 
-  // Auto-rotate carousel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentPhoto((prev) => (prev + 1) % photos.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+// Gallery is now manual-only - no auto-play
 
   // Subtle parallax - optimized for mobile
   const y = useTransform(scrollYProgress, [0, 1], [30, -30]);

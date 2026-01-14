@@ -9,20 +9,22 @@ import layoutRight from '@/assets/layout-mockup-right.webp';
 
 const WHATSAPP_NUMBER = "551931990107";
 
-// Pre-computed floating dots for performance
+// Larger floating dots with more movement and pulse effect - GPU optimized
 const floatingDots = [
-  { x: '10%', y: '15%', size: 4, color: 'hsl(195 100% 50%)', duration: 6, delay: 0 },
-  { x: '85%', y: '20%', size: 3, color: 'hsl(155 100% 50%)', duration: 7, delay: 0.5 },
-  { x: '20%', y: '75%', size: 5, color: 'hsl(195 100% 50%)', duration: 8, delay: 1 },
-  { x: '75%', y: '80%', size: 3, color: 'hsl(155 100% 50%)', duration: 6.5, delay: 1.5 },
-  { x: '50%', y: '10%', size: 4, color: 'hsl(195 100% 50%)', duration: 7.5, delay: 0.3 },
-  { x: '5%', y: '50%', size: 3, color: 'hsl(155 100% 50%)', duration: 6, delay: 0.8 },
-  { x: '92%', y: '55%', size: 4, color: 'hsl(195 100% 50%)', duration: 8, delay: 1.2 },
-  { x: '30%', y: '90%', size: 3, color: 'hsl(155 100% 50%)', duration: 7, delay: 0.6 },
-  { x: '65%', y: '5%', size: 5, color: 'hsl(195 100% 50%)', duration: 6.5, delay: 1.8 },
-  { x: '15%', y: '35%', size: 3, color: 'hsl(155 100% 50%)', duration: 7.5, delay: 0.2 },
-  { x: '80%', y: '40%', size: 4, color: 'hsl(195 100% 50%)', duration: 6, delay: 1.1 },
-  { x: '45%', y: '85%', size: 3, color: 'hsl(155 100% 50%)', duration: 8, delay: 0.9 },
+  { x: '8%', y: '12%', size: 10, color: 'hsl(195 100% 50%)', duration: 5, delay: 0, moveRange: 40 },
+  { x: '88%', y: '18%', size: 8, color: 'hsl(155 100% 50%)', duration: 6, delay: 0.3, moveRange: 35 },
+  { x: '15%', y: '70%', size: 12, color: 'hsl(195 100% 50%)', duration: 7, delay: 0.6, moveRange: 50 },
+  { x: '78%', y: '75%', size: 9, color: 'hsl(155 100% 50%)', duration: 5.5, delay: 0.9, moveRange: 45 },
+  { x: '45%', y: '8%', size: 11, color: 'hsl(195 100% 50%)', duration: 6.5, delay: 0.2, moveRange: 38 },
+  { x: '3%', y: '45%', size: 8, color: 'hsl(155 100% 50%)', duration: 5, delay: 0.5, moveRange: 42 },
+  { x: '95%', y: '50%', size: 10, color: 'hsl(195 100% 50%)', duration: 7, delay: 0.8, moveRange: 48 },
+  { x: '25%', y: '88%', size: 9, color: 'hsl(155 100% 50%)', duration: 6, delay: 0.4, moveRange: 40 },
+  { x: '68%', y: '5%', size: 12, color: 'hsl(195 100% 50%)', duration: 5.5, delay: 1.2, moveRange: 55 },
+  { x: '12%', y: '32%', size: 8, color: 'hsl(155 100% 50%)', duration: 6.5, delay: 0.1, moveRange: 36 },
+  { x: '82%', y: '38%', size: 11, color: 'hsl(195 100% 50%)', duration: 5, delay: 0.7, moveRange: 44 },
+  { x: '40%', y: '82%', size: 9, color: 'hsl(155 100% 50%)', duration: 7, delay: 1.0, moveRange: 52 },
+  { x: '55%', y: '55%', size: 7, color: 'hsl(195 100% 50%)', duration: 6, delay: 1.4, moveRange: 30 },
+  { x: '30%', y: '20%', size: 10, color: 'hsl(155 100% 50%)', duration: 5.5, delay: 0.15, moveRange: 46 },
 ];
 
 export function Hero() {
@@ -33,10 +35,10 @@ export function Hero() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
-  // Spring physics for smooth tilt
-  const springConfig = { damping: 25, stiffness: 150 };
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [15, -15]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-15, 15]), springConfig);
+  // Spring physics for ultra light 3D tilt - optimized for mobile
+  const springConfig = { damping: 30, stiffness: 100 };
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [5, -5]), springConfig);
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
   
   // Handle mouse move for tilt effect
   useEffect(() => {
@@ -91,7 +93,7 @@ export function Hero() {
           className="absolute inset-0 hex-pattern opacity-5"
         />
 
-        {/* Floating Dots - GPU accelerated with will-change and transform */}
+        {/* Floating Dots - Larger with pulse effect, GPU accelerated */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {dots.map((dot, i) => (
             <motion.div
@@ -103,13 +105,15 @@ export function Hero() {
                 width: dot.size,
                 height: dot.size,
                 background: dot.color,
-                opacity: 0.4,
                 willChange: 'transform, opacity',
-                transform: 'translateZ(0)',
+                transform: 'translate3d(0,0,0)',
+                boxShadow: `0 0 ${dot.size * 2}px ${dot.color}`,
               }}
               animate={{
-                y: [0, -20, 0],
-                opacity: [0.3, 0.6, 0.3],
+                y: [0, -dot.moveRange, 0, dot.moveRange * 0.5, 0],
+                x: [0, dot.moveRange * 0.3, 0, -dot.moveRange * 0.3, 0],
+                opacity: [0.4, 0.8, 0.4, 0.7, 0.4],
+                scale: [1, 1.3, 1, 1.2, 1],
               }}
               transition={{
                 duration: dot.duration,
@@ -133,7 +137,7 @@ export function Hero() {
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="absolute top-4 md:top-8 left-1/2 -translate-x-1/2 w-[95%] md:w-[75%] max-w-4xl pointer-events-none"
+          className="absolute top-4 md:top-8 left-1/2 -translate-x-1/2 w-[60%] md:w-[75%] max-w-4xl pointer-events-none"
         >
           <motion.img 
             src={layoutTop} 
@@ -159,7 +163,7 @@ export function Hero() {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.6 }}
-          className="absolute top-1/2 -translate-y-1/2 left-2 md:left-8 w-[35%] md:w-[25%] max-w-xs pointer-events-none hidden md:block"
+          className="absolute top-1/2 -translate-y-1/2 left-2 md:left-8 w-[22%] md:w-[20%] max-w-xs pointer-events-none hidden md:block"
         >
           <motion.img 
             src={layoutLeft} 
@@ -185,7 +189,7 @@ export function Hero() {
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.8 }}
-          className="absolute top-1/2 -translate-y-1/2 right-2 md:right-8 w-[35%] md:w-[25%] max-w-xs pointer-events-none hidden md:block"
+          className="absolute top-1/2 -translate-y-1/2 right-2 md:right-8 w-[22%] md:w-[20%] max-w-xs pointer-events-none hidden md:block"
         >
           <motion.img 
             src={layoutRight} 
@@ -211,7 +215,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.7 }}
-          className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[95%] md:w-[75%] max-w-4xl pointer-events-none"
+          className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[60%] md:w-[75%] max-w-4xl pointer-events-none"
         >
           <motion.img 
             src={layoutBottom} 
