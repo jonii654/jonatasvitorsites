@@ -11,6 +11,7 @@ interface Project {
   image: string;
   type: string;
   hasVideo?: boolean;
+  link?: string;
 }
 
 const projects: Project[] = [
@@ -21,6 +22,7 @@ const projects: Project[] = [
     description: 'Página de alta conversão para escritório de advocacia com design sofisticado.',
     image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=500&fit=crop',
     type: 'Protótipo',
+    link: 'https://advocaciaprototipo.lovable.app',
   },
   {
     id: 2,
@@ -118,10 +120,24 @@ export function Portfolio() {
 
                   {/* Overlay on Hover */}
                   <div className="absolute inset-0 bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Button variant="secondary" size="sm" className="gap-2">
-                      <ExternalLink className="w-4 h-4" />
-                      Ver projeto
-                    </Button>
+                    {project.link ? (
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="gap-2 active:scale-95 transition-transform duration-150"
+                        asChild
+                      >
+                        <a href={project.link} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-4 h-4" />
+                          Ver projeto
+                        </a>
+                      </Button>
+                    ) : (
+                      <Button variant="secondary" size="sm" className="gap-2 active:scale-95 transition-transform duration-150">
+                        <ExternalLink className="w-4 h-4" />
+                        Ver projeto
+                      </Button>
+                    )}
                   </div>
                 </div>
 

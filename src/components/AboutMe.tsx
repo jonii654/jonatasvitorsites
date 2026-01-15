@@ -55,10 +55,11 @@ export function AboutMe() {
                         src={photos[currentPhoto]}
                         alt="Jônatas Vitor - Criador de Sites"
                         className="w-full h-full object-cover object-center"
-                        initial={{ opacity: 0, scale: 1.1 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.5 }}
+                        loading="eager"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.4, ease: 'easeOut' }}
                       />
                     </AnimatePresence>
                     
@@ -69,13 +70,13 @@ export function AboutMe() {
                     <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2">
                       <button 
                         onClick={prevPhoto}
-                        className="w-8 h-8 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center text-foreground hover:bg-background/80 transition-colors"
+                        className="w-8 h-8 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center text-foreground hover:bg-background/80 active:scale-90 transition-all duration-150"
                       >
                         <ChevronLeft className="w-5 h-5" />
                       </button>
                       <button 
                         onClick={nextPhoto}
-                        className="w-8 h-8 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center text-foreground hover:bg-background/80 transition-colors"
+                        className="w-8 h-8 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center text-foreground hover:bg-background/80 active:scale-90 transition-all duration-150"
                       >
                         <ChevronRight className="w-5 h-5" />
                       </button>
