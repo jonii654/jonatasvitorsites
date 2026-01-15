@@ -163,7 +163,7 @@ export function Hero() {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.6 }}
-          className="absolute top-1/2 -translate-y-1/2 left-2 md:left-8 w-[22%] md:w-[20%] max-w-xs pointer-events-none hidden md:block"
+          className="absolute top-1/2 -translate-y-1/2 left-2 md:left-8 w-[18%] md:w-[20%] max-w-xs pointer-events-none"
         >
           <motion.img 
             src={layoutLeft} 
@@ -189,7 +189,7 @@ export function Hero() {
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.8 }}
-          className="absolute top-1/2 -translate-y-1/2 right-2 md:right-8 w-[22%] md:w-[20%] max-w-xs pointer-events-none hidden md:block"
+          className="absolute top-1/2 -translate-y-1/2 right-2 md:right-8 w-[18%] md:w-[20%] max-w-xs pointer-events-none"
         >
           <motion.img 
             src={layoutRight} 

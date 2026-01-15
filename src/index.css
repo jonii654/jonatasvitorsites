@@ -370,4 +370,28 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Touch feedback for interactive elements */
+  .touch-feedback {
+    @apply transition-all duration-150 ease-out;
+  }
+
+  .touch-feedback:active {
+    @apply scale-95 opacity-80;
+  }
+}
+
+/* Global touch feedback for buttons and links */
+@layer base {
+  button:not([disabled]),
+  a[href],
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:not([disabled]):active,
+  [role="button"]:active {
+    transform: scale(0.97);
+    transition: transform 150ms ease-out;
+  }
 }
