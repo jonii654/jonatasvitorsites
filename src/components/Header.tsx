@@ -83,22 +83,22 @@ export function Header() {
         </nav>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Lightweight */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-            className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden bg-background/95 backdrop-blur-md border-b border-border/50"
           >
-            <div className="container mx-auto px-4 py-6 flex flex-col gap-4">
+            <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
               {navItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
-                  className="text-base font-medium text-foreground py-2 active:text-primary transition-colors duration-150"
+                  className="text-sm font-medium text-foreground/90 py-1.5 active:text-primary transition-colors duration-150"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
@@ -106,11 +106,12 @@ export function Header() {
               ))}
               <Button
                 asChild
-                className="btn-cta w-full mt-4 active:scale-95 transition-transform duration-150"
+                size="sm"
+                className="btn-cta w-full mt-2"
               >
                 <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="w-5 h-5" />
-                  Fale no WhatsApp
+                  <MessageCircle className="w-4 h-4" />
+                  WhatsApp
                 </a>
               </Button>
             </div>
