@@ -269,7 +269,7 @@ export function CTASection() {
             transition={{ delay: 0.6 }}
             className="text-sm text-muted-foreground mt-6"
           >
-            Respondo em até 2 horas durante o horário comercial
+            Vem criar sua presença digital
           </motion.p>
         </motion.div>
       </div>
