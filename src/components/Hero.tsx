@@ -83,14 +83,39 @@ export function Hero() {
     >
       {/* Sticky Container */}
       <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
+        {/* Video Background - Ultra fluid */}
+        <div className="absolute inset-0 z-0">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover opacity-40"
+            style={{
+              filter: 'blur(1px) saturate(1.2)',
+              transform: 'scale(1.05)',
+            }}
+          >
+            <source src="/videos/background-effect.mp4" type="video/mp4" />
+          </video>
+          {/* Gradient overlay to blend video with theme */}
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(to bottom, hsl(220 50% 8% / 0.6) 0%, hsl(220 50% 8% / 0.4) 50%, hsl(220 50% 8% / 0.8) 100%)'
+            }}
+          />
+        </div>
+
         {/* Background Effects - Layer 1 (Fastest) */}
         <motion.div 
           style={{ y: layer1Y }}
-          className="absolute inset-0 bg-hero-gradient"
+          className="absolute inset-0 bg-hero-gradient z-[1]"
         />
         <motion.div 
           style={{ y: layer1Y }}
-          className="absolute inset-0 hex-pattern opacity-5"
+          className="absolute inset-0 hex-pattern opacity-5 z-[1]"
         />
 
         {/* Floating Dots - CSS animation for better mobile performance */}
