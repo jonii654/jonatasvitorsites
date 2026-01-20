@@ -97,23 +97,28 @@ export function Header() {
       </header>
 
       {/* Mobile Drawer Overlay */}
-      <div
-        className={`fixed inset-0 bg-background/60 backdrop-blur-sm z-[55] md:hidden drawer-overlay-transition ${
-          isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={() => setIsMobileMenuOpen(false)}
-      />
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[55] md:hidden"
+          style={{
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
 
       {/* Mobile Drawer Menu - Slides from right */}
       <div
-        className={`fixed top-0 right-0 h-full w-[75%] max-w-[300px] z-[60] md:hidden drawer-menu-transition ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className="fixed top-0 h-full w-[75%] max-w-[300px] z-[60] md:hidden"
         style={{
+          right: 0,
           background: 'hsl(220 50% 10% / 0.95)',
           backdropFilter: 'blur(24px)',
           borderLeft: '1px solid hsl(195 100% 50% / 0.15)',
-          boxShadow: '-10px 0 40px hsl(220 50% 8% / 0.8)'
+          boxShadow: isMobileMenuOpen ? '-10px 0 40px hsl(220 50% 8% / 0.8)' : 'none',
+          transform: isMobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
+          transition: 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+          visibility: isMobileMenuOpen ? 'visible' : 'hidden'
         }}
       >
         <div className="flex flex-col h-full pt-20 px-6 pb-8">
