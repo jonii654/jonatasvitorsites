@@ -1,31 +1,13 @@
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useRef, useMemo, useState, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import layoutTop from '@/assets/layout-mockup-top.webp';
 import layoutBottom from '@/assets/layout-mockup-bottom.webp';
 import layoutLeft from '@/assets/layout-mockup-left.webp';
 import layoutRight from '@/assets/layout-mockup-right.webp';
 
 const WHATSAPP_NUMBER = "551931990107";
-
-// Larger floating dots with more movement and pulse effect - GPU optimized
-const floatingDots = [
-  { x: '8%', y: '12%', size: 10, color: 'hsl(195 100% 50%)', duration: 5, delay: 0, moveRange: 40 },
-  { x: '88%', y: '18%', size: 8, color: 'hsl(155 100% 50%)', duration: 6, delay: 0.3, moveRange: 35 },
-  { x: '15%', y: '70%', size: 12, color: 'hsl(195 100% 50%)', duration: 7, delay: 0.6, moveRange: 50 },
-  { x: '78%', y: '75%', size: 9, color: 'hsl(155 100% 50%)', duration: 5.5, delay: 0.9, moveRange: 45 },
-  { x: '45%', y: '8%', size: 11, color: 'hsl(195 100% 50%)', duration: 6.5, delay: 0.2, moveRange: 38 },
-  { x: '3%', y: '45%', size: 8, color: 'hsl(155 100% 50%)', duration: 5, delay: 0.5, moveRange: 42 },
-  { x: '95%', y: '50%', size: 10, color: 'hsl(195 100% 50%)', duration: 7, delay: 0.8, moveRange: 48 },
-  { x: '25%', y: '88%', size: 9, color: 'hsl(155 100% 50%)', duration: 6, delay: 0.4, moveRange: 40 },
-  { x: '68%', y: '5%', size: 12, color: 'hsl(195 100% 50%)', duration: 5.5, delay: 1.2, moveRange: 55 },
-  { x: '12%', y: '32%', size: 8, color: 'hsl(155 100% 50%)', duration: 6.5, delay: 0.1, moveRange: 36 },
-  { x: '82%', y: '38%', size: 11, color: 'hsl(195 100% 50%)', duration: 5, delay: 0.7, moveRange: 44 },
-  { x: '40%', y: '82%', size: 9, color: 'hsl(155 100% 50%)', duration: 7, delay: 1.0, moveRange: 52 },
-  { x: '55%', y: '55%', size: 7, color: 'hsl(195 100% 50%)', duration: 6, delay: 1.4, moveRange: 30 },
-  { x: '30%', y: '20%', size: 10, color: 'hsl(155 100% 50%)', duration: 5.5, delay: 0.15, moveRange: 46 },
-];
 
 export function Hero() {
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero saber mais sobre criação de sites.`;
@@ -73,46 +55,13 @@ export function Hero() {
   const leftImageY = useTransform(scrollYProgress, [0, 1], [0, -60]);
   const rightImageY = useTransform(scrollYProgress, [0, 1], [0, -70]);
 
-  // Memoize dots to prevent re-renders
-  const dots = useMemo(() => floatingDots, []);
-
   return (
     <section 
       ref={sectionRef}
       className="relative min-h-[150vh] overflow-hidden"
     >
       {/* Sticky Container */}
-      <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Effects - Layer 1 (Fastest) */}
-        <motion.div 
-          style={{ y: layer1Y }}
-          className="absolute inset-0 bg-hero-gradient"
-        />
-        <motion.div 
-          style={{ y: layer1Y }}
-          className="absolute inset-0 hex-pattern opacity-5"
-        />
-
-        {/* Floating Dots - CSS animation for better mobile performance */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {dots.map((dot, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full animate-pulse"
-              style={{
-                left: dot.x,
-                top: dot.y,
-                width: dot.size,
-                height: dot.size,
-                background: dot.color,
-                boxShadow: `0 0 ${dot.size * 2}px ${dot.color}`,
-                opacity: 0.5,
-                animation: `floatDot${i % 3} ${dot.duration}s ease-in-out infinite`,
-                animationDelay: `${dot.delay}s`,
-              }}
-            />
-          ))}
-        </div>
+      <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden bg-background">
         
         {/* Layout Mockup Images - Top with 3D Tilt */}
         <motion.div
@@ -126,12 +75,12 @@ export function Hero() {
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="absolute top-4 md:top-8 left-1/2 -translate-x-1/2 w-[60%] md:w-[75%] max-w-4xl pointer-events-none"
+          className="absolute top-4 md:top-8 left-1/2 -translate-x-1/2 w-[60%] md:w-[75%] max-w-4xl pointer-events-none z-[1]"
         >
           <motion.img 
             src={layoutTop} 
             alt="" 
-            className="w-full opacity-30 blur-[0.5px] rounded-xl shadow-2xl"
+            className="w-full opacity-40 rounded-xl shadow-2xl"
             style={{ 
               transformStyle: 'preserve-3d',
               transform: 'translateZ(20px)'
@@ -152,12 +101,12 @@ export function Hero() {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.6 }}
-          className="absolute top-1/2 -translate-y-1/2 left-2 md:left-8 w-[18%] md:w-[20%] max-w-xs pointer-events-none"
+          className="absolute top-1/2 -translate-y-1/2 left-2 md:left-8 w-[18%] md:w-[20%] max-w-xs pointer-events-none z-[1]"
         >
           <motion.img 
             src={layoutLeft} 
             alt="" 
-            className="w-full opacity-25 blur-[0.5px] rounded-xl shadow-2xl"
+            className="w-full opacity-35 rounded-xl shadow-2xl"
             style={{ 
               transformStyle: 'preserve-3d',
               transform: 'translateZ(30px)'
@@ -178,12 +127,12 @@ export function Hero() {
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.8 }}
-          className="absolute top-1/2 -translate-y-1/2 right-2 md:right-8 w-[18%] md:w-[20%] max-w-xs pointer-events-none"
+          className="absolute top-1/2 -translate-y-1/2 right-2 md:right-8 w-[18%] md:w-[20%] max-w-xs pointer-events-none z-[1]"
         >
           <motion.img 
             src={layoutRight} 
             alt="" 
-            className="w-full opacity-25 blur-[0.5px] rounded-xl shadow-2xl"
+            className="w-full opacity-35 rounded-xl shadow-2xl"
             style={{ 
               transformStyle: 'preserve-3d',
               transform: 'translateZ(30px)'
@@ -204,31 +153,19 @@ export function Hero() {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.7 }}
-          className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[60%] md:w-[75%] max-w-4xl pointer-events-none"
+          className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[60%] md:w-[75%] max-w-4xl pointer-events-none z-[1]"
         >
           <motion.img 
             src={layoutBottom} 
             alt="" 
-            className="w-full opacity-30 blur-[0.5px] rounded-xl shadow-2xl"
+            className="w-full opacity-40 rounded-xl shadow-2xl"
             style={{ 
               transformStyle: 'preserve-3d',
               transform: 'translateZ(20px)'
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-background" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         </motion.div>
-        
-        {/* Subtle ambient glow - positioned away from center content */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div 
-            className="absolute -top-1/4 -left-1/4 w-[400px] h-[400px] rounded-full blur-[150px] opacity-20"
-            style={{ background: 'hsl(195 100% 50%)' }}
-          />
-          <div 
-            className="absolute -bottom-1/4 -right-1/4 w-[400px] h-[400px] rounded-full blur-[150px] opacity-15"
-            style={{ background: 'hsl(155 100% 50%)' }}
-          />
-        </div>
         
         {/* Main Content - Layer 3 (Slowest, sticky feel) */}
         <motion.div 
