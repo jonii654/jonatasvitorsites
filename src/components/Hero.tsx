@@ -218,52 +218,26 @@ export function Hero() {
           <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-background" />
         </motion.div>
         
-        {/* Floating Orbs - Layer 2 (Medium) - Reduced brightness */}
-        <motion.div
-          style={{ y: layer2Y }}
-          className="absolute inset-0 pointer-events-none"
-        >
-          <motion.div
-            animate={{ 
-              x: [0, 30, -20, 20, 0],
-              y: [0, -20, 20, 10, 0],
-              scale: [1, 1.1, 0.95, 1.05, 1]
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-cyan-glow/3 blur-[100px]"
+        {/* Subtle ambient glow - positioned away from center content */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div 
+            className="absolute -top-1/4 -left-1/4 w-[400px] h-[400px] rounded-full blur-[150px] opacity-20"
+            style={{ background: 'hsl(195 100% 50%)' }}
           />
-          
-          <motion.div
-            animate={{ 
-              x: [0, -30, 20, -10, 0],
-              y: [0, 20, -30, 15, 0],
-              scale: [1, 0.95, 1.1, 1, 1]
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute top-1/3 right-1/4 w-[350px] h-[350px] rounded-full blur-[120px]"
-            style={{ background: 'hsl(155 100% 50% / 0.02)' }}
+          <div 
+            className="absolute -bottom-1/4 -right-1/4 w-[400px] h-[400px] rounded-full blur-[150px] opacity-15"
+            style={{ background: 'hsl(155 100% 50%)' }}
           />
-
-          {/* Central mixed glow - Reduced */}
-          <motion.div
-            animate={{ 
-              scale: [1, 1.05, 1],
-              opacity: [0.04, 0.06, 0.04]
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[150px]"
-            style={{ background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.04), hsl(155 100% 50% / 0.02))' }}
-          />
-        </motion.div>
+        </div>
         
         {/* Main Content - Layer 3 (Slowest, sticky feel) */}
         <motion.div 
           style={{ y: layer3Y, opacity: textOpacity, scale: textScale }}
-          className="container mx-auto px-4 relative z-10"
+          className="container mx-auto px-4 relative z-20"
         >
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-4xl mx-auto text-center pt-16 md:pt-0">
             
-            {/* Text Mask Effect - Large Display Text - BOLD & POWERFUL */}
+            {/* Clean, Bold Headline */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
@@ -272,24 +246,21 @@ export function Hero() {
             >
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none tracking-tight">
                 <span 
-                  className="block"
+                  className="block text-white"
                   style={{
-                    color: 'hsl(200 100% 97%)',
-                    textShadow: '0 0 40px hsl(195 100% 50% / 0.4), 0 0 80px hsl(195 100% 50% / 0.2), 0 2px 4px hsl(220 50% 8% / 0.8)'
+                    textShadow: '0 2px 4px hsl(220 50% 5% / 0.5)'
                   }}
                 >
                   CRIO SITES
                 </span>
                 <span 
-                  className="block text-mask-gradient"
+                  className="block"
                   style={{
-                    background: 'linear-gradient(135deg, hsl(195 100% 55%) 0%, hsl(155 100% 60%) 50%, hsl(195 100% 65%) 100%)',
+                    background: 'linear-gradient(135deg, hsl(195 100% 60%) 0%, hsl(155 100% 55%) 100%)',
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
-                    backgroundSize: '200% 200%',
-                    animation: 'gradientShift 3s ease-in-out infinite',
-                    filter: 'drop-shadow(0 0 30px hsl(155 100% 50% / 0.5)) drop-shadow(0 0 60px hsl(195 100% 50% / 0.3))'
+                    textShadow: 'none'
                   }}
                 >
                   QUE VENDEM
