@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -28,7 +27,7 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 header-transition ${
         isScrolled
           ? 'bg-background/80 backdrop-blur-xl border-b border-border/50'
           : 'bg-transparent'
@@ -83,41 +82,35 @@ export function Header() {
         </nav>
       </div>
 
-      {/* Mobile Menu - Lightweight */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden bg-background/95 backdrop-blur-md border-b border-border/50"
+      {/* Mobile Menu - Pure CSS transitions, no Framer Motion */}
+      <div
+        className={`md:hidden mobile-menu-transition bg-background/95 backdrop-blur-md border-b border-border/50 overflow-hidden ${
+          isMobileMenuOpen ? 'mobile-menu-open' : 'mobile-menu-closed'
+        }`}
+      >
+        <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
+          {navItems.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              className="text-sm font-medium text-foreground/90 py-1.5 active:text-primary transition-colors duration-150"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {item.label}
+            </a>
+          ))}
+          <Button
+            asChild
+            size="sm"
+            className="btn-cta w-full mt-2"
           >
-            <div className="container mx-auto px-4 py-4 flex flex-col gap-3">
-              {navItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="text-sm font-medium text-foreground/90 py-1.5 active:text-primary transition-colors duration-150"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </a>
-              ))}
-              <Button
-                asChild
-                size="sm"
-                className="btn-cta w-full mt-2"
-              >
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="w-4 h-4" />
-                  WhatsApp
-                </a>
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="w-4 h-4" />
+              WhatsApp
+            </a>
+          </Button>
+        </div>
+      </div>
     </header>
   );
 }
