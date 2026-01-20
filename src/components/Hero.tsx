@@ -1,13 +1,24 @@
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useRef, useEffect } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import layoutTop from '@/assets/layout-mockup-top.webp';
 import layoutBottom from '@/assets/layout-mockup-bottom.webp';
 import layoutLeft from '@/assets/layout-mockup-left.webp';
 import layoutRight from '@/assets/layout-mockup-right.webp';
 
 const WHATSAPP_NUMBER = "551931990107";
+
+// Floating dots configuration
+const floatingDots = [
+  { x: '8%', y: '12%', size: 8, color: 'hsl(195 100% 50%)', duration: 5 },
+  { x: '88%', y: '18%', size: 6, color: 'hsl(155 100% 50%)', duration: 6 },
+  { x: '15%', y: '70%', size: 10, color: 'hsl(195 100% 50%)', duration: 7 },
+  { x: '78%', y: '75%', size: 7, color: 'hsl(155 100% 50%)', duration: 5.5 },
+  { x: '45%', y: '8%', size: 9, color: 'hsl(195 100% 50%)', duration: 6.5 },
+  { x: '95%', y: '50%', size: 8, color: 'hsl(195 100% 50%)', duration: 7 },
+  { x: '68%', y: '5%', size: 10, color: 'hsl(195 100% 50%)', duration: 5.5 },
+];
 
 export function Hero() {
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero saber mais sobre criação de sites.`;
@@ -17,7 +28,7 @@ export function Hero() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
-  // Spring physics for ultra light 3D tilt - optimized for mobile
+  // Spring physics for ultra light 3D tilt
   const springConfig = { damping: 30, stiffness: 100 };
   const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [5, -5]), springConfig);
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
@@ -44,7 +55,6 @@ export function Hero() {
 
   // Multi-layer parallax transforms
   const layer1Y = useTransform(scrollYProgress, [0, 1], [0, -150]);
-  const layer2Y = useTransform(scrollYProgress, [0, 1], [0, -100]);
   const layer3Y = useTransform(scrollYProgress, [0, 1], [0, -50]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const textScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
@@ -55,13 +65,56 @@ export function Hero() {
   const leftImageY = useTransform(scrollYProgress, [0, 1], [0, -60]);
   const rightImageY = useTransform(scrollYProgress, [0, 1], [0, -70]);
 
+  const dots = useMemo(() => floatingDots, []);
+
   return (
     <section 
       ref={sectionRef}
       className="relative min-h-[150vh] overflow-hidden"
     >
       {/* Sticky Container */}
-      <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden bg-background">
+      <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
+        {/* Background gradient */}
+        <motion.div 
+          style={{ y: layer1Y }}
+          className="absolute inset-0 bg-hero-gradient"
+        />
+        <motion.div 
+          style={{ y: layer1Y }}
+          className="absolute inset-0 hex-pattern opacity-5"
+        />
+
+        {/* Floating Dots */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {dots.map((dot, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                left: dot.x,
+                top: dot.y,
+                width: dot.size,
+                height: dot.size,
+                background: dot.color,
+                boxShadow: `0 0 ${dot.size * 2}px ${dot.color}`,
+                opacity: 0.6,
+                animation: `floatDot${i % 3} ${dot.duration}s ease-in-out infinite`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Ambient glow orbs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div 
+            className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full blur-[100px] opacity-20"
+            style={{ background: 'hsl(195 100% 50%)' }}
+          />
+          <div 
+            className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] rounded-full blur-[120px] opacity-15"
+            style={{ background: 'hsl(155 100% 50%)' }}
+          />
+        </div>
         
         {/* Layout Mockup Images - Top with 3D Tilt */}
         <motion.div
