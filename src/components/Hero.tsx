@@ -385,43 +385,6 @@ export function Hero() {
               </div>
             </motion.div>
 
-            {/* Benefits Bar - Large & Prominent */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.9 }}
-              className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-12 mt-8"
-            >
-              {[
-                { icon: 'primary', text: 'Design Premium' },
-                { icon: 'green', text: 'Entrega em até 7 dias' },
-                { icon: 'primary', text: 'Suporte incluído' }
-              ].map((item, i) => (
-                <motion.div 
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.0 + i * 0.15, duration: 0.5 }}
-                  className="flex items-center gap-3"
-                >
-                  <CheckCircle2 
-                    className="w-6 h-6 md:w-7 md:h-7" 
-                    style={{ 
-                      color: item.icon === 'green' ? 'hsl(155 100% 50%)' : 'hsl(195 100% 50%)',
-                      filter: `drop-shadow(0 0 8px ${item.icon === 'green' ? 'hsl(155 100% 50% / 0.5)' : 'hsl(195 100% 50% / 0.5)'})`
-                    }} 
-                  />
-                  <span 
-                    className="text-lg md:text-xl lg:text-2xl font-semibold text-white"
-                    style={{
-                      textShadow: '0 2px 4px hsl(220 50% 5% / 0.5)'
-                    }}
-                  >
-                    {item.text}
-                  </span>
-                </motion.div>
-              ))}
-            </motion.div>
           </div>
         </motion.div>
       </div>
