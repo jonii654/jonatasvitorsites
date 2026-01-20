@@ -263,7 +263,7 @@ export function Hero() {
         >
           <div className="max-w-4xl mx-auto text-center">
             
-            {/* Text Mask Effect - Large Display Text - NO SHAKE */}
+            {/* Text Mask Effect - Large Display Text - BOLD & POWERFUL */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
@@ -271,18 +271,25 @@ export function Hero() {
               className="mb-8"
             >
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none tracking-tight">
-                <span className="block text-foreground">
+                <span 
+                  className="block"
+                  style={{
+                    color: 'hsl(200 100% 97%)',
+                    textShadow: '0 0 40px hsl(195 100% 50% / 0.4), 0 0 80px hsl(195 100% 50% / 0.2), 0 2px 4px hsl(220 50% 8% / 0.8)'
+                  }}
+                >
                   CRIO SITES
                 </span>
                 <span 
                   className="block text-mask-gradient"
                   style={{
-                    background: 'linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(155 100% 55%) 50%, hsl(195 100% 60%) 100%)',
+                    background: 'linear-gradient(135deg, hsl(195 100% 55%) 0%, hsl(155 100% 60%) 50%, hsl(195 100% 65%) 100%)',
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundSize: '200% 200%',
-                    animation: 'gradientShift 3s ease-in-out infinite'
+                    animation: 'gradientShift 3s ease-in-out infinite',
+                    filter: 'drop-shadow(0 0 30px hsl(155 100% 50% / 0.5)) drop-shadow(0 0 60px hsl(195 100% 50% / 0.3))'
                   }}
                 >
                   QUE VENDEM
