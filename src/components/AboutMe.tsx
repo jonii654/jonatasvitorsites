@@ -1,5 +1,5 @@
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import photo1 from '@/assets/jonatas-photo-1.jpg';
 import photo2 from '@/assets/jonatas-photo-2.jpg';
@@ -14,8 +14,6 @@ export function AboutMe() {
     target: sectionRef,
     offset: ["start end", "end start"]
   });
-
-// Gallery is now manual-only - no auto-play
 
   // Subtle parallax - optimized for mobile
   const y = useTransform(scrollYProgress, [0, 1], [30, -30]);
@@ -37,7 +35,7 @@ export function AboutMe() {
         <div className="max-w-4xl mx-auto">
           <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
             
-            {/* Profile Image Carousel */}
+            {/* Profile Image Carousel - Pure CSS transitions */}
             <motion.div
               style={{ y, opacity }}
               className="relative order-1 md:order-1"
@@ -49,25 +47,27 @@ export function AboutMe() {
                 {/* Image Container with neon border */}
                 <div className="relative p-1 rounded-3xl bg-gradient-to-br from-primary/60 via-primary/30 to-cyan-light/40">
                   <div className="relative overflow-hidden rounded-[22px] aspect-[3/4] bg-card">
-                    <AnimatePresence mode="wait">
-                      <motion.img
-                        key={currentPhoto}
-                        src={photos[currentPhoto]}
+                    {/* All images preloaded, visibility controlled via CSS */}
+                    {photos.map((photo, idx) => (
+                      <img
+                        key={idx}
+                        src={photo}
                         alt="Jônatas Vitor - Criador de Sites"
-                        className="w-full h-full object-cover object-center"
+                        className="carousel-image absolute inset-0 w-full h-full object-cover object-center"
                         loading="eager"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.4, ease: 'easeOut' }}
+                        decoding="sync"
+                        style={{
+                          opacity: idx === currentPhoto ? 1 : 0,
+                          zIndex: idx === currentPhoto ? 1 : 0,
+                        }}
                       />
-                    </AnimatePresence>
+                    ))}
                     
                     {/* Overlay gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent z-10" />
                     
                     {/* Carousel Controls */}
-                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2">
+                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 z-20">
                       <button 
                         onClick={prevPhoto}
                         className="w-8 h-8 rounded-full bg-background/50 backdrop-blur-sm flex items-center justify-center text-foreground hover:bg-background/80 active:scale-90 transition-all duration-150"
@@ -83,12 +83,12 @@ export function AboutMe() {
                     </div>
 
                     {/* Carousel Indicators */}
-                    <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-2">
+                    <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-2 z-20">
                       {photos.map((_, idx) => (
                         <button
                           key={idx}
                           onClick={() => setCurrentPhoto(idx)}
-                          className={`w-2 h-2 rounded-full transition-all ${
+                          className={`w-2 h-2 rounded-full transition-all duration-200 ${
                             idx === currentPhoto 
                               ? 'bg-primary w-6' 
                               : 'bg-foreground/30 hover:bg-foreground/50'
@@ -98,7 +98,7 @@ export function AboutMe() {
                     </div>
                     
                     {/* Name badge at bottom */}
-                    <div className="absolute bottom-4 left-4 right-4">
+                    <div className="absolute bottom-4 left-4 right-4 z-20">
                       <div className="glass-card px-4 py-3">
                         <p className="text-lg font-bold text-foreground">Jônatas Vitor</p>
                         <p className="text-sm text-primary">Criador de Sites</p>

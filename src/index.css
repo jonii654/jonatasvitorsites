@@ -290,6 +290,41 @@
 }
 
 @layer utilities {
+  /* Header transition - lightweight, GPU accelerated */
+  .header-transition {
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    will-change: transform, opacity;
+  }
+
+  /* Mobile menu transition - pure CSS, no JS animation */
+  .mobile-menu-transition {
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    will-change: max-height, opacity;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .mobile-menu-open {
+    max-height: 300px;
+    opacity: 1;
+  }
+
+  .mobile-menu-closed {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  /* Carousel image - instant transitions, GPU accelerated */
+  .carousel-image {
+    transition: opacity 0.25s ease-out;
+    will-change: opacity;
+    transform: translate3d(0, 0, 0);
+    image-rendering: crisp-edges;
+    -webkit-image-rendering: crisp-edges;
+    backface-visibility: hidden;
+  }
+
   /* CSS Scroll-Driven Reveal Animation - GPU optimized, no JS */
   @keyframes reveal {
     from { 
