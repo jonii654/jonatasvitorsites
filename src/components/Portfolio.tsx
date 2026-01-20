@@ -80,13 +80,9 @@ export function Portfolio() {
         }}
       >
         <div className="flex gap-6 px-4 md:px-8 w-max">
-          {projects.map((project, index) => (
-            <motion.div
+          {projects.map((project) => (
+            <div
               key={project.id}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
               className="flex-shrink-0 w-[80vw] md:w-[380px] lg:w-[420px]"
               style={{ scrollSnapAlign: 'start' }}
             >
@@ -158,7 +154,7 @@ export function Portfolio() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
