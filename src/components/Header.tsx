@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 const WHATSAPP_NUMBER = "551931990107";
 
 const navItems = [
-  { label: 'Serviços', href: '#servicos' },
+  { label: 'Quem Sou Eu', href: '#sobre' },
+  { label: 'Benefícios', href: '#beneficios' },
   { label: 'Portfólio', href: '#portfolio' },
-  { label: 'Resultados', href: '#resultados' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'Perguntas', href: '#faq' },
+  { label: 'Orçamento', href: '#orcamento' },
 ];
 
 export function Header() {

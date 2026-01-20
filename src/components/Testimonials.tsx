@@ -49,7 +49,7 @@ const itemVariants = {
 
 export function Testimonials() {
   return (
-    <section className="py-20 md:py-32 relative overflow-hidden">
+    <section id="beneficios" className="py-20 md:py-32 relative overflow-hidden">
       {/* Background Glow - Reduced */}
       <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-glow-gradient pointer-events-none opacity-15" />
 

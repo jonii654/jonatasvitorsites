@@ -58,7 +58,7 @@ export function CTASection() {
   };
 
   return (
-    <section className="py-20 md:py-32 relative overflow-hidden">
+    <section id="orcamento" className="py-20 md:py-32 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-hero-gradient" />
       <div className="absolute inset-0 hex-pattern opacity-10" />
