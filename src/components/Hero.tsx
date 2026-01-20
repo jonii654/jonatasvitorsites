@@ -93,33 +93,22 @@ export function Hero() {
           className="absolute inset-0 hex-pattern opacity-5"
         />
 
-        {/* Floating Dots - Larger with pulse effect, GPU accelerated */}
+        {/* Floating Dots - CSS animation for better mobile performance */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {dots.map((dot, i) => (
-            <motion.div
+            <div
               key={i}
-              className="absolute rounded-full"
+              className="absolute rounded-full animate-pulse"
               style={{
                 left: dot.x,
                 top: dot.y,
                 width: dot.size,
                 height: dot.size,
                 background: dot.color,
-                willChange: 'transform, opacity',
-                transform: 'translate3d(0,0,0)',
                 boxShadow: `0 0 ${dot.size * 2}px ${dot.color}`,
-              }}
-              animate={{
-                y: [0, -dot.moveRange, 0, dot.moveRange * 0.5, 0],
-                x: [0, dot.moveRange * 0.3, 0, -dot.moveRange * 0.3, 0],
-                opacity: [0.4, 0.8, 0.4, 0.7, 0.4],
-                scale: [1, 1.3, 1, 1.2, 1],
-              }}
-              transition={{
-                duration: dot.duration,
-                repeat: Infinity,
-                delay: dot.delay,
-                ease: "easeInOut"
+                opacity: 0.5,
+                animation: `floatDot${i % 3} ${dot.duration}s ease-in-out infinite`,
+                animationDelay: `${dot.delay}s`,
               }}
             />
           ))}
