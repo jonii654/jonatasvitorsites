@@ -14,32 +14,27 @@ interface Project {
   link?: string;
 }
 
+import portfolioAdvocacia from '@/assets/portfolio-mosaic-1.webp';
+import portfolioVivendo from '@/assets/portfolio-vivendo.png';
+
 const projects: Project[] = [
   {
     id: 1,
     title: 'Landing Page Advocacia',
     category: 'Landing Page',
     description: 'Página de alta conversão para escritório de advocacia com design sofisticado.',
-    image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=500&fit=crop',
+    image: portfolioAdvocacia,
     type: 'Protótipo',
     link: 'https://advocaciaprototipo.lovable.app',
   },
   {
     id: 2,
-    title: 'Site Institucional Clínica',
-    category: 'Site Institucional',
-    description: 'Site profissional para clínica médica com agendamento integrado.',
-    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=500&fit=crop',
-    type: 'Protótipo',
-    hasVideo: true,
-  },
-  {
-    id: 3,
-    title: 'Landing Page SaaS',
+    title: 'Landing Page Venda',
     category: 'Landing Page',
-    description: 'Página de captura com design moderno para software B2B.',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop',
-    type: 'Protótipo',
+    description: 'Página de vendas com design impactante para curso de transformação pessoal.',
+    image: portfolioVivendo,
+    type: 'Projeto Real',
+    link: 'https://vivendoprosperadamente.lovable.app',
   },
 ];
 
