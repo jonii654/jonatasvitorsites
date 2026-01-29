@@ -1,64 +1,60 @@
 
-# Plano: Mover Explicações para Baixo do Notebook
+# Plano: Kinetic Typography nos Blocos
 
-## Problema Identificado
-O texto (título e descrição) está atualmente posicionado **dentro da tela do notebook** com um overlay gradient, o que mistura o texto com o conteúdo do site mockup, prejudicando a legibilidade.
+## O que Vai Mudar
 
-## Solucao Proposta
-Reorganizar o layout para que:
-1. O notebook fique na parte superior/central da tela
-2. O texto (título + descrição) apareça no espaço livre **abaixo do notebook**
-3. Manter tudo dentro da mesma seção
+Em vez do efeito de palavras flutuantes aparecer como fundo da seção inteira, cada um dos 3 cards ("Conversa inicial", "Design & Desenvolvimento", "Lançamento") terá seu próprio efeito de tipografia cinética dentro dele.
 
-## Estrutura do Novo Layout
+## Estrutura Visual
 
 ```text
 +------------------------------------------+
-|     O que você ganha                     |  <- Header (topo)
-|     Compromisso com qualidade            |
+|           Como funciona                  |
+|      Simples e direto ao ponto           |
 +------------------------------------------+
 |                                          |
-|     +----------------------------+       |
-|     |     NOTEBOOK MOCKUP        |       |  <- Notebook (centro-superior)
-|     |     (tela limpa, sem       |       |
-|     |      texto sobreposto)     |       |
-|     +----------------------------+       |
+|  +----------+  +----------+  +----------+|
+|  |    01    |  |    02    |  |    03    ||
+|  |  [icon]  |  |  [icon]  |  |  [icon]  ||
+|  | LANDING  |  | DESIGN   |  | SEO      ||
+|  | PAGE     |  | UI/UX    |  | RAPIDO   ||  <- Palavras flutuando
+|  | Conversa |  | Design & |  | Lança-   ||     dentro de cada card
+|  | inicial  |  | Desenvol |  | mento    ||
+|  +----------+  +----------+  +----------+|
 |                                          |
-|         Design Estratégico               |  <- Título (abaixo do notebook)
-|     Cada elemento pensado para           |  <- Descrição
-|     converter visitantes em clientes.    |
-|                                          |
-|              o o o o                     |  <- Indicadores de progresso
 +------------------------------------------+
 ```
 
 ## Alteracoes Tecnicas
 
-### Arquivo: `src/components/HorizontalNotebookScroll.tsx`
+### Arquivo: `src/components/HowItWorks.tsx`
 
-1. **Componente `NotebookFrame`** - Reestruturar layout:
-   - Alterar de `items-center justify-center` para `flex-col` com distribuição vertical
-   - Mover o notebook para ocupar a parte superior com margem adequada
-   - Adicionar uma área de texto separada **abaixo** do notebook
+1. **Remover fundo global de KineticTypography**:
+   - Remover o bloco das linhas 48-53 que aplica o efeito como fundo da seção
+   - A seção ficará com fundo limpo/transparente
 
-2. **Remover overlay de texto da tela do notebook**:
-   - Remover linhas 137-161 (gradient overlay + content overlay dentro da tela)
-   - A tela do notebook ficará limpa, mostrando apenas o mockup do site
+2. **Criar novo componente `CardKineticBackground`**:
+   - Versão adaptada do KineticTypography que funciona dentro de um card pequeno
+   - Menos palavras (4-6 por card em vez de 30-40)
+   - Tamanho de fonte menor para caber no card
+   - Velocidade mais suave
+   - Cada card terá palavras relacionadas ao seu tema
 
-3. **Criar nova seção de texto abaixo do notebook**:
-   - Adicionar um novo `div` após o frame do notebook
-   - Posicionar título (h3) e descrição (p) centralizados
-   - Aplicar as mesmas animações de fade-in baseadas em `isActive`
-   - Usar espaçamento adequado (`mt-8` ou similar)
+3. **Aplicar efeito dentro de cada card**:
+   - Adicionar o componente de background dentro do `glass-card-hover`
+   - Posicionar com `absolute inset-0` atrás do conteúdo
+   - Aplicar gradiente de fade nas bordas para melhor leitura do texto principal
 
-4. **Ajustar distribuição vertical**:
-   - O notebook deve ocupar aproximadamente 50-60% da altura
-   - O texto deve ocupar o espaço restante antes dos indicadores
-   - Manter os indicadores de progresso e "Role para explorar" na posição atual (bottom)
+### Palavras por Card (tematizadas)
 
-## Beneficios da Mudanca
+- **Card 01 - Conversa**: "BRIEFING", "ESTRATEGIA", "OBJETIVOS", "PUBLICO", "NEGOCIO"
+- **Card 02 - Design**: "DESIGN", "UI/UX", "LAYOUT", "RESPONSIVO", "MODERNO"
+- **Card 03 - Lançamento**: "DEPLOY", "SEO", "RAPIDO", "OTIMIZADO", "PERFORMANCE"
 
-- Legibilidade clara do texto sem sobreposição
-- Mockup do notebook mostra o site completo sem interferência
-- Visual mais limpo e profissional
-- Melhor hierarquia visual entre elementos
+## Resultado Final
+
+- Fundo da seção limpo, sem distrações
+- Cada card tem seu próprio efeito sutil de palavras flutuando
+- Palavras tematizadas criam conexão visual com o conteúdo do passo
+- Efeito mais contido e elegante
+- Melhor legibilidade do texto principal
