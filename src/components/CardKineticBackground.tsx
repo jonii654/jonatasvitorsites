@@ -42,12 +42,12 @@ function CardKineticBackgroundComponent({ words }: CardKineticBackgroundProps) {
     };
 
     const initWords = () => {
-      const wordCount = Math.min(words.length * 3, 15); // More words to fill the card
+      const wordCount = 4; // Fewer words
       wordsRef.current = [];
 
       for (let i = 0; i < wordCount; i++) {
         const direction = Math.floor(Math.random() * 8);
-        const baseSpeed = 0.2 + Math.random() * 0.3;
+        const baseSpeed = 0.15 + Math.random() * 0.2;
         
         let vx = 0, vy = 0;
         switch (direction) {
@@ -67,8 +67,8 @@ function CardKineticBackgroundComponent({ words }: CardKineticBackgroundProps) {
           y: Math.random() * height,
           vx,
           vy,
-          size: 12 + Math.random() * 10, // Bigger text
-          opacity: 0.25 + Math.random() * 0.2, // More visible
+          size: 9 + Math.random() * 5, // Smaller text
+          opacity: 0.18 + Math.random() * 0.12,
         });
       }
     };
