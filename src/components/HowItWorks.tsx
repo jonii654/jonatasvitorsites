@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { MessageSquare, Palette, Rocket } from 'lucide-react';
+import { KineticTypography } from './KineticTypography';
 
 const steps = [
   {
@@ -43,8 +44,15 @@ const itemVariants = {
 
 export function HowItWorks() {
   return (
-    <section id="servicos" className="py-20 md:py-32 relative">
-      <div className="container mx-auto px-4">
+    <section id="servicos" className="py-20 md:py-32 relative overflow-hidden">
+      {/* Kinetic Typography Background */}
+      <div className="absolute inset-0">
+        <KineticTypography />
+        {/* Gradient overlay to ensure content readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background/40" />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -76,7 +84,7 @@ export function HowItWorks() {
                 <div className="hidden md:block absolute top-12 left-[calc(50%+3rem)] w-[calc(100%-6rem)] h-px bg-gradient-to-r from-primary/50 to-transparent" />
               )}
 
-              <div className="glass-card-hover p-8 text-center relative">
+              <div className="glass-card-hover p-8 text-center relative backdrop-blur-md">
                 {/* Step Number */}
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-full">
                   {step.number}
