@@ -44,7 +44,7 @@ const slides: NotebookSlide[] = [
 function NotebookFrame({ slide, isActive }: { slide: NotebookSlide; isActive: boolean }) {
   return (
     <motion.div
-      className="flex-shrink-0 w-screen h-screen flex flex-col items-center justify-start px-4 snap-center pt-24 md:pt-28"
+      className="flex-shrink-0 w-screen h-screen flex flex-col items-center justify-center px-4 snap-center"
       initial={{ opacity: 0.5, scale: 0.9 }}
       animate={{ 
         opacity: isActive ? 1 : 0.5, 
@@ -52,7 +52,7 @@ function NotebookFrame({ slide, isActive }: { slide: NotebookSlide; isActive: bo
       }}
       transition={{ duration: 0.4, ease: 'easeInOut' }}
     >
-      <div className="relative max-w-4xl w-full">
+      <div className="relative max-w-4xl w-full scale-[0.65] md:scale-100 origin-center">
         {/* Outer glow effect when active */}
         <motion.div 
           className="absolute -inset-4 rounded-3xl pointer-events-none"
@@ -223,9 +223,9 @@ function NotebookFrame({ slide, isActive }: { slide: NotebookSlide; isActive: bo
         </div>
 
         {/* Text content below notebook */}
-        <div className="text-center mt-8 md:mt-12 px-4">
+        <div className="text-center mt-4 md:mt-8 px-4">
           <motion.h3 
-            className="text-2xl md:text-4xl font-bold text-foreground mb-3"
+            className="text-xl md:text-4xl font-bold text-foreground mb-2 md:mb-3"
             style={{
               textShadow: isActive ? '0 0 20px hsl(var(--primary) / 0.5)' : 'none'
             }}
@@ -236,7 +236,7 @@ function NotebookFrame({ slide, isActive }: { slide: NotebookSlide; isActive: bo
             {slide.title}
           </motion.h3>
           <motion.p 
-            className="text-base md:text-xl text-muted-foreground max-w-md mx-auto"
+            className="text-sm md:text-xl text-muted-foreground max-w-md mx-auto"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: isActive ? 0 : 20, opacity: isActive ? 1 : 0 }}
             transition={{ delay: 0.3, duration: 0.4 }}
@@ -306,13 +306,13 @@ export function HorizontalNotebookScroll() {
         
         {/* Header */}
         <motion.div 
-          className="absolute top-8 md:top-16 left-0 right-0 z-20 text-center px-4"
+          className="absolute top-4 md:top-16 left-0 right-0 z-20 text-center px-4"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : -20 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="section-label">O que você ganha</span>
-          <h2 className="section-title">Compromisso com qualidade</h2>
+          <span className="section-label text-xs md:text-sm">O que você ganha</span>
+          <h2 className="section-title text-xl md:text-4xl">Compromisso com qualidade</h2>
         </motion.div>
 
         {/* Horizontal scroll container */}
