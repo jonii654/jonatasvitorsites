@@ -52,7 +52,7 @@ function NotebookFrame({ slide, isActive }: { slide: NotebookSlide; isActive: bo
       }}
       transition={{ duration: 0.4, ease: 'easeInOut' }}
     >
-      <div className="relative max-w-4xl w-full scale-[0.65] md:scale-100 origin-center">
+      <div className="relative max-w-5xl w-full scale-[0.85] md:scale-110 origin-center">
         {/* Outer glow effect when active */}
         <motion.div 
           className="absolute -inset-4 rounded-3xl pointer-events-none"
