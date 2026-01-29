@@ -2,7 +2,7 @@ import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
 import { BenefitsBar } from '@/components/BenefitsBar';
 import { AboutMe } from '@/components/AboutMe';
-import { MyCommitment } from '@/components/MyCommitment';
+import { HorizontalNotebookScroll } from '@/components/HorizontalNotebookScroll';
 import { HowItWorks } from '@/components/HowItWorks';
 import { Portfolio } from '@/components/Portfolio';
 import { Testimonials } from '@/components/Testimonials';
@@ -21,8 +21,8 @@ const Index = () => {
         <BenefitsBar />
         <AboutMe />
         
-        {/* Meu compromisso com você - Cards com Scroll Reveal individual */}
-        <MyCommitment />
+        {/* Horizontal Notebook Scroll - Compromisso com qualidade */}
+        <HorizontalNotebookScroll />
         
         {/* Video background starts AFTER notebook section */}
         <div className="relative">
