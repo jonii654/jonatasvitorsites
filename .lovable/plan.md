@@ -1,60 +1,93 @@
 
-# Plano: Kinetic Typography nos Blocos
+# Plano: Scroll Reveal Exclusivo na Seção "Por que me Escolher"
 
 ## O que Vai Mudar
 
-Em vez do efeito de palavras flutuantes aparecer como fundo da seção inteira, cada um dos 3 cards ("Conversa inicial", "Design & Desenvolvimento", "Lançamento") terá seu próprio efeito de tipografia cinética dentro dele.
+Cada um dos 3 blocos vai aparecer **sozinho na tela** enquanto o usuário faz scroll. Quando termina de ver um bloco, ele sai e o próximo entra. O usuário não vê múltiplos blocos ao mesmo tempo.
 
 ## Estrutura Visual
 
 ```text
 +------------------------------------------+
-|           Como funciona                  |
-|      Simples e direto ao ponto           |
+|        Por que me escolher               |
+|      Meu compromisso com você            |
 +------------------------------------------+
 |                                          |
-|  +----------+  +----------+  +----------+|
-|  |    01    |  |    02    |  |    03    ||
-|  |  [icon]  |  |  [icon]  |  |  [icon]  ||
-|  | LANDING  |  | DESIGN   |  | SEO      ||
-|  | PAGE     |  | UI/UX    |  | RAPIDO   ||  <- Palavras flutuando
-|  | Conversa |  | Design & |  | Lança-   ||     dentro de cada card
-|  | inicial  |  | Desenvol |  | mento    ||
-|  +----------+  +----------+  +----------+|
+|         +------------------+             |
+|         |   Design         |             |
+|         |   estratégico    |  <- Bloco 1 |
+|         |   [imagem/icon]  |     sozinho |
+|         +------------------+             |
+|                                          |
++------------------------------------------+
+         [scroll down]
++------------------------------------------+
+|                                          |
+|         +------------------+             |
+|         |   Foco em        |             |
+|         |   resultados     |  <- Bloco 2 |
+|         |   [imagem/icon]  |     sozinho |
+|         +------------------+             |
+|                                          |
++------------------------------------------+
+         [scroll down]
++------------------------------------------+
+|                                          |
+|         +------------------+             |
+|         |   Entrega        |             |
+|         |   rápida         |  <- Bloco 3 |
+|         |   [imagem/icon]  |     sozinho |
+|         +------------------+             |
 |                                          |
 +------------------------------------------+
 ```
 
+## Comportamento do Scroll
+
+1. O titulo da secao fica fixo no topo enquanto os cards passam
+2. Cada card entra com animacao de fade + scale quando chega sua vez
+3. Enquanto um card esta visivel, os outros ficam escondidos
+4. Transicao suave entre cards conforme o scroll
+5. Depois do ultimo card, a secao termina e o scroll continua normal
+
 ## Alteracoes Tecnicas
 
-### Arquivo: `src/components/HowItWorks.tsx`
+### Arquivo: `src/components/Testimonials.tsx`
 
-1. **Remover fundo global de KineticTypography**:
-   - Remover o bloco das linhas 48-53 que aplica o efeito como fundo da seção
-   - A seção ficará com fundo limpo/transparente
+1. **Usar scroll-based animation com posicao fixa**:
+   - Container da secao tera `position: sticky` ou altura aumentada para "travar" o scroll
+   - Usar `useScroll` e `useTransform` do Framer Motion para controlar visibilidade dos cards
 
-2. **Criar novo componente `CardKineticBackground`**:
-   - Versão adaptada do KineticTypography que funciona dentro de um card pequeno
-   - Menos palavras (4-6 por card em vez de 30-40)
-   - Tamanho de fonte menor para caber no card
-   - Velocidade mais suave
-   - Cada card terá palavras relacionadas ao seu tema
+2. **Container com altura controlada**:
+   - Secao tera altura de `300vh` (3 vezes a tela) para criar espaco de scroll
+   - Conteudo visivel fica `sticky` no centro enquanto rola
 
-3. **Aplicar efeito dentro de cada card**:
-   - Adicionar o componente de background dentro do `glass-card-hover`
-   - Posicionar com `absolute inset-0` atrás do conteúdo
-   - Aplicar gradiente de fade nas bordas para melhor leitura do texto principal
+3. **Logica de visibilidade por card**:
+   - Card 1: visivel de 0% a 33% do scroll da secao
+   - Card 2: visivel de 33% a 66% do scroll da secao
+   - Card 3: visivel de 66% a 100% do scroll da secao
 
-### Palavras por Card (tematizadas)
+4. **Animacoes de entrada/saida**:
+   - Cada card entra com `opacity: 0 -> 1`, `y: 60 -> 0`, `scale: 0.9 -> 1`
+   - Cada card sai com `opacity: 1 -> 0`, `y: 0 -> -60`, `scale: 1 -> 0.9`
 
-- **Card 01 - Conversa**: "BRIEFING", "ESTRATEGIA", "OBJETIVOS", "PUBLICO", "NEGOCIO"
-- **Card 02 - Design**: "DESIGN", "UI/UX", "LAYOUT", "RESPONSIVO", "MODERNO"
-- **Card 03 - Lançamento**: "DEPLOY", "SEO", "RAPIDO", "OTIMIZADO", "PERFORMANCE"
+5. **Manter responsividade**:
+   - Em mobile, comportamento similar mas com cards menores
+   - Altura da secao ajustada para mobile (`250vh`)
+
+## Implementacao Detalhada
+
+```text
+Estrutura do componente:
+- ref para container da secao
+- useScroll({ target: ref }) para obter progresso
+- useTransform para calcular opacidade/posicao de cada card
+- Cards posicionados com position: absolute dentro de container sticky
+```
 
 ## Resultado Final
 
-- Fundo da seção limpo, sem distrações
-- Cada card tem seu próprio efeito sutil de palavras flutuando
-- Palavras tematizadas criam conexão visual com o conteúdo do passo
-- Efeito mais contido e elegante
-- Melhor legibilidade do texto principal
+- Experiencia cinematica e imersiva
+- Foco total em cada beneficio, um por vez
+- Transicoes suaves controladas pelo scroll do usuario
+- Visual moderno e diferenciado
