@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Lightbulb, Target, Rocket } from 'lucide-react';
 import valueDesign from '@/assets/value-design.webp';
 import valueResults from '@/assets/value-results.webp';
@@ -28,113 +29,122 @@ const values = [
   },
 ];
 
-// Individual scroll reveal variants for each card
-const cardRevealVariants = {
-  hidden: { 
-    opacity: 0, 
-    y: 60,
-    scale: 0.95,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { 
-      duration: 0.7,
-      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number], // Custom cubic bezier
-    },
-  },
-};
+interface ValueCardProps {
+  value: typeof values[0];
+  index: number;
+  scrollYProgress: ReturnType<typeof useScroll>['scrollYProgress'];
+}
+
+function ValueCard({ value, index, scrollYProgress }: ValueCardProps) {
+  const totalCards = values.length;
+  const segmentSize = 1 / totalCards;
+  
+  // Each card has its own range within the scroll
+  const startRange = index * segmentSize;
+  const peakStart = startRange + segmentSize * 0.2;
+  const peakEnd = startRange + segmentSize * 0.8;
+  const endRange = (index + 1) * segmentSize;
+
+  // Opacity: fade in -> stay visible -> fade out
+  const opacity = useTransform(
+    scrollYProgress,
+    [startRange, peakStart, peakEnd, endRange],
+    [0, 1, 1, 0]
+  );
+
+  // Y position: come from below -> center -> exit above
+  const y = useTransform(
+    scrollYProgress,
+    [startRange, peakStart, peakEnd, endRange],
+    [60, 0, 0, -60]
+  );
+
+  // Scale: grow in -> full size -> shrink out
+  const scale = useTransform(
+    scrollYProgress,
+    [startRange, peakStart, peakEnd, endRange],
+    [0.9, 1, 1, 0.9]
+  );
+
+  return (
+    <motion.div
+      className="absolute inset-0 flex items-center justify-center px-4"
+      style={{ opacity, y, scale }}
+    >
+      <div className="glass-card overflow-hidden max-w-md w-full">
+        {/* Image */}
+        <div className="relative h-48 overflow-hidden">
+          <img 
+            src={value.image} 
+            alt={value.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
+          
+          {/* Icon overlay */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-14 h-14 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
+            <value.icon className="w-7 h-7 text-primary" />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-8 text-center">
+          <h3 className="text-2xl font-bold text-foreground mb-4">
+            {value.title}
+          </h3>
+          <p className="text-muted-foreground leading-relaxed text-lg">
+            {value.description}
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 export function Testimonials() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
   return (
-    <section id="beneficios" className="py-20 md:py-32 relative overflow-hidden">
-      {/* Background Glow - Reduced */}
-      <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-glow-gradient pointer-events-none opacity-15" />
+    <section 
+      ref={containerRef}
+      id="beneficios" 
+      className="relative h-[300vh] md:h-[300vh]"
+    >
+      {/* Background Glow */}
+      <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-glow-gradient pointer-events-none opacity-15" />
 
-      <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <span className="section-label">Por que me escolher</span>
-          <h2 className="section-title">
-            Meu compromisso com você
-          </h2>
-        </motion.div>
+      {/* Sticky container */}
+      <div className="sticky top-0 h-screen flex flex-col overflow-hidden">
+        {/* Header - stays at top */}
+        <div className="pt-20 md:pt-24 pb-8 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <span className="section-label">Por que me escolher</span>
+            <h2 className="section-title">
+              Meu compromisso com você
+            </h2>
+          </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        {/* Cards container - centered */}
+        <div className="flex-1 relative">
           {values.map((value, index) => (
-            <motion.div
+            <ValueCard
               key={value.id}
-              variants={cardRevealVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ 
-                once: true, 
-                amount: 0.4, // Card só aparece quando 40% estiver visível
-                margin: "-50px" // Offset negativo para trigger mais preciso
-              }}
-              className="glass-card overflow-hidden group hover:bg-card/60 transition-colors duration-300"
-              style={{
-                // Delay progressivo para desktop (lado a lado)
-                transitionDelay: `${index * 0.1}s`
-              }}
-            >
-              {/* Image */}
-              <div className="relative h-40 overflow-hidden">
-                <motion.img 
-                  src={value.image} 
-                  alt={value.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.5 }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
-                
-                {/* Icon overlay with individual animation */}
-                <motion.div 
-                  className="absolute bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center border border-primary/30"
-                  initial={{ scale: 0, opacity: 0 }}
-                  whileInView={{ scale: 1, opacity: 1 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ 
-                    delay: 0.3,
-                    duration: 0.4,
-                    type: "spring",
-                    stiffness: 200
-                  }}
-                >
-                  <value.icon className="w-6 h-6 text-primary" />
-                </motion.div>
-              </div>
-
-              {/* Content with staggered reveal */}
-              <div className="p-6 text-center">
-                <motion.h3 
-                  className="text-xl font-bold text-foreground mb-4"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.8 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                >
-                  {value.title}
-                </motion.h3>
-                <motion.p 
-                  className="text-muted-foreground leading-relaxed"
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.8 }}
-                  transition={{ delay: 0.35, duration: 0.5 }}
-                >
-                  {value.description}
-                </motion.p>
-              </div>
-            </motion.div>
+              value={value}
+              index={index}
+              scrollYProgress={scrollYProgress}
+            />
           ))}
         </div>
       </div>
