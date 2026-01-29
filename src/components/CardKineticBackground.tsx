@@ -42,12 +42,12 @@ function CardKineticBackgroundComponent({ words }: CardKineticBackgroundProps) {
     };
 
     const initWords = () => {
-      const wordCount = Math.min(words.length, 6);
+      const wordCount = Math.min(words.length * 3, 15); // More words to fill the card
       wordsRef.current = [];
 
       for (let i = 0; i < wordCount; i++) {
         const direction = Math.floor(Math.random() * 8);
-        const baseSpeed = 0.15 + Math.random() * 0.2;
+        const baseSpeed = 0.2 + Math.random() * 0.3;
         
         let vx = 0, vy = 0;
         switch (direction) {
@@ -67,8 +67,8 @@ function CardKineticBackgroundComponent({ words }: CardKineticBackgroundProps) {
           y: Math.random() * height,
           vx,
           vy,
-          size: 10 + Math.random() * 6,
-          opacity: 0.12 + Math.random() * 0.1,
+          size: 12 + Math.random() * 10, // Bigger text
+          opacity: 0.25 + Math.random() * 0.2, // More visible
         });
       }
     };
@@ -118,11 +118,13 @@ function CardKineticBackgroundComponent({ words }: CardKineticBackgroundProps) {
     <>
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none rounded-2xl"
+        className="absolute inset-0 w-full h-full pointer-events-none"
         aria-hidden="true"
       />
-      {/* Gradient overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/40 to-background/60 rounded-2xl pointer-events-none" />
+      {/* Subtle vignette for text readability in center */}
+      <div className="absolute inset-0 bg-radial-gradient pointer-events-none" style={{
+        background: 'radial-gradient(ellipse at center, hsl(var(--background) / 0.7) 0%, transparent 70%)'
+      }} />
     </>
   );
 }

@@ -80,25 +80,25 @@ export function HowItWorks() {
                 <div className="hidden md:block absolute top-12 left-[calc(50%+3rem)] w-[calc(100%-6rem)] h-px bg-gradient-to-r from-primary/50 to-transparent" />
               )}
 
-              <div className="glass-card-hover p-8 text-center relative backdrop-blur-md overflow-hidden">
-                {/* Kinetic Typography Background inside card */}
+              <div className="relative p-8 text-center overflow-hidden min-h-[280px]">
+                {/* Kinetic Typography IS the card */}
                 <CardKineticBackground words={step.words} />
                 
                 {/* Step Number */}
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-full z-10">
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-full z-10">
                   {step.number}
                 </div>
 
                 {/* Icon */}
-                <div className="relative z-10 w-16 h-16 mx-auto mb-6 mt-4 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
+                <div className="relative z-10 w-16 h-16 mx-auto mb-6 mt-8 rounded-2xl bg-primary/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-primary/30 transition-colors duration-300">
                   <step.icon className="w-8 h-8 text-primary" />
                 </div>
 
                 {/* Content */}
-                <h3 className="relative z-10 text-xl font-bold text-foreground mb-3">
+                <h3 className="relative z-10 text-xl font-bold text-foreground mb-3 drop-shadow-lg">
                   {step.title}
                 </h3>
-                <p className="relative z-10 text-muted-foreground leading-relaxed">
+                <p className="relative z-10 text-muted-foreground leading-relaxed drop-shadow-md">
                   {step.description}
                 </p>
               </div>
