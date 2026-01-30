@@ -265,7 +265,7 @@ export function HorizontalNotebookScroll() {
   const x = useTransform(
     scrollYProgress,
     [0, 1],
-    ['0%', `-${(slides.length - 1) * 100}%`]
+    ['0vw', `-${(slides.length - 1) * 100}vw`]
   );
 
   // Update active index based on scroll progress
