@@ -254,6 +254,15 @@ export function HorizontalNotebookScroll() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isInView, setIsInView] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  );
+
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // Simple offset that tracks progress across the full section height
   const { scrollYProgress } = useScroll({
@@ -265,7 +274,7 @@ export function HorizontalNotebookScroll() {
   const x = useTransform(
     scrollYProgress,
     [0, 1],
-    ['0vw', `-${(slides.length - 1) * 100}vw`]
+    [0, -((slides.length - 1) * viewportWidth)]
   );
 
   // Update active index based on scroll progress
