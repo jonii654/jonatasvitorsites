@@ -1,93 +1,72 @@
 
-# Plano: Scroll Reveal Exclusivo na Seção "Por que me Escolher"
 
-## O que Vai Mudar
+# Plano: Corrigir Layout Mobile - Centralizar e Remover Espaços Invisíveis
 
-Cada um dos 3 blocos vai aparecer **sozinho na tela** enquanto o usuário faz scroll. Quando termina de ver um bloco, ele sai e o próximo entra. O usuário não vê múltiplos blocos ao mesmo tempo.
+## Problema Identificado
 
-## Estrutura Visual
+O site no mobile está com elementos saindo da tela, causando espaço invisível na lateral e aparência "tronxa" (não centralizada). Isso acontece por causa de elementos com posicionamento absoluto que ultrapassam os limites da tela.
 
-```text
-+------------------------------------------+
-|        Por que me escolher               |
-|      Meu compromisso com você            |
-+------------------------------------------+
-|                                          |
-|         +------------------+             |
-|         |   Design         |             |
-|         |   estratégico    |  <- Bloco 1 |
-|         |   [imagem/icon]  |     sozinho |
-|         +------------------+             |
-|                                          |
-+------------------------------------------+
-         [scroll down]
-+------------------------------------------+
-|                                          |
-|         +------------------+             |
-|         |   Foco em        |             |
-|         |   resultados     |  <- Bloco 2 |
-|         |   [imagem/icon]  |     sozinho |
-|         +------------------+             |
-|                                          |
-+------------------------------------------+
-         [scroll down]
-+------------------------------------------+
-|                                          |
-|         +------------------+             |
-|         |   Entrega        |             |
-|         |   rápida         |  <- Bloco 3 |
-|         |   [imagem/icon]  |     sozinho |
-|         +------------------+             |
-|                                          |
-+------------------------------------------+
-```
+## Causas Encontradas
 
-## Comportamento do Scroll
+1. **Overflow horizontal não controlado** - O body/html permite scroll horizontal
+2. **Floating dots na Hero** posicionados muito nas bordas (95%, 92%)
+3. **HorizontalNotebookScroll** usa `w-screen` que pode causar overflow
+4. **Elementos de glow/background** com tamanhos fixos grandes em pixels
+5. **Elementos absolutos** sem contenção adequada
 
-1. O titulo da secao fica fixo no topo enquanto os cards passam
-2. Cada card entra com animacao de fade + scale quando chega sua vez
-3. Enquanto um card esta visivel, os outros ficam escondidos
-4. Transicao suave entre cards conforme o scroll
-5. Depois do ultimo card, a secao termina e o scroll continua normal
+## Correções a Fazer
 
-## Alteracoes Tecnicas
+### 1. Arquivo: `src/index.css`
+- Adicionar `overflow-x: hidden` no `html` e `body` para impedir scroll horizontal
+- Isso é a correção principal que resolve o problema de espaço invisível
 
-### Arquivo: `src/components/Testimonials.tsx`
+### 2. Arquivo: `src/components/Hero.tsx`
+- Ajustar posições dos floating dots que estão nas bordas extremas
+- Reduzir `x: 95%` para `x: 90%`, `x: 92%` para `x: 88%`, etc.
+- Garantir que nenhum elemento ultrapasse os limites visíveis
 
-1. **Usar scroll-based animation com posicao fixa**:
-   - Container da secao tera `position: sticky` ou altura aumentada para "travar" o scroll
-   - Usar `useScroll` e `useTransform` do Framer Motion para controlar visibilidade dos cards
+### 3. Arquivo: `src/components/HorizontalNotebookScroll.tsx`
+- Trocar `w-screen` por `w-full min-w-full` nos slides
+- Isso evita problemas com cálculo de scrollbar no mobile
+- Adicionar `overflow-hidden` no container pai
 
-2. **Container com altura controlada**:
-   - Secao tera altura de `300vh` (3 vezes a tela) para criar espaco de scroll
-   - Conteudo visivel fica `sticky` no centro enquanto rola
+### 4. Arquivo: `src/components/AboutMe.tsx`
+- Reduzir tamanho do background glow de 500px para valores responsivos
+- Usar max-width ou dimensões menores no mobile
 
-3. **Logica de visibilidade por card**:
-   - Card 1: visivel de 0% a 33% do scroll da secao
-   - Card 2: visivel de 33% a 66% do scroll da secao
-   - Card 3: visivel de 66% a 100% do scroll da secao
+### 5. Arquivo: `src/pages/Index.tsx`
+- Adicionar `overflow-x-hidden` no container principal
 
-4. **Animacoes de entrada/saida**:
-   - Cada card entra com `opacity: 0 -> 1`, `y: 60 -> 0`, `scale: 0.9 -> 1`
-   - Cada card sai com `opacity: 1 -> 0`, `y: 0 -> -60`, `scale: 1 -> 0.9`
+### 6. Arquivo: `src/components/CTASection.tsx`
+- Os elementos de mosaic nas bordas já estão `hidden sm:block` (correto)
+- Verificar se as waves animadas estão contidas
 
-5. **Manter responsividade**:
-   - Em mobile, comportamento similar mas com cards menores
-   - Altura da secao ajustada para mobile (`250vh`)
-
-## Implementacao Detalhada
+## Mudanças Específicas
 
 ```text
-Estrutura do componente:
-- ref para container da secao
-- useScroll({ target: ref }) para obter progresso
-- useTransform para calcular opacidade/posicao de cada card
-- Cards posicionados com position: absolute dentro de container sticky
+index.css:
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+Hero.tsx:
+  - x: '95%' → x: '88%'
+  - x: '92%' → x: '86%'
+  - Manter dots dentro de 90% da largura
+
+HorizontalNotebookScroll.tsx:
+  - w-screen → w-full min-w-[100vw]
+  - Adicionar overflow-hidden no sticky container
+
+Index.tsx:
+  - className="min-h-screen bg-background overflow-x-hidden"
 ```
 
-## Resultado Final
+## Resultado Esperado
 
-- Experiencia cinematica e imersiva
-- Foco total em cada beneficio, um por vez
-- Transicoes suaves controladas pelo scroll do usuario
-- Visual moderno e diferenciado
+- Site perfeitamente centralizado no mobile
+- Sem scroll horizontal acidental
+- Sem espaços invisíveis nas laterais
+- Todos os elementos contidos dentro da viewport
+
