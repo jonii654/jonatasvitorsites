@@ -1,89 +1,84 @@
 
-# Plano: Corrigir Scroll-Lock das Seções "O que você ganha" e "Por que me escolher"
+Objetivo
+- Corrigir o “travamento do scroll” (efeito sticky/scroll-lock) nas duas seções:
+  1) “O que você ganha” (HorizontalNotebookScroll)
+  2) “Por que me escolher” (Testimonials)
+- Deixar o comportamento igual ao do 2º vídeo (travando certinho, sem sumir conteúdo).
+- Não mexer no efeito do Card 3D (Interactive3DCard) — manter exatamente como está.
 
-## Problema Identificado
+O que observei no código atual (causas prováveis)
+- As duas seções usam o mesmo padrão de “seção alta (vh) + container sticky + animação guiada por scrollYProgress (Framer Motion)”.
+- Quando o offset do useScroll fica “descalibrado” para uma seção sticky, é comum acontecer:
+  - cards sumirem (opacity vai para 0 em um trecho maior do que deveria)
+  - “buraco” (nenhum card visível durante uma faixa do scroll)
+  - sensação de que o scroll “não trava”, ou trava e volta, ou fica irregular
+- Existe um warning recorrente do Framer Motion: “Please ensure that the container has a non-static position…”, que normalmente aparece quando o elemento usado como referência (target/containers ancestrais que influenciam a medição) não está em posição “relative/absolute/fixed”. Mesmo que as seções sejam relative, vou garantir que os wrappers corretos usados na medição do scroll estejam não-estáticos para eliminar essa instabilidade.
 
-As seções com scroll-lock estão apresentando problemas:
-1. **"Por que me escolher" (Testimonials)**: O conteúdo dos cards está invisível/em branco - os cards não estão aparecendo conforme o usuário rola
-2. O cálculo do `scrollYProgress` não está funcionando corretamente porque a seção está dentro de containers aninhados
+Plano de correção (sem alterar o Card 3D)
 
-## Causas Raiz
+1) Travamento da seção “Por que me escolher” (src/components/Testimonials.tsx)
+1.1 Ajustar o cálculo do progresso (useScroll)
+- Trocar o offset para um padrão mais estável para sticky, que mede o progresso ao longo do “comprimento total” da seção enquanto o sticky fica fixo.
+- Opção recomendada para sticky-sequência:
+  - offset: ["start start", "end start"]
+  Explicação simples: o progresso vai de 0 → 1 durante toda a rolagem da seção, enquanto o sticky permanece “travado” na viewport.
 
-1. A seção `Testimonials` está dentro de múltiplos containers (`div.relative > div.relative.z-10`) que interferem no cálculo do scroll
-2. O `offset: ["start start", "end end"]` não está calculando corretamente o progresso
-3. Os cards usam `position: absolute` e dependem do `scrollYProgress` para controlar opacidade/posição
+1.2 Remover “zonas vazias” (garantir que sempre exista 1 card visível)
+- Recalibrar os ranges de opacity/y/scale para:
+  - Primeiro card já começar visível quando a seção entra.
+  - Haver sobreposição leve entre cards (overlap) para nunca ficar “sem nada”.
+- Implementar uma lógica de ranges por card com overlap controlado, por exemplo:
+  - fadeIn começa um pouco antes do card “assumir”
+  - fadeOut começa um pouco depois do próximo já ter aparecido
+- Se necessário, forçar clamp nos transforms (evitar valores fora do range causarem sumiço inesperado).
 
-## Correções a Implementar
+1.3 Garantir base de layout para medição
+- Confirmar/garantir que o elemento do ref (section) esteja com className "relative" (já está), e que o sticky container não esteja dentro de um parent com overflow que quebre sticky.
+- Se o wrapper externo (na página Index) estiver influenciando, ajustar apenas a “casca” da seção (sem mexer em estrutura do resto do site).
 
-### 1. Arquivo: `src/components/Testimonials.tsx`
-Corrigir o scroll behavior:
-- Alterar o `offset` do `useScroll` para incluir margem de segurança
-- Ajustar os ranges de transição dos cards para começar a aparecer mais cedo
-- Garantir que pelo menos um card esteja visível em qualquer momento
+2) Travamento da seção “O que você ganha” (src/components/HorizontalNotebookScroll.tsx)
+2.1 Deixar o scrollYProgress consistente com sticky horizontal
+- Hoje está: offset: ['start start', 'end end'].
+- Para o efeito “travado” (a seção prende na tela e a rolagem controla o deslocamento horizontal), geralmente o mais estável é:
+  - offset: ["start start", "end start"]
+Assim o progresso percorre o tamanho total (slides.length * 100vh) enquanto o sticky fica fixo no topo, evitando variações onde o movimento termina cedo/tarde e “quebra” a sensação do travamento.
 
-**Mudanças específicas:**
-```
-Offset atual: ["start start", "end end"]
-Offset corrigido: ["start end", "end start"]
+2.2 Validar que o container de referência não é “static”
+- Garantir que a section (target do useScroll) e o sticky wrapper imediato tenham position não-estático (relative/sticky já ajuda).
+- Manter overflow-x-hidden (ok), mas garantir que não exista overflow-y aplicado em algum parent que “corte” o comportamento sticky.
 
-Ranges de transição:
-- Aumentar o tempo que cada card fica visível (peak range maior)
-- Iniciar primeiro card já visível (opacity 1)
-```
+2.3 Evitar “sumir o notebook” durante a transição
+- Confirmar que o x transform vai de 0% a -(n-1)*100% (já faz).
+- Se a alteração de offset mudar o “timing”, ajustar o cálculo do activeIndex:
+  - usar Math.floor ou Math.round conforme o comportamento desejado no vídeo 2 (se ele “troca” mais firme de slide, floor pode ficar melhor; se ele “gruda no centro”, round pode ficar melhor).
+- Se houver “piscada”/blank, adicionar uma margem de segurança no index (clamp) e garantir que a altura/pt do container não empurre conteúdo para fora.
 
-### 2. Arquivo: `src/components/Testimonials.tsx`
-Melhorar a visibilidade inicial:
-- Primeiro card deve começar com opacidade 1
-- Ajustar os segmentSize para transições mais suaves
-- Garantir que os cards se sobreponham corretamente
+3) Conferir o warning do Framer Motion (“container non-static”)
+- Rastrear qual useScroll está emitindo o warning (pode ser uma dessas seções).
+- Garantir que o elemento usado como target (o próprio sectionRef/containerRef) esteja em position: relative (Tailwind “relative”).
+- Se necessário, adicionar “relative” também no wrapper imediatamente acima no JSX (o mais próximo possível do target real que o Framer Motion mede).
 
-### 3. Validar `HorizontalNotebookScroll`
-- Verificar se está funcionando corretamente (parece OK baseado no teste)
-- Manter a estrutura atual que está funcionando
+4) Garantir que o Card 3D não seja afetado
+- Não mexer em src/components/Interactive3DCard.tsx.
+- Não mexer na posição dele no Index.tsx.
+- Só ajustar as duas seções citadas.
 
-## Código da Correção
+5) Checklist de validação (igual ao vídeo 2)
+- Mobile (principal):
+  - Rolando devagar: a seção trava e sempre aparece conteúdo (sem “nada”).
+  - Rolando rápido: não perde o card/slide (sem flicker).
+  - Ao sair da seção, o scroll destrava naturalmente e entra na próxima seção sem tranco.
+- Desktop:
+  - Mesma estabilidade.
+- Console:
+  - Sem warning de “container non-static position” relacionado ao scroll.
+- Performance:
+  - Sem adicionar libs, sem pós-processamento pesado. Apenas ajustes de offsets/ranges.
 
-### Testimonials.tsx - ValueCard
+Arquivos que serão alterados
+- src/components/Testimonials.tsx
+- src/components/HorizontalNotebookScroll.tsx
 
-```tsx
-// Ranges atuais
-const startRange = index * segmentSize;
-const peakStart = startRange + segmentSize * 0.3;
-const peakEnd = startRange + segmentSize * 0.7;
-const endRange = (index + 1) * segmentSize;
-
-// Ranges corrigidos para melhor visibilidade
-const startRange = Math.max(0, (index - 0.2) * segmentSize);
-const peakStart = index * segmentSize;
-const peakEnd = (index + 0.8) * segmentSize;
-const endRange = Math.min(1, (index + 1) * segmentSize);
-
-// Opacity corrigida - primeiro card começa visível
-const opacity = useTransform(
-  scrollYProgress,
-  index === 0 
-    ? [0, 0, peakEnd, endRange]  // Primeiro card já visível
-    : [startRange, peakStart, peakEnd, endRange],
-  index === 0 
-    ? [1, 1, 1, 0]  // Primeiro card visível desde o início
-    : [0, 1, 1, 0]
-);
-```
-
-### Testimonials.tsx - useScroll offset
-
-```tsx
-// Atual
-offset: ["start start", "end end"]
-
-// Corrigido - offset que funciona com containers aninhados
-offset: ["start end", "end start"]
-```
-
-## Resultado Esperado
-
-- Seção "O que você ganha" continua funcionando (já está OK)
-- Seção "Por que me escolher" mostra os cards corretamente ao rolar
-- Transições suaves entre cards
-- Primeiro card visível quando a seção entra na viewport
-- Card 3D mantido intacto sem alterações
+Resultado esperado
+- As duas seções voltam a “travar” o scroll como no 2º vídeo, sem sumir conteúdo.
+- O Card 3D permanece exatamente como está (sem nenhuma regressão).
