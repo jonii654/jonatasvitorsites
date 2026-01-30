@@ -130,10 +130,10 @@ function ValueCard({ value, index, scrollYProgress }: ValueCardProps) {
 export function Testimonials() {
   const sectionRef = useRef<HTMLElement>(null);
   
-  // Offset for sticky scroll: progress 0→1 while section scrolls through viewport
+  // Simple offset that works consistently with nested containers
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end start"]
+    offset: ["start start", "end end"]
   });
 
   return (

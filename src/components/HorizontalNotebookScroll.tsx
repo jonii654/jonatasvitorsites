@@ -255,10 +255,10 @@ export function HorizontalNotebookScroll() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isInView, setIsInView] = useState(false);
 
-  // Offset for sticky horizontal scroll: progress 0→1 while the tall section scrolls
+  // Simple offset that tracks progress across the full section height
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ['start start', 'end start'],
+    offset: ['start start', 'end end'],
   });
 
   // Convert vertical scroll to horizontal position
