@@ -39,31 +39,43 @@ function ValueCard({ value, index, scrollYProgress }: ValueCardProps) {
   const totalCards = values.length;
   const segmentSize = 1 / totalCards;
   
-  // Each card has its own range within the scroll - slower transitions
-  const startRange = index * segmentSize;
-  const peakStart = startRange + segmentSize * 0.3;
-  const peakEnd = startRange + segmentSize * 0.7;
-  const endRange = (index + 1) * segmentSize;
+  // Corrected ranges for better visibility
+  const startRange = Math.max(0, (index - 0.2) * segmentSize);
+  const peakStart = index * segmentSize;
+  const peakEnd = (index + 0.8) * segmentSize;
+  const endRange = Math.min(1, (index + 1) * segmentSize);
 
-  // Opacity: fade in -> stay visible -> fade out
+  // Opacity: first card starts visible, others fade in
   const opacity = useTransform(
     scrollYProgress,
-    [startRange, peakStart, peakEnd, endRange],
-    [0, 1, 1, 0]
+    index === 0 
+      ? [0, 0, peakEnd, endRange]
+      : [startRange, peakStart, peakEnd, endRange],
+    index === 0 
+      ? [1, 1, 1, 0]
+      : [0, 1, 1, 0]
   );
 
   // Y position: come from below -> center -> exit above
   const y = useTransform(
     scrollYProgress,
-    [startRange, peakStart, peakEnd, endRange],
-    [60, 0, 0, -60]
+    index === 0
+      ? [0, 0, peakEnd, endRange]
+      : [startRange, peakStart, peakEnd, endRange],
+    index === 0
+      ? [0, 0, 0, -60]
+      : [60, 0, 0, -60]
   );
 
-  // Scale: grow in -> full size -> shrink out
+  // Scale: first card starts at full size, others grow in
   const scale = useTransform(
     scrollYProgress,
-    [startRange, peakStart, peakEnd, endRange],
-    [0.9, 1, 1, 0.9]
+    index === 0
+      ? [0, 0, peakEnd, endRange]
+      : [startRange, peakStart, peakEnd, endRange],
+    index === 0
+      ? [1, 1, 1, 0.9]
+      : [0.9, 1, 1, 0.9]
   );
 
   return (
@@ -107,7 +119,7 @@ export function Testimonials() {
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"]
+    offset: ["start end", "end start"]
   });
 
   return (
