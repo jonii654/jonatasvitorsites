@@ -88,7 +88,7 @@ export function Testimonials() {
   const x = useTransform(
     scrollYProgress,
     [0, 1],
-    ['0%', `-${(values.length - 1) * 100}%`]
+    ['0vw', `-${(values.length - 1) * 100}vw`]
   );
 
   // Update active index based on scroll progress
