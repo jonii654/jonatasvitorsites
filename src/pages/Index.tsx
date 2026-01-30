@@ -29,13 +29,22 @@ const Index = () => {
         {/* Horizontal Notebook Scroll - Compromisso com qualidade */}
         <HorizontalNotebookScroll />
         
-        {/* Video background starts AFTER notebook section */}
+        {/* Video background sections - HowItWorks and Portfolio */}
         <div className="relative">
           <VideoBackground />
           <div className="relative z-10">
             <HowItWorks />
             <Portfolio />
-            <Testimonials />
+          </div>
+        </div>
+        
+        {/* Testimonials - OUTSIDE video container for sticky to work */}
+        <Testimonials />
+        
+        {/* FAQ and CTA with video background */}
+        <div className="relative">
+          <VideoBackground />
+          <div className="relative z-10">
             <FAQ />
             <CTASection />
           </div>
