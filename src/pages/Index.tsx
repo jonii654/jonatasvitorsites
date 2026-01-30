@@ -1,6 +1,5 @@
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
-import { Interactive3DCard } from '@/components/Interactive3DCard';
 import { BenefitsBar } from '@/components/BenefitsBar';
 import { AboutMe } from '@/components/AboutMe';
 import { HorizontalNotebookScroll } from '@/components/HorizontalNotebookScroll';
@@ -19,10 +18,6 @@ const Index = () => {
       <main>
         {/* Hero section - NO video background */}
         <Hero />
-        
-        {/* 3D Interactive Card Transition */}
-        <Interactive3DCard />
-        
         <BenefitsBar />
         <AboutMe />
         
