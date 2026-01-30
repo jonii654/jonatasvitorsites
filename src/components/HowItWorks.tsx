@@ -94,13 +94,15 @@ export function HowItWorks() {
                   <step.icon className="w-8 h-8 text-primary" />
                 </div>
 
-                {/* Content */}
-                <h3 className="relative z-10 text-xl font-bold text-foreground mb-3 drop-shadow-lg">
-                  {step.title}
-                </h3>
-                <p className="relative z-10 text-muted-foreground leading-relaxed drop-shadow-md">
-                  {step.description}
-                </p>
+                {/* Content with Cylinder Focus Effect */}
+                <div className="relative z-10 mx-auto max-w-[220px] p-4 rounded-2xl bg-background/60 backdrop-blur-md border border-primary/20 shadow-[0_0_30px_-5px_hsl(195_100%_50%/0.15),inset_0_1px_0_0_hsl(195_100%_50%/0.1)]">
+                  <h3 className="text-xl font-bold text-foreground mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-sm">
+                    {step.description}
+                  </p>
+                </div>
               </div>
             </motion.div>
           ))}

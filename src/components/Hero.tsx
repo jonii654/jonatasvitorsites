@@ -10,14 +10,22 @@ import layoutRight from '@/assets/layout-mockup-right.webp';
 const WHATSAPP_NUMBER = "551931990107";
 
 // Floating dots configuration
+// More floating dots - using CSS animations for performance (no JS)
 const floatingDots = [
-  { x: '8%', y: '12%', size: 8, color: 'hsl(195 100% 50%)', duration: 5 },
-  { x: '88%', y: '18%', size: 6, color: 'hsl(155 100% 50%)', duration: 6 },
-  { x: '15%', y: '70%', size: 10, color: 'hsl(195 100% 50%)', duration: 7 },
-  { x: '78%', y: '75%', size: 7, color: 'hsl(155 100% 50%)', duration: 5.5 },
-  { x: '45%', y: '8%', size: 9, color: 'hsl(195 100% 50%)', duration: 6.5 },
-  { x: '95%', y: '50%', size: 8, color: 'hsl(195 100% 50%)', duration: 7 },
-  { x: '68%', y: '5%', size: 10, color: 'hsl(195 100% 50%)', duration: 5.5 },
+  { x: '8%', y: '12%', size: 6, color: 'hsl(195 100% 50%)', duration: 6 },
+  { x: '88%', y: '18%', size: 5, color: 'hsl(155 100% 50%)', duration: 7 },
+  { x: '15%', y: '70%', size: 7, color: 'hsl(195 100% 50%)', duration: 8 },
+  { x: '78%', y: '75%', size: 5, color: 'hsl(155 100% 50%)', duration: 6.5 },
+  { x: '45%', y: '8%', size: 6, color: 'hsl(195 100% 50%)', duration: 7.5 },
+  { x: '95%', y: '50%', size: 5, color: 'hsl(195 100% 50%)', duration: 8 },
+  { x: '68%', y: '5%', size: 7, color: 'hsl(195 100% 50%)', duration: 6.5 },
+  { x: '3%', y: '40%', size: 4, color: 'hsl(155 100% 50%)', duration: 9 },
+  { x: '92%', y: '65%', size: 5, color: 'hsl(195 100% 50%)', duration: 7 },
+  { x: '25%', y: '25%', size: 4, color: 'hsl(155 100% 50%)', duration: 8.5 },
+  { x: '55%', y: '85%', size: 6, color: 'hsl(195 100% 50%)', duration: 6 },
+  { x: '35%', y: '55%', size: 4, color: 'hsl(155 100% 50%)', duration: 9.5 },
+  { x: '72%', y: '35%', size: 5, color: 'hsl(195 100% 50%)', duration: 7.5 },
+  { x: '18%', y: '90%', size: 4, color: 'hsl(155 100% 50%)', duration: 8 },
 ];
 
 export function Hero() {

@@ -39,10 +39,10 @@ function ValueCard({ value, index, scrollYProgress }: ValueCardProps) {
   const totalCards = values.length;
   const segmentSize = 1 / totalCards;
   
-  // Each card has its own range within the scroll
+  // Each card has its own range within the scroll - slower transitions
   const startRange = index * segmentSize;
-  const peakStart = startRange + segmentSize * 0.2;
-  const peakEnd = startRange + segmentSize * 0.8;
+  const peakStart = startRange + segmentSize * 0.3;
+  const peakEnd = startRange + segmentSize * 0.7;
   const endRange = (index + 1) * segmentSize;
 
   // Opacity: fade in -> stay visible -> fade out
