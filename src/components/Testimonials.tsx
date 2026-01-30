@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Lightbulb, Target, Rocket } from 'lucide-react';
 import valueDesign from '@/assets/value-design.webp';
@@ -31,70 +31,18 @@ const values = [
 
 interface ValueCardProps {
   value: typeof values[0];
-  index: number;
-  scrollYProgress: ReturnType<typeof useScroll>['scrollYProgress'];
+  isActive: boolean;
 }
 
-function ValueCard({ value, index, scrollYProgress }: ValueCardProps) {
-  const totalCards = values.length;
-  const segmentSize = 1 / totalCards;
-  
-  // Ranges with overlap to ensure at least one card is always visible
-  // Each card has a longer visible range that overlaps with neighbors
-  const fadeInStart = Math.max(0, (index - 0.3) * segmentSize);
-  const peakStart = index * segmentSize + segmentSize * 0.1;
-  const peakEnd = (index + 1) * segmentSize - segmentSize * 0.1;
-  const fadeOutEnd = Math.min(1, (index + 1.3) * segmentSize);
-
-  // Opacity: smooth transitions with overlap
-  const opacity = useTransform(
-    scrollYProgress,
-    index === 0 
-      ? [0, peakStart, peakEnd, fadeOutEnd]
-      : index === totalCards - 1
-        ? [fadeInStart, peakStart, peakEnd, 1]
-        : [fadeInStart, peakStart, peakEnd, fadeOutEnd],
-    index === 0 
-      ? [1, 1, 1, 0]
-      : index === totalCards - 1
-        ? [0, 1, 1, 1]
-        : [0, 1, 1, 0]
-  );
-
-  // Y position: smooth entry and exit
-  const y = useTransform(
-    scrollYProgress,
-    index === 0
-      ? [0, peakStart, peakEnd, fadeOutEnd]
-      : index === totalCards - 1
-        ? [fadeInStart, peakStart, peakEnd, 1]
-        : [fadeInStart, peakStart, peakEnd, fadeOutEnd],
-    index === 0
-      ? [0, 0, 0, -80]
-      : index === totalCards - 1
-        ? [80, 0, 0, 0]
-        : [80, 0, 0, -80]
-  );
-
-  // Scale: subtle scaling for depth effect
-  const scale = useTransform(
-    scrollYProgress,
-    index === 0
-      ? [0, peakStart, peakEnd, fadeOutEnd]
-      : index === totalCards - 1
-        ? [fadeInStart, peakStart, peakEnd, 1]
-        : [fadeInStart, peakStart, peakEnd, fadeOutEnd],
-    index === 0
-      ? [1, 1, 1, 0.85]
-      : index === totalCards - 1
-        ? [0.85, 1, 1, 1]
-        : [0.85, 1, 1, 0.85]
-  );
-
+function ValueCard({ value, isActive }: ValueCardProps) {
   return (
     <motion.div
-      className="absolute inset-0 flex items-center justify-center px-4"
-      style={{ opacity, y, scale }}
+      className="flex-shrink-0 w-screen min-w-[100vw] h-full flex items-center justify-center px-4"
+      animate={{ 
+        opacity: isActive ? 1 : 0.4, 
+        scale: isActive ? 1 : 0.85 
+      }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
     >
       <div className="glass-card overflow-hidden max-w-md w-full">
         {/* Image */}
@@ -129,18 +77,35 @@ function ValueCard({ value, index, scrollYProgress }: ValueCardProps) {
 
 export function Testimonials() {
   const sectionRef = useRef<HTMLElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   
-  // Simple offset that works consistently with nested containers
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end end"]
+    offset: ['start start', 'end end'],
   });
+
+  // Horizontal movement based on vertical scroll
+  const x = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ['0%', `-${(values.length - 1) * 100}%`]
+  );
+
+  // Update active index based on scroll progress
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on('change', (latest) => {
+      const index = Math.round(latest * (values.length - 1));
+      setActiveIndex(Math.min(Math.max(index, 0), values.length - 1));
+    });
+    return () => unsubscribe();
+  }, [scrollYProgress]);
 
   return (
     <section 
       ref={sectionRef}
       id="beneficios" 
-      className="relative h-[300vh]"
+      className="relative"
+      style={{ height: `${values.length * 100}vh` }}
     >
       {/* Background Glow */}
       <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-glow-gradient pointer-events-none opacity-15" />
@@ -162,14 +127,32 @@ export function Testimonials() {
           </motion.div>
         </div>
 
-        {/* Cards container - centered, relative for proper stacking */}
-        <div className="flex-1 relative">
-          {values.map((value, index) => (
-            <ValueCard
-              key={value.id}
-              value={value}
-              index={index}
-              scrollYProgress={scrollYProgress}
+        {/* Horizontal carousel container */}
+        <div className="flex-1 relative overflow-hidden">
+          <motion.div 
+            className="flex h-full"
+            style={{ x }}
+          >
+            {values.map((value, index) => (
+              <ValueCard
+                key={value.id}
+                value={value}
+                isActive={index === activeIndex}
+              />
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Progress dots */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+          {values.map((_, index) => (
+            <div 
+              key={index}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                index === activeIndex 
+                  ? 'bg-primary scale-125' 
+                  : 'bg-muted-foreground/30'
+              }`}
             />
           ))}
         </div>
