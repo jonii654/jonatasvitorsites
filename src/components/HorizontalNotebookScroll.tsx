@@ -44,7 +44,7 @@ const slides: NotebookSlide[] = [
 function NotebookFrame({ slide, isActive }: { slide: NotebookSlide; isActive: boolean }) {
   return (
     <motion.div
-      className="flex-shrink-0 w-screen h-screen flex flex-col items-center justify-center px-4 snap-center"
+      className="flex-shrink-0 w-full min-w-[100vw] h-screen flex flex-col items-center justify-center px-4 snap-center"
       initial={{ opacity: 0.5, scale: 0.9 }}
       animate={{ 
         opacity: isActive ? 1 : 0.5, 
@@ -300,7 +300,7 @@ export function HorizontalNotebookScroll() {
       style={{ height: `${slides.length * 100}vh` }}
     >
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen overflow-hidden">
+      <div className="sticky top-0 h-screen overflow-hidden overflow-x-hidden">
         {/* Background glow */}
         <div className="absolute inset-0 bg-glow-gradient opacity-30 pointer-events-none" />
         
