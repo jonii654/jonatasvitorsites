@@ -16,7 +16,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background w-full">
       <Header />
-      <main className="overflow-x-clip">
+      <main>
         {/* Hero section - NO video background */}
         <Hero />
         
