@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Lightbulb, Target, Rocket } from 'lucide-react';
 import valueDesign from '@/assets/value-design.webp';
@@ -31,20 +31,30 @@ const values = [
 
 interface ValueCardProps {
   value: typeof values[0];
-  isActive: boolean;
+  index: number;
+  totalCards: number;
 }
 
-function ValueCard({ value, isActive }: ValueCardProps) {
+function ValueCard({ value, index, totalCards }: ValueCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ['start end', 'start center'],
+  });
+
+  // Animate from below and fade in
+  const y = useTransform(scrollYProgress, [0, 1], [100, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 0.5, 1]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.9, 1]);
+
   return (
     <motion.div
-      className="flex-shrink-0 w-screen min-w-[100vw] h-full flex items-center justify-center px-4"
-      animate={{ 
-        opacity: isActive ? 1 : 0.4, 
-        scale: isActive ? 1 : 0.85 
-      }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
+      ref={cardRef}
+      className="w-full max-w-md mx-auto"
+      style={{ opacity, y, scale }}
     >
-      <div className="glass-card overflow-hidden max-w-md w-full">
+      <div className="glass-card overflow-hidden">
         {/* Image */}
         <div className="relative h-48 overflow-hidden">
           <img 
@@ -71,49 +81,36 @@ function ValueCard({ value, isActive }: ValueCardProps) {
           </p>
         </div>
       </div>
+      
+      {/* Connector line between cards (except last) */}
+      {index < totalCards - 1 && (
+        <div className="flex justify-center py-8">
+          <motion.div 
+            className="w-px h-16 bg-gradient-to-b from-primary/50 to-transparent"
+            initial={{ scaleY: 0 }}
+            whileInView={{ scaleY: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          />
+        </div>
+      )}
     </motion.div>
   );
 }
 
 export function Testimonials() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end end'],
-  });
-
-  // Horizontal movement based on vertical scroll
-  const x = useTransform(
-    scrollYProgress,
-    [0, 1],
-    ['0vw', `-${(values.length - 1) * 100}vw`]
-  );
-
-  // Update active index based on scroll progress
-  useEffect(() => {
-    const unsubscribe = scrollYProgress.on('change', (latest) => {
-      const index = Math.round(latest * (values.length - 1));
-      setActiveIndex(Math.min(Math.max(index, 0), values.length - 1));
-    });
-    return () => unsubscribe();
-  }, [scrollYProgress]);
-
   return (
     <section 
-      ref={sectionRef}
       id="beneficios" 
-      className="relative"
-      style={{ height: `${values.length * 100}vh` }}
+      className="relative py-20 md:py-32"
     >
       {/* Background Glow */}
       <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-glow-gradient pointer-events-none opacity-15" />
+      <div className="absolute bottom-1/4 right-0 w-[300px] h-[300px] bg-glow-gradient pointer-events-none opacity-10" />
 
-      {/* Sticky container - pinned while section scrolls */}
-      <div className="sticky top-0 h-screen flex flex-col overflow-hidden">
-        {/* Header - stays at top */}
-        <div className="pt-20 md:pt-24 pb-8 text-center relative z-10">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -127,32 +124,14 @@ export function Testimonials() {
           </motion.div>
         </div>
 
-        {/* Horizontal carousel container */}
-        <div className="flex-1 relative overflow-hidden">
-          <motion.div 
-            className="flex h-full"
-            style={{ x }}
-          >
-            {values.map((value, index) => (
-              <ValueCard
-                key={value.id}
-                value={value}
-                isActive={index === activeIndex}
-              />
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Progress dots */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
-          {values.map((_, index) => (
-            <div 
-              key={index}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                index === activeIndex 
-                  ? 'bg-primary scale-125' 
-                  : 'bg-muted-foreground/30'
-              }`}
+        {/* Cards - each appears one by one as you scroll */}
+        <div className="flex flex-col items-center gap-0">
+          {values.map((value, index) => (
+            <ValueCard
+              key={value.id}
+              value={value}
+              index={index}
+              totalCards={values.length}
             />
           ))}
         </div>
