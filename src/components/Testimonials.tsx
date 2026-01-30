@@ -39,43 +39,56 @@ function ValueCard({ value, index, scrollYProgress }: ValueCardProps) {
   const totalCards = values.length;
   const segmentSize = 1 / totalCards;
   
-  // Corrected ranges for better visibility
-  const startRange = Math.max(0, (index - 0.2) * segmentSize);
-  const peakStart = index * segmentSize;
-  const peakEnd = (index + 0.8) * segmentSize;
-  const endRange = Math.min(1, (index + 1) * segmentSize);
+  // Ranges with overlap to ensure at least one card is always visible
+  // Each card has a longer visible range that overlaps with neighbors
+  const fadeInStart = Math.max(0, (index - 0.3) * segmentSize);
+  const peakStart = index * segmentSize + segmentSize * 0.1;
+  const peakEnd = (index + 1) * segmentSize - segmentSize * 0.1;
+  const fadeOutEnd = Math.min(1, (index + 1.3) * segmentSize);
 
-  // Opacity: first card starts visible, others fade in
+  // Opacity: smooth transitions with overlap
   const opacity = useTransform(
     scrollYProgress,
     index === 0 
-      ? [0, 0, peakEnd, endRange]
-      : [startRange, peakStart, peakEnd, endRange],
+      ? [0, peakStart, peakEnd, fadeOutEnd]
+      : index === totalCards - 1
+        ? [fadeInStart, peakStart, peakEnd, 1]
+        : [fadeInStart, peakStart, peakEnd, fadeOutEnd],
     index === 0 
       ? [1, 1, 1, 0]
-      : [0, 1, 1, 0]
+      : index === totalCards - 1
+        ? [0, 1, 1, 1]
+        : [0, 1, 1, 0]
   );
 
-  // Y position: come from below -> center -> exit above
+  // Y position: smooth entry and exit
   const y = useTransform(
     scrollYProgress,
     index === 0
-      ? [0, 0, peakEnd, endRange]
-      : [startRange, peakStart, peakEnd, endRange],
+      ? [0, peakStart, peakEnd, fadeOutEnd]
+      : index === totalCards - 1
+        ? [fadeInStart, peakStart, peakEnd, 1]
+        : [fadeInStart, peakStart, peakEnd, fadeOutEnd],
     index === 0
-      ? [0, 0, 0, -60]
-      : [60, 0, 0, -60]
+      ? [0, 0, 0, -80]
+      : index === totalCards - 1
+        ? [80, 0, 0, 0]
+        : [80, 0, 0, -80]
   );
 
-  // Scale: first card starts at full size, others grow in
+  // Scale: subtle scaling for depth effect
   const scale = useTransform(
     scrollYProgress,
     index === 0
-      ? [0, 0, peakEnd, endRange]
-      : [startRange, peakStart, peakEnd, endRange],
+      ? [0, peakStart, peakEnd, fadeOutEnd]
+      : index === totalCards - 1
+        ? [fadeInStart, peakStart, peakEnd, 1]
+        : [fadeInStart, peakStart, peakEnd, fadeOutEnd],
     index === 0
-      ? [1, 1, 1, 0.9]
-      : [0.9, 1, 1, 0.9]
+      ? [1, 1, 1, 0.85]
+      : index === totalCards - 1
+        ? [0.85, 1, 1, 1]
+        : [0.85, 1, 1, 0.85]
   );
 
   return (
@@ -115,23 +128,24 @@ function ValueCard({ value, index, scrollYProgress }: ValueCardProps) {
 }
 
 export function Testimonials() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   
+  // Offset for sticky scroll: progress 0→1 while section scrolls through viewport
   const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
+    target: sectionRef,
+    offset: ["start start", "end start"]
   });
 
   return (
     <section 
-      ref={containerRef}
+      ref={sectionRef}
       id="beneficios" 
-      className="relative h-[300vh] md:h-[300vh]"
+      className="relative h-[300vh]"
     >
       {/* Background Glow */}
       <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-glow-gradient pointer-events-none opacity-15" />
 
-      {/* Sticky container */}
+      {/* Sticky container - pinned while section scrolls */}
       <div className="sticky top-0 h-screen flex flex-col overflow-hidden">
         {/* Header - stays at top */}
         <div className="pt-20 md:pt-24 pb-8 text-center relative z-10">
@@ -148,7 +162,7 @@ export function Testimonials() {
           </motion.div>
         </div>
 
-        {/* Cards container - centered */}
+        {/* Cards container - centered, relative for proper stacking */}
         <div className="flex-1 relative">
           {values.map((value, index) => (
             <ValueCard
