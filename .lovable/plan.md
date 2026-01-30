@@ -1,40 +1,89 @@
 
+# Plano: Corrigir Scroll-Lock das Seções "O que você ganha" e "Por que me escolher"
 
-# Plano: Corrigir Layout Mobile - Centralizar e Remover Espaços Invisíveis
+## Problema Identificado
 
-## Problema
-O site no mobile está com elementos saindo da tela, causando espaço invisível nas laterais e aparência "tronxa" (não centralizada).
+As seções com scroll-lock estão apresentando problemas:
+1. **"Por que me escolher" (Testimonials)**: O conteúdo dos cards está invisível/em branco - os cards não estão aparecendo conforme o usuário rola
+2. O cálculo do `scrollYProgress` não está funcionando corretamente porque a seção está dentro de containers aninhados
+
+## Causas Raiz
+
+1. A seção `Testimonials` está dentro de múltiplos containers (`div.relative > div.relative.z-10`) que interferem no cálculo do scroll
+2. O `offset: ["start start", "end end"]` não está calculando corretamente o progresso
+3. Os cards usam `position: absolute` e dependem do `scrollYProgress` para controlar opacidade/posição
 
 ## Correções a Implementar
 
-### 1. Global CSS (`src/index.css`)
-Adicionar controle de overflow no html e body:
-- `overflow-x: hidden` para impedir scroll horizontal
-- `width: 100%` para garantir largura correta
-- `position: relative` no body para contenção
+### 1. Arquivo: `src/components/Testimonials.tsx`
+Corrigir o scroll behavior:
+- Alterar o `offset` do `useScroll` para incluir margem de segurança
+- Ajustar os ranges de transição dos cards para começar a aparecer mais cedo
+- Garantir que pelo menos um card esteja visível em qualquer momento
 
-### 2. Hero (`src/components/Hero.tsx`)
-Ajustar posições dos floating dots nas bordas extremas:
-- `x: 95%` → `x: 88%`
-- `x: 92%` → `x: 86%`
-- `x: 3%` → `x: 5%`
-- `x: 90%` → `x: 88%`
+**Mudanças específicas:**
+```
+Offset atual: ["start start", "end end"]
+Offset corrigido: ["start end", "end start"]
 
-### 3. Horizontal Scroll (`src/components/HorizontalNotebookScroll.tsx`)
-- Trocar `w-screen` por `w-full min-w-[100vw]` nos slides
-- Adicionar `overflow-x-hidden` no sticky container
+Ranges de transição:
+- Aumentar o tempo que cada card fica visível (peak range maior)
+- Iniciar primeiro card já visível (opacity 1)
+```
 
-### 4. About Me (`src/components/AboutMe.tsx`)
-Glow responsivo:
-- Mobile: `w-[280px] h-[280px]`
-- Tablet: `md:w-[400px] md:h-[400px]`
-- Desktop: `lg:w-[500px] lg:h-[500px]`
+### 2. Arquivo: `src/components/Testimonials.tsx`
+Melhorar a visibilidade inicial:
+- Primeiro card deve começar com opacidade 1
+- Ajustar os segmentSize para transições mais suaves
+- Garantir que os cards se sobreponham corretamente
 
-### 5. Index (`src/pages/Index.tsx`)
-- Adicionar `overflow-x-hidden w-full` no container principal
+### 3. Validar `HorizontalNotebookScroll`
+- Verificar se está funcionando corretamente (parece OK baseado no teste)
+- Manter a estrutura atual que está funcionando
 
-## Resultado
-- Site perfeitamente centralizado no mobile
-- Sem scroll horizontal acidental
-- Sem espaços invisíveis nas laterais
+## Código da Correção
 
+### Testimonials.tsx - ValueCard
+
+```tsx
+// Ranges atuais
+const startRange = index * segmentSize;
+const peakStart = startRange + segmentSize * 0.3;
+const peakEnd = startRange + segmentSize * 0.7;
+const endRange = (index + 1) * segmentSize;
+
+// Ranges corrigidos para melhor visibilidade
+const startRange = Math.max(0, (index - 0.2) * segmentSize);
+const peakStart = index * segmentSize;
+const peakEnd = (index + 0.8) * segmentSize;
+const endRange = Math.min(1, (index + 1) * segmentSize);
+
+// Opacity corrigida - primeiro card começa visível
+const opacity = useTransform(
+  scrollYProgress,
+  index === 0 
+    ? [0, 0, peakEnd, endRange]  // Primeiro card já visível
+    : [startRange, peakStart, peakEnd, endRange],
+  index === 0 
+    ? [1, 1, 1, 0]  // Primeiro card visível desde o início
+    : [0, 1, 1, 0]
+);
+```
+
+### Testimonials.tsx - useScroll offset
+
+```tsx
+// Atual
+offset: ["start start", "end end"]
+
+// Corrigido - offset que funciona com containers aninhados
+offset: ["start end", "end start"]
+```
+
+## Resultado Esperado
+
+- Seção "O que você ganha" continua funcionando (já está OK)
+- Seção "Por que me escolher" mostra os cards corretamente ao rolar
+- Transições suaves entre cards
+- Primeiro card visível quando a seção entra na viewport
+- Card 3D mantido intacto sem alterações
