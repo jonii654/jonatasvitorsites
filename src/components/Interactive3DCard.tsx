@@ -110,8 +110,8 @@ export function Interactive3DCard() {
   const initialRotateY = useRef(0);
   
   const handleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isSpinning) return; // Prevent drag during spin
     setIsDragging(true);
-    setIsSpinning(false);
     dragStartX.current = e.clientX;
     dragStartY.current = e.clientY;
     lastX.current = e.clientX;
@@ -121,7 +121,11 @@ export function Interactive3DCard() {
     velocityY.current = 0;
     initialRotateX.current = rotateX.get();
     initialRotateY.current = rotateY.get();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    
+    // Capture pointer on the card ref for better tracking
+    if (cardRef.current) {
+      cardRef.current.setPointerCapture(e.pointerId);
+    }
   };
   
   const handleDrag = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -141,15 +145,28 @@ export function Interactive3DCard() {
     const deltaX = e.clientX - dragStartX.current;
     const deltaY = e.clientY - dragStartY.current;
     
-    // Direct rotation following touch
-    const sensitivity = 0.8;
-    rotateY.set(initialRotateY.current + deltaX * sensitivity);
-    rotateX.set(initialRotateX.current - deltaY * sensitivity);
+    // Direct rotation following touch with improved sensitivity
+    const sensitivity = 0.6;
+    const newRotateY = initialRotateY.current + deltaX * sensitivity;
+    const newRotateX = initialRotateX.current - deltaY * sensitivity;
+    
+    // Clamp values to prevent extreme rotations during drag
+    rotateY.set(Math.max(-180, Math.min(180, newRotateY)));
+    rotateX.set(Math.max(-60, Math.min(60, newRotateX)));
   };
   
   const handleDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
     setIsDragging(false);
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    
+    // Release pointer capture properly
+    if (cardRef.current) {
+      try {
+        cardRef.current.releasePointerCapture(e.pointerId);
+      } catch {
+        // Ignore if pointer was already released
+      }
+    }
     
     // Get final velocity and apply inertia spin
     const vx = velocityX.current;
@@ -322,7 +339,7 @@ export function Interactive3DCard() {
           
           {/* Floating CTA above card */}
           <motion.div
-            className="mb-16 md:mb-24 lg:mb-32 text-center"
+            className="mb-20 md:mb-32 lg:mb-40 text-center"
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -351,7 +368,7 @@ export function Interactive3DCard() {
                 ease: 'easeInOut',
               }}
             >
-              O design quem faz é Você!
+              O Design Quem Faz É Você!
             </motion.h2>
           </motion.div>
           
