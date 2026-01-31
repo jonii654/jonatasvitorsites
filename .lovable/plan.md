@@ -1,90 +1,83 @@
 
-# Plano: Restaurar Efeito de Scroll Horizontal Forçado nas 2 Seções
+# Plano: Parallax na CTA + Correção de Overflow Mobile
 
 ## Resumo
+Vou adicionar um efeito de parallax na CTA flutuante "O Design Quem Faz É Você!" que faz o texto subir mais rapidamente conforme o scroll, e corrigir o problema de overflow horizontal no mobile que permite puxar a página para o lado direito.
 
-Vou restaurar o efeito de **rolagem horizontal forçada** (horizontal scroll section) nas duas seções:
-1. **"O que você ganha"** (HorizontalNotebookScroll) - já tem a estrutura correta, só precisa remover o bloqueio do overflow
-2. **"Por que me escolher"** (Testimonials) - converter de cards empilhados para carrossel horizontal igual ao notebook
+---
 
 ## Problema Identificado
 
-O `overflow-x-clip` no `<main>` do Index.tsx está **quebrando o `position: sticky`**. Isso faz com que as seções não "travem" na tela durante o scroll.
+### Overflow Horizontal no Mobile
+Analisando o código, identifiquei **múltiplas fontes** que podem causar o espaço vazio ao puxar para a direita:
 
-## Mudanças
+1. **`HorizontalNotebookScroll.tsx`** (linha 65): Usa `w-screen` que pode exceder a largura real quando há scrollbar ou diferenças de cálculo de viewport
+2. **`Interactive3DCard.tsx`**: As partículas do efeito de giro (`SpinParticle`) podem expandir para fora do container
+3. **Elementos com posição absoluta** podem extrapolar os limites da tela
 
-### 1. Index.tsx
-Remover `overflow-x-clip` do `<main>` para restaurar o comportamento sticky:
-- Atual: `<main className="overflow-x-clip">`
-- Corrigido: `<main>`
+### Solução para Overflow
+- Trocar `w-screen` por `w-full` no `HorizontalNotebookScroll`
+- Adicionar `overflow-x: hidden` no container principal da página (`Index.tsx`)
+- Garantir que as partículas fiquem contidas dentro do container com `overflow: hidden`
 
-### 2. Testimonials.tsx
-Converter de cards empilhados verticais para **carrossel horizontal** (igual ao notebook):
+---
 
-**Estrutura atual (errada para o efeito):**
-- Cards empilhados com `position: absolute`
-- Transição por `opacity` e `y` (vertical)
-- Não tem movimento lateral
+## Novo Recurso: Parallax na CTA
 
-**Estrutura corrigida:**
-- Cards em `flex` lado a lado (`min-w-[100vw]` cada)
-- Movimento horizontal com `translateX` baseado no `scrollYProgress`
-- Seção com altura `300vh` (3 cards x 100vh)
-- Container `sticky top-0 h-screen`
-- Indicadores de progresso embaixo
+O efeito de parallax fará a CTA "O Design Quem Faz É Você!" subir mais rápido que o scroll natural, criando uma sensação de profundidade.
 
-### 3. HorizontalNotebookScroll.tsx
-Manter como está (estrutura já correta), apenas garantir que funcione após remover o overflow do Index.
+### Implementação
+- Usar `useScroll` e `useTransform` do Framer Motion
+- A CTA se moverá para cima (-100px a -200px) conforme o scroll avança
+- Adicionar leve opacidade fade-out para transição suave
 
-## Detalhes Técnicos
+---
 
-### Testimonials - Nova Implementação
+## Mudanças Técnicas
 
-```text
-┌─────────────────────────────────────────────────┐
-│  Section (height: 300vh, position: relative)    │
-│  ┌───────────────────────────────────────────┐  │
-│  │  Sticky Container (h-screen, top-0)       │  │
-│  │  ┌─────────────────────────────────────┐  │  │
-│  │  │  Header (Por que me escolher)       │  │  │
-│  │  └─────────────────────────────────────┘  │  │
-│  │  ┌─────────────────────────────────────┐  │  │
-│  │  │  motion.div (flex, translateX)      │  │  │
-│  │  │  ┌───────┬───────┬───────┐          │  │  │
-│  │  │  │Card 1 │Card 2 │Card 3 │  ───→    │  │  │
-│  │  │  │100vw  │100vw  │100vw  │          │  │  │
-│  │  │  └───────┴───────┴───────┘          │  │  │
-│  │  └─────────────────────────────────────┘  │  │
-│  │  ┌─────────────────────────────────────┐  │  │
-│  │  │  Progress Dots (● ○ ○)              │  │  │
-│  │  └─────────────────────────────────────┘  │  │
-│  └───────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────┘
+### 1. `src/components/Interactive3DCard.tsx`
+- Adicionar refs para o scroll tracking
+- Implementar `useScroll` com target na section
+- Usar `useTransform` para criar movimento parallax na CTA (a CTA sobe mais rápido)
+- A transformação será: quando o scroll progride de 0 a 1, a CTA se move de 0 a -150px no eixo Y
+
+### 2. `src/components/HorizontalNotebookScroll.tsx`
+- Trocar `w-screen` por `w-full` no container dos slides (linha 65)
+- Isso evita overflow causado por cálculos inconsistentes de `100vw`
+
+### 3. `src/pages/Index.tsx`
+- Adicionar `overflow-x-hidden` no container principal
+- Isso funciona como "rede de segurança" para evitar qualquer elemento que escape
+
+### 4. `src/index.css`
+- Adicionar regras globais para prevenir overflow horizontal:
+```css
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
 ```
 
-### Comportamento do Scroll
+---
 
-1. Usuário rola para baixo normalmente
-2. Ao entrar na seção, ela "trava" (sticky) na viewport
-3. Continuar rolando move os cards horizontalmente (da direita para esquerda)
-4. Ao passar todos os cards, a seção "destrava" e continua o scroll normal
+## Visualização do Efeito Parallax
 
-## Arquivos Modificados
+```text
+┌─────────────────────────────────┐
+│                                 │
+│   "O Design Quem Faz É Você!"   │  ← CTA (sobe mais rápido)
+│              ↑↑↑                │
+│          [ Card 3D ]            │  ← Card (scroll normal)
+│                                 │
+└─────────────────────────────────┘
 
-| Arquivo | Mudança |
-|---------|---------|
-| `src/pages/Index.tsx` | Remover `overflow-x-clip` do `<main>` |
-| `src/components/Testimonials.tsx` | Reescrever com carrossel horizontal |
+Scroll ↓ → CTA sobe 1.5x mais rápido que o card
+```
 
-## O que NÃO será alterado
-
-- `Interactive3DCard.tsx` - permanece exatamente igual
-- `HorizontalNotebookScroll.tsx` - estrutura já está correta
+---
 
 ## Resultado Esperado
 
-- Scroll trava quando entrar nas duas seções
-- Conteúdo desliza horizontalmente (da direita para esquerda)
-- Transições suaves sem "buracos"
-- Card 3D funciona normalmente
-- Comportamento idêntico ao vídeo 2
+1. **Parallax**: A CTA flutuante terá um efeito de profundidade elegante, subindo mais rápido que o card 3D durante o scroll
+2. **Mobile sem overflow**: Não será mais possível puxar a página para o lado direito e ver espaço vazio
+3. **Sticky sections funcionando**: As correções não afetarão o comportamento de `sticky` das seções de scroll-jacking
