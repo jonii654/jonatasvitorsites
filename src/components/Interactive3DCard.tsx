@@ -1,61 +1,12 @@
-import { useRef, useState, useEffect, useMemo } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, useScroll } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'framer-motion';
 import pilotImage from '@/assets/pilot-card.jpg';
-
-// Particle component for spin effect
-const SpinParticle = ({ index, total }: { index: number; total: number }) => {
-  const angle = (index / total) * 360;
-  const radius = 180 + Math.random() * 60;
-  const size = 3 + Math.random() * 4;
-  const duration = 0.6 + Math.random() * 0.4;
-  const delay = index * 0.02;
-  
-  return (
-    <motion.div
-      className="absolute rounded-full pointer-events-none"
-      style={{
-        width: size,
-        height: size,
-        left: '50%',
-        top: '50%',
-        background: index % 3 === 0 
-          ? 'hsl(155 100% 60%)' 
-          : index % 3 === 1 
-            ? 'hsl(195 100% 60%)' 
-            : 'hsl(45 100% 70%)',
-        boxShadow: index % 3 === 0 
-          ? '0 0 8px hsl(155 100% 50%), 0 0 15px hsl(155 100% 50% / 0.5)' 
-          : index % 3 === 1 
-            ? '0 0 8px hsl(195 100% 50%), 0 0 15px hsl(195 100% 50% / 0.5)'
-            : '0 0 8px hsl(45 100% 60%), 0 0 15px hsl(45 100% 60% / 0.5)',
-      }}
-      initial={{ 
-        x: 0, 
-        y: 0, 
-        scale: 0, 
-        opacity: 0 
-      }}
-      animate={{ 
-        x: Math.cos((angle * Math.PI) / 180) * radius,
-        y: Math.sin((angle * Math.PI) / 180) * radius,
-        scale: [0, 1.5, 0],
-        opacity: [0, 1, 0],
-      }}
-      transition={{
-        duration: duration,
-        delay: delay,
-        ease: 'easeOut',
-      }}
-    />
-  );
-};
 
 export function Interactive3DCard() {
   const sectionRef = useRef<HTMLElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [showParticles, setShowParticles] = useState(false);
   
   // Parallax effect for CTA
   const { scrollYProgress } = useScroll({
@@ -67,15 +18,12 @@ export function Interactive3DCard() {
   const ctaY = useTransform(scrollYProgress, [0, 0.5, 1], [50, 0, -150]);
   const ctaOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.5, 1, 1, 0.3]);
   
-  // Generate particle indices
-  const particleIndices = useMemo(() => Array.from({ length: 24 }, (_, i) => i), []);
-  
-  // Motion values for rotation
+  // Motion values for rotation - no clamping for free 360 spin
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
   
   // Spring physics for smooth rotation
-  const springConfig = { damping: 20, stiffness: 150, mass: 0.5 };
+  const springConfig = { damping: 15, stiffness: 100, mass: 0.8 };
   const springRotateX = useSpring(rotateX, springConfig);
   const springRotateY = useSpring(rotateY, springConfig);
   
@@ -83,27 +31,8 @@ export function Interactive3DCard() {
   const glowX = useTransform(springRotateY, [-45, 45], [-20, 20]);
   const glowY = useTransform(springRotateX, [-45, 45], [20, -20]);
   
-  // Handle mouse/touch movement for rotation
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    
-    const rect = cardRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    // Calculate rotation based on pointer position relative to center
-    const deltaX = (e.clientX - centerX) / (rect.width / 2);
-    const deltaY = (e.clientY - centerY) / (rect.height / 2);
-    
-    // Limit rotation to ±25 degrees
-    const maxRotation = 25;
-    rotateY.set(deltaX * maxRotation);
-    rotateX.set(-deltaY * maxRotation);
-  };
-  
   const handlePointerLeave = () => {
-    if (!isDragging) {
-      // Return to neutral position
+    if (!isDragging && !isSpinning) {
       rotateX.set(0);
       rotateY.set(0);
     }
@@ -121,7 +50,7 @@ export function Interactive3DCard() {
   const initialRotateY = useRef(0);
   
   const handleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isSpinning) return; // Prevent drag during spin
+    if (isSpinning) return;
     setIsDragging(true);
     dragStartX.current = e.clientX;
     dragStartY.current = e.clientY;
@@ -133,7 +62,6 @@ export function Interactive3DCard() {
     initialRotateX.current = rotateX.get();
     initialRotateY.current = rotateY.get();
     
-    // Capture pointer on the card ref for better tracking
     if (cardRef.current) {
       cardRef.current.setPointerCapture(e.pointerId);
     }
@@ -156,21 +84,20 @@ export function Interactive3DCard() {
     const deltaX = e.clientX - dragStartX.current;
     const deltaY = e.clientY - dragStartY.current;
     
-    // Direct rotation following touch with improved sensitivity
-    const sensitivity = 0.6;
+    // Higher sensitivity for responsive 360° rotation
+    const sensitivity = 0.8;
     const newRotateY = initialRotateY.current + deltaX * sensitivity;
     const newRotateX = initialRotateX.current - deltaY * sensitivity;
     
-    // Clamp values to prevent extreme rotations during drag
-    rotateY.set(Math.max(-180, Math.min(180, newRotateY)));
-    rotateX.set(Math.max(-60, Math.min(60, newRotateX)));
+    // Only clamp X rotation (vertical tilt), Y is free for 360° spins
+    rotateY.set(newRotateY);
+    rotateX.set(Math.max(-45, Math.min(45, newRotateX)));
   };
   
   const handleDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDragging) return;
     setIsDragging(false);
     
-    // Release pointer capture properly
     if (cardRef.current) {
       try {
         cardRef.current.releasePointerCapture(e.pointerId);
@@ -184,17 +111,17 @@ export function Interactive3DCard() {
     const vy = velocityY.current;
     const speed = Math.sqrt(vx * vx + vy * vy);
     
-    // If swipe was fast enough, apply momentum spin
-    if (speed > 0.3) {
+    // Apply momentum based on velocity - allows full 360° spins
+    if (speed > 0.2) {
       setIsSpinning(true);
       
       // Calculate spin amount based on velocity (faster = more rotation)
-      const spinMultiplier = 150; // How much rotation per velocity unit
+      const spinMultiplier = 200; // Increased for easier 360° spins
       const targetRotateY = rotateY.get() + vx * spinMultiplier;
-      const targetRotateX = rotateX.get() - vy * spinMultiplier;
+      const targetRotateX = Math.max(-45, Math.min(45, rotateX.get() - vy * spinMultiplier * 0.3));
       
       // Duration based on speed (faster swipe = longer spin)
-      const duration = Math.min(800 + speed * 500, 2000);
+      const duration = Math.min(1000 + speed * 600, 2500);
       
       let start: number | null = null;
       const startRotateY = rotateY.get();
@@ -213,12 +140,12 @@ export function Interactive3DCard() {
         if (progress < 1) {
           requestAnimationFrame(animateSpin);
         } else {
-          // Smoothly return to neutral
+          // Normalize rotation and smoothly return to neutral
           setTimeout(() => {
             rotateX.set(0);
             rotateY.set(0);
             setIsSpinning(false);
-          }, 300);
+          }, 400);
         }
       };
       
@@ -228,61 +155,23 @@ export function Interactive3DCard() {
       setTimeout(() => {
         rotateX.set(0);
         rotateY.set(0);
-      }, 100);
-    }
-  };
-  
-  // Quick tap triggers a 360° spin with particles
-  const handleTap = (e: React.MouseEvent) => {
-    // Only trigger if no drag happened
-    const deltaX = Math.abs(e.clientX - dragStartX.current);
-    const deltaY = Math.abs(e.clientY - dragStartY.current);
-    
-    if (deltaX < 5 && deltaY < 5 && !isSpinning) {
-      setIsSpinning(true);
-      setShowParticles(true);
-      
-      // Hide particles after animation
-      setTimeout(() => setShowParticles(false), 1000);
-      
-      const startY = rotateY.get();
-      const targetY = startY + 360;
-      
-      let start: number | null = null;
-      const duration = 800;
-      
-      const animateSpin = (timestamp: number) => {
-        if (!start) start = timestamp;
-        const progress = Math.min((timestamp - start) / duration, 1);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        rotateY.set(startY + (targetY - startY) * easeOut);
-        
-        if (progress < 1) {
-          requestAnimationFrame(animateSpin);
-        } else {
-          rotateY.set(0);
-          setIsSpinning(false);
-        }
-      };
-      
-      requestAnimationFrame(animateSpin);
+      }, 150);
     }
   };
 
   // Auto-rotate subtle animation when idle
   useEffect(() => {
-    if (isDragging) return;
+    if (isDragging || isSpinning) return;
     
     let animationFrame: number;
     let time = 0;
     
     const animate = () => {
       time += 0.01;
-      // Subtle floating movement
       const idleRotateX = Math.sin(time * 0.5) * 3;
       const idleRotateY = Math.cos(time * 0.3) * 4;
       
-      if (!isDragging && rotateX.get() === 0 && rotateY.get() === 0) {
+      if (!isDragging && !isSpinning && rotateX.get() === 0 && rotateY.get() === 0) {
         rotateX.set(idleRotateX);
         rotateY.set(idleRotateY);
       }
@@ -298,7 +187,7 @@ export function Interactive3DCard() {
       clearTimeout(timeout);
       cancelAnimationFrame(animationFrame);
     };
-  }, [isDragging, rotateX, rotateY]);
+  }, [isDragging, isSpinning, rotateX, rotateY]);
 
   return (
     <section ref={sectionRef} className="relative py-24 md:py-32 lg:py-40 overflow-hidden">
@@ -386,7 +275,7 @@ export function Interactive3DCard() {
           {/* 3D Card Container */}
           <motion.div
             ref={cardRef}
-            className="relative cursor-grab active:cursor-grabbing"
+            className="relative cursor-grab active:cursor-grabbing touch-none"
             style={{
               perspective: 1200,
               transformStyle: 'preserve-3d',
@@ -396,23 +285,11 @@ export function Interactive3DCard() {
             onPointerDown={handleDragStart}
             onPointerUp={handleDragEnd}
             onPointerCancel={handleDragEnd}
-            onClick={handleTap}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            {/* Spinning particles effect */}
-            <AnimatePresence>
-              {showParticles && (
-                <div className="absolute inset-0 pointer-events-none z-20">
-                  {particleIndices.map((i) => (
-                    <SpinParticle key={i} index={i} total={particleIndices.length} />
-                  ))}
-                </div>
-              )}
-            </AnimatePresence>
-            
             {/* Card with 3D transform */}
             <motion.div
               className="relative w-[280px] h-[180px] sm:w-[360px] sm:h-[230px] md:w-[480px] md:h-[300px] lg:w-[560px] lg:h-[350px] rounded-2xl md:rounded-3xl overflow-hidden"
@@ -495,7 +372,7 @@ export function Interactive3DCard() {
               transition={{ delay: 0.5, duration: 0.6 }}
             >
               <p className="text-xs md:text-sm text-muted-foreground/60">
-                Toque para girar 360° • Arraste para interagir
+                Arraste para girar livremente
               </p>
             </motion.div>
           </motion.div>
