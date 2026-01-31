@@ -1,11 +1,63 @@
-import { useRef, useState, useEffect } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { useRef, useState, useEffect, useMemo } from 'react';
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import pilotImage from '@/assets/pilot-card.jpg';
+
+// Particle component for spin effect
+const SpinParticle = ({ index, total }: { index: number; total: number }) => {
+  const angle = (index / total) * 360;
+  const radius = 180 + Math.random() * 60;
+  const size = 3 + Math.random() * 4;
+  const duration = 0.6 + Math.random() * 0.4;
+  const delay = index * 0.02;
+  
+  return (
+    <motion.div
+      className="absolute rounded-full pointer-events-none"
+      style={{
+        width: size,
+        height: size,
+        left: '50%',
+        top: '50%',
+        background: index % 3 === 0 
+          ? 'hsl(155 100% 60%)' 
+          : index % 3 === 1 
+            ? 'hsl(195 100% 60%)' 
+            : 'hsl(45 100% 70%)',
+        boxShadow: index % 3 === 0 
+          ? '0 0 8px hsl(155 100% 50%), 0 0 15px hsl(155 100% 50% / 0.5)' 
+          : index % 3 === 1 
+            ? '0 0 8px hsl(195 100% 50%), 0 0 15px hsl(195 100% 50% / 0.5)'
+            : '0 0 8px hsl(45 100% 60%), 0 0 15px hsl(45 100% 60% / 0.5)',
+      }}
+      initial={{ 
+        x: 0, 
+        y: 0, 
+        scale: 0, 
+        opacity: 0 
+      }}
+      animate={{ 
+        x: Math.cos((angle * Math.PI) / 180) * radius,
+        y: Math.sin((angle * Math.PI) / 180) * radius,
+        scale: [0, 1.5, 0],
+        opacity: [0, 1, 0],
+      }}
+      transition={{
+        duration: duration,
+        delay: delay,
+        ease: 'easeOut',
+      }}
+    />
+  );
+};
 
 export function Interactive3DCard() {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
+  const [showParticles, setShowParticles] = useState(false);
+  
+  // Generate particle indices
+  const particleIndices = useMemo(() => Array.from({ length: 24 }, (_, i) => i), []);
   
   // Motion values for rotation
   const rotateX = useMotionValue(0);
@@ -152,7 +204,7 @@ export function Interactive3DCard() {
     }
   };
   
-  // Quick tap triggers a 360° spin
+  // Quick tap triggers a 360° spin with particles
   const handleTap = (e: React.MouseEvent) => {
     // Only trigger if no drag happened
     const deltaX = Math.abs(e.clientX - dragStartX.current);
@@ -160,6 +212,10 @@ export function Interactive3DCard() {
     
     if (deltaX < 5 && deltaY < 5 && !isSpinning) {
       setIsSpinning(true);
+      setShowParticles(true);
+      
+      // Hide particles after animation
+      setTimeout(() => setShowParticles(false), 1000);
       
       const startY = rotateY.get();
       const targetY = startY + 360;
@@ -283,6 +339,17 @@ export function Interactive3DCard() {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
+            {/* Spinning particles effect */}
+            <AnimatePresence>
+              {showParticles && (
+                <div className="absolute inset-0 pointer-events-none z-20">
+                  {particleIndices.map((i) => (
+                    <SpinParticle key={i} index={i} total={particleIndices.length} />
+                  ))}
+                </div>
+              )}
+            </AnimatePresence>
+            
             {/* Card with 3D transform */}
             <motion.div
               className="relative w-[280px] h-[180px] sm:w-[360px] sm:h-[230px] md:w-[480px] md:h-[300px] lg:w-[560px] lg:h-[350px] rounded-2xl md:rounded-3xl overflow-hidden"
