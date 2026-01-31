@@ -104,7 +104,7 @@ export function Testimonials() {
       ref={sectionRef}
       id="beneficios"
       className="relative"
-      style={{ height: `${values.length * 100}vh` }}
+      style={{ height: `${values.length * 100}vh`, overflow: 'visible' }}
     >
       <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-glow-gradient pointer-events-none opacity-15" />
 
