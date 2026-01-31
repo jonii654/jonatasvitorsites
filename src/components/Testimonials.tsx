@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { Lightbulb, Rocket, Target } from 'lucide-react';
 import valueDesign from '@/assets/value-design.webp';
 import valueResults from '@/assets/value-results.webp';
@@ -79,8 +79,17 @@ export function Testimonials() {
     offset: ['start start', 'end end'],
   });
 
-  // Travado: o scroll vertical controla qual bloco está visível (um por tela)
-  const y = useTransform(scrollYProgress, [0, 1], [0, -((values.length - 1) * viewportHeight)]);
+  // Travado (snap): o scroll vertical escolhe um índice inteiro e anima para a “tela” correspondente
+  const rawY = useTransform(scrollYProgress, (latest) => {
+    const idx = Math.round(latest * (values.length - 1));
+    return -(idx * viewportHeight);
+  });
+
+  const y = useSpring(rawY, {
+    stiffness: 240,
+    damping: 40,
+    mass: 0.8,
+  });
 
   useEffect(() => {
     const unsub = scrollYProgress.on('change', (latest) => {
