@@ -62,7 +62,8 @@ export function HorizontalNotebookScroll() {
           {slides.map((slide, index) => (
             <div
               key={slide.id}
-              className="h-screen w-screen flex-none flex items-center justify-center px-4 pt-24"
+              className="h-screen w-full flex-none flex items-center justify-center px-4 pt-24"
+              style={{ width: '100vw', maxWidth: '100%' }}
             >
               <motion.div
                 className="relative max-w-4xl w-full"
