@@ -46,16 +46,20 @@ export function Interactive3DCard() {
     }
   };
   
-  // Drag functionality for 360° rotation
+  // Drag functionality for interactive rotation
   const dragStartX = useRef(0);
   const dragStartY = useRef(0);
+  const dragStartTime = useRef(0);
   const initialRotateX = useRef(0);
   const initialRotateY = useRef(0);
+  const hasMoved = useRef(false);
   
   const handleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
     setIsDragging(true);
+    hasMoved.current = false;
     dragStartX.current = e.clientX;
     dragStartY.current = e.clientY;
+    dragStartTime.current = Date.now();
     initialRotateX.current = rotateX.get();
     initialRotateY.current = rotateY.get();
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -67,25 +71,42 @@ export function Interactive3DCard() {
     const deltaX = e.clientX - dragStartX.current;
     const deltaY = e.clientY - dragStartY.current;
     
-    // Sensitivity for drag rotation
-    const sensitivity = 0.5;
+    // Check if user actually moved (threshold of 5px)
+    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+      hasMoved.current = true;
+    }
+    
+    // Sensitivity for drag rotation - more responsive
+    const sensitivity = 0.8;
     let newRotateY = initialRotateY.current + deltaX * sensitivity;
     let newRotateX = initialRotateX.current - deltaY * sensitivity;
     
-    // Allow full 360° rotation during drag
+    // Allow full rotation during drag
     rotateY.set(newRotateY);
     rotateX.set(newRotateX);
   };
   
   const handleDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    const wasDragging = isDragging;
+    const didMove = hasMoved.current;
+    const dragDuration = Date.now() - dragStartTime.current;
+    
     setIsDragging(false);
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
     
-    // Gradually return to neutral with inertia
-    setTimeout(() => {
-      rotateX.set(0);
-      rotateY.set(0);
-    }, 100);
+    // If it was a quick tap without movement, trigger 360° spin
+    if (wasDragging && !didMove && dragDuration < 200) {
+      handleTap();
+      return;
+    }
+    
+    // If user dragged, smoothly return to neutral after a delay
+    if (didMove) {
+      setTimeout(() => {
+        rotateX.set(0);
+        rotateY.set(0);
+      }, 500);
+    }
   };
 
   // Spin 360° on tap/click
@@ -207,12 +228,11 @@ export function Interactive3DCard() {
               perspective: 1200,
               transformStyle: 'preserve-3d',
             }}
-            onPointerMove={(e) => isDragging ? handleDrag(e) : handlePointerMove(e)}
+            onPointerMove={handleDrag}
             onPointerLeave={handlePointerLeave}
             onPointerDown={handleDragStart}
             onPointerUp={handleDragEnd}
             onPointerCancel={handleDragEnd}
-            onClick={handleTap}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
