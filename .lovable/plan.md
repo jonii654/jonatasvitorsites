@@ -1,83 +1,85 @@
 
-# Plano: Parallax na CTA + Correção de Overflow Mobile
-
-## Resumo
-Vou adicionar um efeito de parallax na CTA flutuante "O Design Quem Faz É Você!" que faz o texto subir mais rapidamente conforme o scroll, e corrigir o problema de overflow horizontal no mobile que permite puxar a página para o lado direito.
-
----
+# Plano: Restaurar Scroll-Jacking nas Seções
 
 ## Problema Identificado
 
-### Overflow Horizontal no Mobile
-Analisando o código, identifiquei **múltiplas fontes** que podem causar o espaço vazio ao puxar para a direita:
+As duas seções com scroll-jacking ("O que você ganha" e "Por que me escolher") pararam de travar o scroll corretamente. Analisando o código, identifiquei possíveis causas:
 
-1. **`HorizontalNotebookScroll.tsx`** (linha 65): Usa `w-screen` que pode exceder a largura real quando há scrollbar ou diferenças de cálculo de viewport
-2. **`Interactive3DCard.tsx`**: As partículas do efeito de giro (`SpinParticle`) podem expandir para fora do container
-3. **Elementos com posição absoluta** podem extrapolar os limites da tela
-
-### Solução para Overflow
-- Trocar `w-screen` por `w-full` no `HorizontalNotebookScroll`
-- Adicionar `overflow-x: hidden` no container principal da página (`Index.tsx`)
-- Garantir que as partículas fiquem contidas dentro do container com `overflow: hidden`
+1. **VideoBackground com position: sticky** - O vídeo de fundo tem `position: sticky` que pode conflitar com o sticky das seções
+2. **Overflow settings** - As alterações recentes de `overflow-x-hidden` podem afetar o comportamento do sticky em alguns navegadores
+3. **Estrutura de containers** - A forma como as seções estão aninhadas pode interferir
 
 ---
 
-## Novo Recurso: Parallax na CTA
+## Solução
 
-O efeito de parallax fará a CTA "O Design Quem Faz É Você!" subir mais rápido que o scroll natural, criando uma sensação de profundidade.
+### 1. Remover sticky do VideoBackground
+O vídeo de fundo não precisa de `position: sticky` - ele é decorativo e deve usar apenas `position: absolute` ou `fixed`.
 
-### Implementação
-- Usar `useScroll` e `useTransform` do Framer Motion
-- A CTA se moverá para cima (-100px a -200px) conforme o scroll avança
-- Adicionar leve opacidade fade-out para transição suave
+**Arquivo**: `src/components/VideoBackground.tsx`
+- Remover `position: 'sticky'` e `top: 0` do elemento video
+- Manter apenas `position: absolute`
+
+### 2. Garantir isolamento das seções de scroll-jacking
+Cada seção de scroll-jacking precisa ter seu próprio contexto de stacking sem interferência.
+
+**Arquivo**: `src/pages/Index.tsx`
+- Adicionar `position: relative` explícito nas seções de scroll-jacking
+- Garantir que os containers com VideoBackground não quebrem o fluxo do scroll
+
+### 3. Revisar overflow nos containers pai
+O `overflow-x-hidden` não deve afetar o `overflow-y`, mas alguns navegadores têm bugs.
+
+**Arquivo**: `src/index.css`
+- Adicionar `overflow-y: visible` explícito para garantir que o scroll vertical não seja afetado
+- Usar `clip` ao invés de `hidden` para overflow-x em casos específicos
 
 ---
 
 ## Mudanças Técnicas
 
-### 1. `src/components/Interactive3DCard.tsx`
-- Adicionar refs para o scroll tracking
-- Implementar `useScroll` com target na section
-- Usar `useTransform` para criar movimento parallax na CTA (a CTA sobe mais rápido)
-- A transformação será: quando o scroll progride de 0 a 1, a CTA se move de 0 a -150px no eixo Y
-
-### 2. `src/components/HorizontalNotebookScroll.tsx`
-- Trocar `w-screen` por `w-full` no container dos slides (linha 65)
-- Isso evita overflow causado por cálculos inconsistentes de `100vw`
-
-### 3. `src/pages/Index.tsx`
-- Adicionar `overflow-x-hidden` no container principal
-- Isso funciona como "rede de segurança" para evitar qualquer elemento que escape
-
-### 4. `src/index.css`
-- Adicionar regras globais para prevenir overflow horizontal:
-```css
-html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
-}
+### `src/components/VideoBackground.tsx`
+```tsx
+// ANTES: position: 'sticky', top: 0
+// DEPOIS: remover essas propriedades
+style={{
+  opacity: 0.12,
+  filter: 'blur(1px) saturate(1.3)',
+  // SEM position sticky
+}}
 ```
 
----
+### `src/pages/Index.tsx`
+```tsx
+// Adicionar wrapper isolado para seções de scroll-jacking
+<div className="relative">
+  <HorizontalNotebookScroll />
+</div>
 
-## Visualização do Efeito Parallax
+// E para Testimonials:
+<div className="relative">
+  <Testimonials />
+</div>
+```
 
-```text
-┌─────────────────────────────────┐
-│                                 │
-│   "O Design Quem Faz É Você!"   │  ← CTA (sobe mais rápido)
-│              ↑↑↑                │
-│          [ Card 3D ]            │  ← Card (scroll normal)
-│                                 │
-└─────────────────────────────────┘
+### `src/index.css`
+```css
+html {
+  overflow-x: clip; /* Melhor que hidden para não afetar sticky */
+  overflow-y: auto;
+}
 
-Scroll ↓ → CTA sobe 1.5x mais rápido que o card
+body {
+  overflow-x: clip;
+  overflow-y: auto;
+}
 ```
 
 ---
 
 ## Resultado Esperado
 
-1. **Parallax**: A CTA flutuante terá um efeito de profundidade elegante, subindo mais rápido que o card 3D durante o scroll
-2. **Mobile sem overflow**: Não será mais possível puxar a página para o lado direito e ver espaço vazio
-3. **Sticky sections funcionando**: As correções não afetarão o comportamento de `sticky` das seções de scroll-jacking
+1. Scroll trava corretamente na seção "O que você ganha" (HorizontalNotebookScroll) enquanto o conteúdo desliza horizontalmente
+2. Scroll trava corretamente na seção "Por que me escolher" (Testimonials) enquanto os cards surgem verticalmente
+3. Transições suaves entre as seções
+4. Sem conflitos com outros elementos sticky ou vídeos de fundo
