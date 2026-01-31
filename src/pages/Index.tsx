@@ -14,7 +14,7 @@ import { VideoBackground } from '@/components/VideoBackground';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background w-full overflow-x-hidden">
+    <div className="min-h-screen bg-background w-full" style={{ overflowX: 'clip' }}>
       <Header />
       <main>
         {/* Hero section - NO video background */}

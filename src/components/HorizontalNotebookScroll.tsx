@@ -48,7 +48,7 @@ export function HorizontalNotebookScroll() {
       ref={sectionRef}
       id="horizontal-notebook-scroll"
       className="relative"
-      style={{ height: `${slides.length * 100}vh` }}
+      style={{ height: `${slides.length * 100}vh`, overflow: 'visible' }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
         {/* Header fixo */}
