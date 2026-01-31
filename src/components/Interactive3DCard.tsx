@@ -5,6 +5,7 @@ import pilotImage from '@/assets/pilot-card.jpg';
 export function Interactive3DCard() {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
   
   // Motion values for rotation
   const rotateX = useMotionValue(0);
@@ -85,6 +86,38 @@ export function Interactive3DCard() {
       rotateX.set(0);
       rotateY.set(0);
     }, 100);
+  };
+
+  // Spin 360° on tap/click
+  const handleTap = () => {
+    if (isDragging || isSpinning) return;
+    setIsSpinning(true);
+    
+    const startY = rotateY.get();
+    const targetY = startY + 360;
+    
+    // Animate the spin
+    let start: number | null = null;
+    const duration = 800; // ms
+    
+    const animateSpin = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      
+      // Ease out cubic for smooth deceleration
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      rotateY.set(startY + (targetY - startY) * easeOut);
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateSpin);
+      } else {
+        // Normalize rotation and return to idle
+        rotateY.set(0);
+        setIsSpinning(false);
+      }
+    };
+    
+    requestAnimationFrame(animateSpin);
   };
   
   // Auto-rotate subtle animation when idle
@@ -179,6 +212,7 @@ export function Interactive3DCard() {
             onPointerDown={handleDragStart}
             onPointerUp={handleDragEnd}
             onPointerCancel={handleDragEnd}
+            onClick={handleTap}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -266,7 +300,7 @@ export function Interactive3DCard() {
               transition={{ delay: 0.5, duration: 0.6 }}
             >
               <p className="text-xs md:text-sm text-muted-foreground/60">
-                Arraste para interagir
+                Toque para girar 360° • Arraste para interagir
               </p>
             </motion.div>
           </motion.div>
