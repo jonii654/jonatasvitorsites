@@ -46,20 +46,27 @@ export function Interactive3DCard() {
     }
   };
   
-  // Drag functionality for interactive rotation
+  // Drag functionality with velocity tracking for inertia
   const dragStartX = useRef(0);
   const dragStartY = useRef(0);
-  const dragStartTime = useRef(0);
+  const lastX = useRef(0);
+  const lastY = useRef(0);
+  const lastTime = useRef(0);
+  const velocityX = useRef(0);
+  const velocityY = useRef(0);
   const initialRotateX = useRef(0);
   const initialRotateY = useRef(0);
-  const hasMoved = useRef(false);
   
   const handleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
     setIsDragging(true);
-    hasMoved.current = false;
+    setIsSpinning(false);
     dragStartX.current = e.clientX;
     dragStartY.current = e.clientY;
-    dragStartTime.current = Date.now();
+    lastX.current = e.clientX;
+    lastY.current = e.clientY;
+    lastTime.current = Date.now();
+    velocityX.current = 0;
+    velocityY.current = 0;
     initialRotateX.current = rotateX.get();
     initialRotateY.current = rotateY.get();
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -68,79 +75,116 @@ export function Interactive3DCard() {
   const handleDrag = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDragging) return;
     
+    const now = Date.now();
+    const dt = Math.max(now - lastTime.current, 1);
+    
+    // Calculate velocity (pixels per ms)
+    velocityX.current = (e.clientX - lastX.current) / dt;
+    velocityY.current = (e.clientY - lastY.current) / dt;
+    
+    lastX.current = e.clientX;
+    lastY.current = e.clientY;
+    lastTime.current = now;
+    
     const deltaX = e.clientX - dragStartX.current;
     const deltaY = e.clientY - dragStartY.current;
     
-    // Check if user actually moved (threshold of 5px)
-    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
-      hasMoved.current = true;
-    }
-    
-    // Sensitivity for drag rotation - more responsive
+    // Direct rotation following touch
     const sensitivity = 0.8;
-    let newRotateY = initialRotateY.current + deltaX * sensitivity;
-    let newRotateX = initialRotateX.current - deltaY * sensitivity;
-    
-    // Allow full rotation during drag
-    rotateY.set(newRotateY);
-    rotateX.set(newRotateX);
+    rotateY.set(initialRotateY.current + deltaX * sensitivity);
+    rotateX.set(initialRotateX.current - deltaY * sensitivity);
   };
   
   const handleDragEnd = (e: React.PointerEvent<HTMLDivElement>) => {
-    const wasDragging = isDragging;
-    const didMove = hasMoved.current;
-    const dragDuration = Date.now() - dragStartTime.current;
-    
     setIsDragging(false);
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
     
-    // If it was a quick tap without movement, trigger 360° spin
-    if (wasDragging && !didMove && dragDuration < 200) {
-      handleTap();
-      return;
-    }
+    // Get final velocity and apply inertia spin
+    const vx = velocityX.current;
+    const vy = velocityY.current;
+    const speed = Math.sqrt(vx * vx + vy * vy);
     
-    // If user dragged, smoothly return to neutral after a delay
-    if (didMove) {
+    // If swipe was fast enough, apply momentum spin
+    if (speed > 0.3) {
+      setIsSpinning(true);
+      
+      // Calculate spin amount based on velocity (faster = more rotation)
+      const spinMultiplier = 150; // How much rotation per velocity unit
+      const targetRotateY = rotateY.get() + vx * spinMultiplier;
+      const targetRotateX = rotateX.get() - vy * spinMultiplier;
+      
+      // Duration based on speed (faster swipe = longer spin)
+      const duration = Math.min(800 + speed * 500, 2000);
+      
+      let start: number | null = null;
+      const startRotateY = rotateY.get();
+      const startRotateX = rotateX.get();
+      
+      const animateSpin = (timestamp: number) => {
+        if (!start) start = timestamp;
+        const progress = Math.min((timestamp - start) / duration, 1);
+        
+        // Ease out cubic for smooth deceleration
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        
+        rotateY.set(startRotateY + (targetRotateY - startRotateY) * easeOut);
+        rotateX.set(startRotateX + (targetRotateX - startRotateX) * easeOut);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          // Smoothly return to neutral
+          setTimeout(() => {
+            rotateX.set(0);
+            rotateY.set(0);
+            setIsSpinning(false);
+          }, 300);
+        }
+      };
+      
+      requestAnimationFrame(animateSpin);
+    } else {
+      // Slow drag, just return to neutral
       setTimeout(() => {
         rotateX.set(0);
         rotateY.set(0);
-      }, 500);
+      }, 100);
+    }
+  };
+  
+  // Quick tap triggers a 360° spin
+  const handleTap = (e: React.MouseEvent) => {
+    // Only trigger if no drag happened
+    const deltaX = Math.abs(e.clientX - dragStartX.current);
+    const deltaY = Math.abs(e.clientY - dragStartY.current);
+    
+    if (deltaX < 5 && deltaY < 5 && !isSpinning) {
+      setIsSpinning(true);
+      
+      const startY = rotateY.get();
+      const targetY = startY + 360;
+      
+      let start: number | null = null;
+      const duration = 800;
+      
+      const animateSpin = (timestamp: number) => {
+        if (!start) start = timestamp;
+        const progress = Math.min((timestamp - start) / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        rotateY.set(startY + (targetY - startY) * easeOut);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          rotateY.set(0);
+          setIsSpinning(false);
+        }
+      };
+      
+      requestAnimationFrame(animateSpin);
     }
   };
 
-  // Spin 360° on tap/click
-  const handleTap = () => {
-    if (isDragging || isSpinning) return;
-    setIsSpinning(true);
-    
-    const startY = rotateY.get();
-    const targetY = startY + 360;
-    
-    // Animate the spin
-    let start: number | null = null;
-    const duration = 800; // ms
-    
-    const animateSpin = (timestamp: number) => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration, 1);
-      
-      // Ease out cubic for smooth deceleration
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      rotateY.set(startY + (targetY - startY) * easeOut);
-      
-      if (progress < 1) {
-        requestAnimationFrame(animateSpin);
-      } else {
-        // Normalize rotation and return to idle
-        rotateY.set(0);
-        setIsSpinning(false);
-      }
-    };
-    
-    requestAnimationFrame(animateSpin);
-  };
-  
   // Auto-rotate subtle animation when idle
   useEffect(() => {
     if (isDragging) return;
@@ -233,6 +277,7 @@ export function Interactive3DCard() {
             onPointerDown={handleDragStart}
             onPointerUp={handleDragEnd}
             onPointerCancel={handleDragEnd}
+            onClick={handleTap}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
