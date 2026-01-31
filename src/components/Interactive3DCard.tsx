@@ -320,6 +320,41 @@ export function Interactive3DCard() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center justify-center min-h-[50vh] md:min-h-[60vh]">
           
+          {/* Floating CTA above card */}
+          <motion.div
+            className="mb-8 md:mb-12 text-center"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <motion.h2 
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold"
+              style={{
+                background: 'linear-gradient(135deg, hsl(195 100% 60%) 0%, hsl(155 100% 50%) 50%, hsl(195 100% 70%) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textShadow: '0 0 40px hsl(195 100% 50% / 0.3)',
+                filter: 'drop-shadow(0 0 20px hsl(155 100% 50% / 0.2))',
+              }}
+              animate={{
+                textShadow: [
+                  '0 0 40px hsl(195 100% 50% / 0.3)',
+                  '0 0 60px hsl(155 100% 50% / 0.4)',
+                  '0 0 40px hsl(195 100% 50% / 0.3)',
+                ],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            >
+              O design quem faz é Você!
+            </motion.h2>
+          </motion.div>
+          
           {/* 3D Card Container */}
           <motion.div
             ref={cardRef}
