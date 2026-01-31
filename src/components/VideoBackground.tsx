@@ -12,8 +12,6 @@ export function VideoBackground() {
         style={{
           opacity: 0.12,
           filter: 'blur(1px) saturate(1.3)',
-          position: 'sticky',
-          top: 0,
         }}
       >
         <source src="/videos/background-effect.mp4" type="video/mp4" />

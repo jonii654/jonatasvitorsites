@@ -26,8 +26,10 @@ const Index = () => {
         <BenefitsBar />
         <AboutMe />
         
-        {/* Horizontal Notebook Scroll - Compromisso com qualidade */}
-        <HorizontalNotebookScroll />
+        {/* Horizontal Notebook Scroll - Compromisso com qualidade - isolated for sticky */}
+        <div className="relative">
+          <HorizontalNotebookScroll />
+        </div>
         
         {/* Video background sections - HowItWorks and Portfolio */}
         <div className="relative">
@@ -38,8 +40,10 @@ const Index = () => {
           </div>
         </div>
         
-        {/* Testimonials - OUTSIDE video container for sticky to work */}
-        <Testimonials />
+        {/* Testimonials - isolated for sticky to work */}
+        <div className="relative">
+          <Testimonials />
+        </div>
         
         {/* FAQ and CTA with video background */}
         <div className="relative">
