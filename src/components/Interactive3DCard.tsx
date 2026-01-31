@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useMemo } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, useScroll } from 'framer-motion';
 import pilotImage from '@/assets/pilot-card.jpg';
 
 // Particle component for spin effect
@@ -51,10 +51,21 @@ const SpinParticle = ({ index, total }: { index: number; total: number }) => {
 };
 
 export function Interactive3DCard() {
+  const sectionRef = useRef<HTMLElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [showParticles, setShowParticles] = useState(false);
+  
+  // Parallax effect for CTA
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+  
+  // CTA moves up faster (parallax) and fades slightly
+  const ctaY = useTransform(scrollYProgress, [0, 0.5, 1], [50, 0, -150]);
+  const ctaOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.5, 1, 1, 0.3]);
   
   // Generate particle indices
   const particleIndices = useMemo(() => Array.from({ length: 24 }, (_, i) => i), []);
@@ -290,7 +301,7 @@ export function Interactive3DCard() {
   }, [isDragging, rotateX, rotateY]);
 
   return (
-    <section className="relative py-24 md:py-32 lg:py-40 overflow-hidden">
+    <section ref={sectionRef} className="relative py-24 md:py-32 lg:py-40 overflow-hidden">
       {/* Dark background with subtle gradient */}
       <div className="absolute inset-0 bg-background" />
       
@@ -337,13 +348,13 @@ export function Interactive3DCard() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center justify-center min-h-[50vh] md:min-h-[60vh] pt-8 md:pt-0">
           
-          {/* Floating CTA above card */}
+          {/* Floating CTA above card with parallax */}
           <motion.div
             className="mb-20 md:mb-32 lg:mb-40 text-center"
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            style={{
+              y: ctaY,
+              opacity: ctaOpacity,
+            }}
           >
             <motion.h2 
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold"

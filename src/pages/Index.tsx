@@ -14,7 +14,7 @@ import { VideoBackground } from '@/components/VideoBackground';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background w-full">
+    <div className="min-h-screen bg-background w-full overflow-x-hidden">
       <Header />
       <main>
         {/* Hero section - NO video background */}
