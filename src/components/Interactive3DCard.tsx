@@ -318,11 +318,11 @@ export function Interactive3DCard() {
       
       {/* Content container */}
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col items-center justify-center min-h-[50vh] md:min-h-[60vh]">
+        <div className="flex flex-col items-center justify-center min-h-[50vh] md:min-h-[60vh] pt-8 md:pt-0">
           
           {/* Floating CTA above card */}
           <motion.div
-            className="mb-8 md:mb-12 text-center"
+            className="mb-16 md:mb-24 lg:mb-32 text-center"
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
