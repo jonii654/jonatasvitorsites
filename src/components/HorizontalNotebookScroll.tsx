@@ -69,12 +69,16 @@ export function HorizontalNotebookScroll() {
                 animate={{ opacity: index === activeIndex ? 1 : 0.6, scale: index === activeIndex ? 1 : 0.9 }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
               >
-                {/* Notebook mockup */}
+                {/* Notebook mockup with neon green glow */}
                 <div
                   className="relative rounded-t-[20px] overflow-hidden p-[2px]"
                   style={{
                     background:
                       'linear-gradient(135deg, #4a4a4a 0%, #1a1a1a 50%, #3a3a3a 100%)',
+                    boxShadow:
+                      index === activeIndex
+                        ? '0 0 30px hsl(155 100% 50% / 0.5), 0 0 60px hsl(155 100% 50% / 0.3), 0 0 100px hsl(155 100% 50% / 0.15)'
+                        : '0 0 20px hsl(155 100% 50% / 0.2)',
                   }}
                 >
                   <div
