@@ -479,3 +479,40 @@
     transition: transform 150ms ease-out;
   }
 }
+
+/* Ripple Effect for WhatsApp buttons */
+@layer components {
+  .btn-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-ripple::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, hsl(0 0% 100% / 0.4) 10%, transparent 60%);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    transition: none;
+  }
+
+  .btn-ripple:active::after {
+    animation: rippleEffect 0.5s ease-out forwards;
+  }
+
+  @keyframes rippleEffect {
+    0% {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(4);
+      opacity: 0;
+    }
+  }
+}

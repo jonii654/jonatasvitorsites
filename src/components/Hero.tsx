@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
-import { RippleButton } from '@/components/ui/ripple-button';
+import { Button } from '@/components/ui/button';
 import { useRef, useMemo, useEffect } from 'react';
 import layoutTop from '@/assets/layout-mockup-top.webp';
 import layoutBottom from '@/assets/layout-mockup-bottom.webp';
@@ -357,10 +357,10 @@ export function Hero() {
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <RippleButton
+                      <Button
                         asChild
                         size="lg"
-                        className="btn-cta w-full text-base relative z-10"
+                        className="btn-cta w-full text-base relative z-10 btn-ripple"
                       >
                         <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                           <motion.span
@@ -371,7 +371,7 @@ export function Hero() {
                           </motion.span>
                           <ArrowRight className="w-5 h-5 ml-2" />
                         </a>
-                      </RippleButton>
+                      </Button>
                     </motion.div>
                   </motion.div>
 
