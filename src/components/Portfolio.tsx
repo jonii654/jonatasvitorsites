@@ -14,7 +14,7 @@ interface Project {
   link?: string;
 }
 
-import portfolioAdvocacia from '@/assets/portfolio-mosaic-1.webp';
+import portfolioAdvocacia from '@/assets/portfolio-advocacia.png';
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 
 const projects: Project[] = [
@@ -54,7 +54,7 @@ export function Portfolio() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <span className="section-label">Protótipos</span>
+          <span className="section-label">Portfólios</span>
           <h2 className="section-title">
             Especialista em Landing Pages & Sites Institucionais
           </h2>
