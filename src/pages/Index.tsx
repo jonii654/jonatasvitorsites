@@ -24,31 +24,21 @@ const Index = () => {
         <Interactive3DCard />
         
         <BenefitsBar />
-        <AboutMe />
         
-        {/* Horizontal Notebook Scroll - Compromisso com qualidade - isolated for sticky */}
-        <div className="relative">
-          <HorizontalNotebookScroll />
-        </div>
-        
-        {/* Video background sections - HowItWorks and Portfolio */}
+        {/* Video background - starts from AboutMe until Footer */}
         <div className="relative">
           <VideoBackground />
           <div className="relative z-10">
+            <AboutMe />
+            
+            {/* Horizontal Notebook Scroll - Compromisso com qualidade */}
+            <HorizontalNotebookScroll />
+            
             <HowItWorks />
             <Portfolio />
-          </div>
-        </div>
-        
-        {/* Testimonials - isolated for sticky to work */}
-        <div className="relative">
-          <Testimonials />
-        </div>
-        
-        {/* FAQ and CTA with video background */}
-        <div className="relative">
-          <VideoBackground />
-          <div className="relative z-10">
+            
+            <Testimonials />
+            
             <FAQ />
             <CTASection />
           </div>
