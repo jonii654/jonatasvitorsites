@@ -147,8 +147,26 @@ export function Interactive3DCard() {
         <div className="flex flex-col items-center justify-center min-h-[45vh] md:min-h-[55vh] pt-6 md:pt-0">
           
           <motion.div className="mb-16 md:mb-24 lg:mb-32 text-center" style={{ y: ctaY }}>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-              O Design Quem Faz É Você!
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
+              <span 
+                className="block text-white"
+                style={{
+                  textShadow: '0 2px 4px hsl(220 50% 5% / 0.5)'
+                }}
+              >
+                O DESIGN
+              </span>
+              <span 
+                className="block"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(155 100% 55%) 0%, hsl(195 100% 60%) 100%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                QUEM FAZ É VOCÊ!
+              </span>
             </h2>
           </motion.div>
           
