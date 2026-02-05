@@ -34,7 +34,7 @@ const projects: Project[] = [
     description: 'Página de vendas com design impactante para curso de transformação pessoal.',
     image: portfolioVivendo,
     type: 'Projeto Real',
-    link: 'https://vivendoprosperadamente.lovable.app',
+   link: 'https://www.vivendopoderosamente.com.br/',
   },
 ];
 
