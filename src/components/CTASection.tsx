@@ -1,6 +1,6 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { MessageCircle, ArrowRight, Zap } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { RippleButton } from '@/components/ui/ripple-button';
 import { useEffect } from 'react';
 import portfolioMosaic1 from '@/assets/portfolio-mosaic-1.webp';
 import portfolioMosaic2 from '@/assets/portfolio-mosaic-2.webp';
@@ -242,7 +242,7 @@ export function CTASection() {
               className="absolute inset-0 blur-xl rounded-full bg-primary/30"
             />
             
-            <Button
+            <RippleButton
               asChild
               size="lg"
               className="btn-cta text-base md:text-lg px-10 py-7 relative overflow-hidden group"
@@ -259,7 +259,7 @@ export function CTASection() {
                 <span className="relative z-10">Falar no WhatsApp</span>
                 <ArrowRight className="w-5 h-5 ml-2 relative z-10 group-hover:translate-x-1 transition-transform" />
               </a>
-            </Button>
+            </RippleButton>
           </motion.div>
 
           <motion.p 
