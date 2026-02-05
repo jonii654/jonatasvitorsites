@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { RippleButton } from '@/components/ui/ripple-button';
 
 const WHATSAPP_NUMBER = "551931990107";
 
@@ -75,7 +75,7 @@ export function Header() {
 
             {/* CTA Button */}
             <div className="hidden md:block">
-              <Button
+              <RippleButton
                 asChild
                 className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-6"
               >
@@ -83,7 +83,7 @@ export function Header() {
                   <MessageCircle className="w-4 h-4" />
                   WhatsApp
                 </a>
-              </Button>
+              </RippleButton>
             </div>
 
             {/* Mobile Menu Button */}
@@ -155,7 +155,7 @@ export function Header() {
               transition: 'opacity 0.3s ease-out, transform 0.3s ease-out'
             }}
           >
-            <Button
+            <RippleButton
               asChild
               size="lg"
               className="btn-cta w-full"
@@ -164,7 +164,7 @@ export function Header() {
                 <MessageCircle className="w-5 h-5" />
                 WhatsApp
               </a>
-            </Button>
+            </RippleButton>
           </div>
 
           {/* Decorative glow */}

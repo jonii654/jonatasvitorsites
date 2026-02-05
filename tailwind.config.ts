@@ -116,6 +116,18 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
+        "ripple": {
+          "0%": { 
+            width: "0px", 
+            height: "0px", 
+            opacity: "0.5" 
+          },
+          "100%": { 
+            width: "500px", 
+            height: "500px", 
+            opacity: "0" 
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -125,6 +137,7 @@ export default {
         "scale-in": "scale-in 0.3s ease-out forwards",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
+        "ripple": "ripple 0.6s linear forwards",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
