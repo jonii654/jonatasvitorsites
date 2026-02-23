@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Lightbulb, Rocket, Target } from 'lucide-react';
 import valueDesign from '@/assets/value-design.webp';
 import valueResults from '@/assets/value-results.webp';
@@ -36,8 +36,8 @@ function ValueCard({ value, isActive }: { value: (typeof values)[number]; isActi
   return (
     <motion.div
       className="glass-card overflow-hidden max-w-md w-full"
-      animate={{ opacity: isActive ? 1 : 0.6, scale: isActive ? 1 : 0.96 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
+      animate={{ opacity: isActive ? 1 : 0.5, scale: isActive ? 1 : 0.92, y: isActive ? 0 : 10 }}
+      transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
     >
       <div className="relative h-48 overflow-hidden">
         <img
@@ -79,16 +79,10 @@ export function Testimonials() {
     offset: ['start start', 'end end'],
   });
 
-  // Travado (snap): o scroll vertical escolhe um índice inteiro e anima para a “tela” correspondente
-  const rawY = useTransform(scrollYProgress, (latest) => {
-    const idx = Math.round(latest * (values.length - 1));
+  // Smooth continuous scroll (no snap/spring)
+  const y = useTransform(scrollYProgress, (latest) => {
+    const idx = latest * (values.length - 1);
     return -(idx * viewportHeight);
-  });
-
-  const y = useSpring(rawY, {
-    stiffness: 240,
-    damping: 40,
-    mass: 0.8,
   });
 
   useEffect(() => {
@@ -115,7 +109,7 @@ export function Testimonials() {
           <h2 className="section-title">Meu compromisso com você</h2>
         </div>
 
-        {/* Conteúdo (cada bloco vem de baixo / aparece sozinho) */}
+        {/* Conteúdo suave */}
         <motion.div className="flex flex-col" style={{ y }}>
           {values.map((value, index) => (
             <div key={value.id} className="h-screen w-full flex items-center justify-center px-4 pt-24">
@@ -129,7 +123,7 @@ export function Testimonials() {
           {values.map((_, index) => (
             <div
               key={index}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${
                 index === activeIndex ? 'bg-primary scale-125' : 'bg-muted-foreground/30'
               }`}
             />

@@ -24,6 +24,9 @@ function CardKineticBackgroundComponent({ words }: CardKineticBackgroundProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Skip canvas animation on mobile for performance
+    if (window.innerWidth < 768) return;
+
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 

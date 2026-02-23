@@ -1,4 +1,22 @@
+import { useIsMobile } from '@/hooks/use-mobile';
+
 export function VideoBackground() {
+  const isMobile = useIsMobile();
+
+  // Skip heavy video on mobile entirely
+  if (isMobile) {
+    return (
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(to bottom, hsl(220 50% 8% / 0.95) 0%, hsl(220 50% 8% / 0.85) 50%, hsl(220 50% 8% / 0.95) 100%)'
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="absolute inset-0 z-0 overflow-hidden">
       {/* Video */}
