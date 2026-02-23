@@ -73,7 +73,13 @@ export function Hero() {
   const leftImageY = useTransform(scrollYProgress, [0, 1], [0, -60]);
   const rightImageY = useTransform(scrollYProgress, [0, 1], [0, -70]);
 
-  const dots = useMemo(() => floatingDots, []);
+  // Fewer dots on mobile
+  const dots = useMemo(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      return floatingDots.slice(0, 5);
+    }
+    return floatingDots;
+  }, []);
 
   return (
     <section 

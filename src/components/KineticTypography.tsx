@@ -32,10 +32,14 @@ function KineticTypographyComponent() {
   const animationRef = useRef<number>(0);
   const wordsRef = useRef<Word[]>([]);
   const lastTimeRef = useRef<number>(0);
+  const isMobile = useRef(typeof window !== 'undefined' && window.innerWidth < 768);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // Skip canvas animation entirely on mobile for performance
+    if (isMobile.current) return;
 
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
