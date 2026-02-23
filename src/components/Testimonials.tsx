@@ -47,12 +47,10 @@ function ValueCard({ value, isActive }: { value: (typeof values)[number]; isActi
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
-
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-14 h-14 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center border border-primary/30">
           <value.icon className="w-7 h-7 text-primary" />
         </div>
       </div>
-
       <div className="p-8 text-center">
         <h3 className="text-2xl font-bold text-foreground mb-4">{value.title}</h3>
         <p className="text-muted-foreground leading-relaxed text-lg">{value.description}</p>
@@ -80,13 +78,13 @@ export function Testimonials() {
   });
 
   // Smooth continuous scroll (no snap/spring)
-  const y = useTransform(scrollYProgress, (latest) => {
+  const y = useTransform(scrollYProgress, (latest: number) => {
     const idx = latest * (values.length - 1);
     return -(idx * viewportHeight);
   });
 
   useEffect(() => {
-    const unsub = scrollYProgress.on('change', (latest) => {
+    const unsub = scrollYProgress.on('change', (latest: number) => {
       const idx = Math.round(latest * (values.length - 1));
       setActiveIndex(Math.min(Math.max(idx, 0), values.length - 1));
     });
@@ -101,15 +99,11 @@ export function Testimonials() {
       style={{ height: `${values.length * 100}vh`, overflow: 'visible' }}
     >
       <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-glow-gradient pointer-events-none opacity-15" />
-
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* Header fixo */}
         <div className="absolute top-16 inset-x-0 z-10 text-center px-4">
           <span className="section-label">Por que me escolher</span>
           <h2 className="section-title">Meu compromisso com você</h2>
         </div>
-
-        {/* Conteúdo suave */}
         <motion.div className="flex flex-col" style={{ y }}>
           {values.map((value, index) => (
             <div key={value.id} className="h-screen w-full flex items-center justify-center px-4 pt-24">
@@ -117,8 +111,6 @@ export function Testimonials() {
             </div>
           ))}
         </motion.div>
-
-        {/* Dots */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
           {values.map((_, index) => (
             <div
