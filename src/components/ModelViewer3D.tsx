@@ -21,8 +21,8 @@ export function ModelViewer3D() {
         </h3>
         {/* @ts-ignore */}
         <model-viewer
-          src="https://modelviewer.dev/shared-assets/models/MaterialsVariantsShoe.glb"
-          alt="Modelo 3D — Laptop representando criação de sites"
+          src="/models/laptop.glb"
+          alt="Modelo 3D — Notebook representando criação de sites"
           auto-rotate
           camera-controls
           shadow-intensity="1"
