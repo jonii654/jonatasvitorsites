@@ -67,9 +67,9 @@ export function ModelViewer3D() {
             style={{ width: '100%', height: '100%', background: 'transparent' }}
           >
             <Suspense fallback={null}>
-              <ambientLight intensity={0.7} />
-              <directionalLight position={[5, 5, 5]} intensity={1.2} />
-              <directionalLight position={[-3, 2, -2]} intensity={0.4} />
+              <ambientLight intensity={0.4} />
+              <directionalLight position={[5, 5, 5]} intensity={0.7} />
+              <directionalLight position={[-3, 2, -2]} intensity={0.2} />
               <LaptopScene />
               <OrbitControls
                 enableZoom={false}
