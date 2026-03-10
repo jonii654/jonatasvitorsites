@@ -11,16 +11,16 @@ function ScreenPlane() {
   texture.colorSpace = THREE.SRGBColorSpace;
 
   return (
-    <mesh position={[0, 1.05, -0.22]} rotation={[-0.18, 0, 0]}>
-      <planeGeometry args={[2.3, 1.45]} />
+    <mesh position={[0, 1.02, -0.18]} rotation={[-0.18, 0, 0]}>
+      <planeGeometry args={[2.05, 1.3]} />
       <meshStandardMaterial
         map={texture}
-        emissive={new THREE.Color(0xffffff)}
+        emissive={new THREE.Color(0x666666)}
         emissiveMap={texture}
-        emissiveIntensity={0.5}
-        roughness={0.2}
+        emissiveIntensity={0.15}
+        roughness={0.5}
         metalness={0}
-        toneMapped={false}
+        toneMapped={true}
       />
     </mesh>
   );
