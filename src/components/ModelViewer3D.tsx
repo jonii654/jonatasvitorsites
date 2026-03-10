@@ -11,16 +11,16 @@ function ScreenPlane() {
   texture.colorSpace = THREE.SRGBColorSpace;
 
   return (
-    <mesh position={[0, 1.05, -0.22]} rotation={[-0.18, 0, 0]}>
-      <planeGeometry args={[2.3, 1.45]} />
+    <mesh position={[0, 1.02, -0.18]} rotation={[-0.18, 0, 0]}>
+      <planeGeometry args={[2.05, 1.3]} />
       <meshStandardMaterial
         map={texture}
-        emissive={new THREE.Color(0xffffff)}
+        emissive={new THREE.Color(0x666666)}
         emissiveMap={texture}
-        emissiveIntensity={0.5}
-        roughness={0.2}
+        emissiveIntensity={0.15}
+        roughness={0.5}
         metalness={0}
-        toneMapped={false}
+        toneMapped={true}
       />
     </mesh>
   );
@@ -67,9 +67,9 @@ export function ModelViewer3D() {
             style={{ width: '100%', height: '100%', background: 'transparent' }}
           >
             <Suspense fallback={null}>
-              <ambientLight intensity={0.7} />
-              <directionalLight position={[5, 5, 5]} intensity={1.2} />
-              <directionalLight position={[-3, 2, -2]} intensity={0.4} />
+              <ambientLight intensity={0.4} />
+              <directionalLight position={[5, 5, 5]} intensity={0.7} />
+              <directionalLight position={[-3, 2, -2]} intensity={0.2} />
               <LaptopScene />
               <OrbitControls
                 enableZoom={false}
