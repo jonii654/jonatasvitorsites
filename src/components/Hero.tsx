@@ -26,6 +26,19 @@ const floatingDots = [
   { x: '35%', y: '55%', size: 4, color: 'hsl(155 100% 50%)', duration: 9.5 },
   { x: '72%', y: '35%', size: 5, color: 'hsl(195 100% 50%)', duration: 7.5 },
   { x: '18%', y: '88%', size: 4, color: 'hsl(155 100% 50%)', duration: 8 },
+  // Extra dots
+  { x: '3%', y: '55%', size: 5, color: 'hsl(195 100% 50%)', duration: 7.2 },
+  { x: '92%', y: '30%', size: 4, color: 'hsl(155 100% 50%)', duration: 8.3 },
+  { x: '40%', y: '92%', size: 6, color: 'hsl(195 100% 50%)', duration: 6.8 },
+  { x: '60%', y: '15%', size: 5, color: 'hsl(155 100% 50%)', duration: 9.1 },
+  { x: '12%', y: '30%', size: 4, color: 'hsl(195 100% 50%)', duration: 7.7 },
+  { x: '82%', y: '85%', size: 6, color: 'hsl(155 100% 50%)', duration: 6.3 },
+  { x: '50%', y: '45%', size: 3, color: 'hsl(195 100% 50%)', duration: 10 },
+  { x: '30%', y: '78%', size: 5, color: 'hsl(155 100% 50%)', duration: 8.6 },
+  { x: '95%', y: '10%', size: 4, color: 'hsl(195 100% 50%)', duration: 7.4 },
+  { x: '22%', y: '50%', size: 6, color: 'hsl(155 100% 50%)', duration: 6.9 },
+  { x: '65%', y: '60%', size: 3, color: 'hsl(195 100% 50%)', duration: 9.8 },
+  { x: '48%', y: '22%', size: 5, color: 'hsl(155 100% 50%)', duration: 7.1 },
 ];
 
 export function Hero() {
