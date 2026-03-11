@@ -89,10 +89,21 @@ export function Hero() {
   // Fewer dots on mobile
   const dots = useMemo(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      return floatingDots.slice(0, 5);
+      return floatingDots.slice(0, 10);
     }
     return floatingDots;
   }, []);
+
+  // Hero entrance animation variants
+  const heroEntrance = {
+    hidden: { opacity: 0, scale: 0.7, y: 60 },
+    visible: { 
+      opacity: 1, 
+      scale: 1, 
+      y: 0,
+      transition: { duration: 1.4, ease: [0.16, 1, 0.3, 1] }
+    }
+  };
 
   return (
     <section 
