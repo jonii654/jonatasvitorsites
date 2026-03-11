@@ -179,8 +179,9 @@ export function Interactive3DCard() {
             onPointerDown={handleDragStart}
             onPointerUp={handleDragEnd}
             onPointerCancel={handleDragEnd}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={isVisible && imageLoaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.3 }}
+            animate={isVisible && imageLoaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.3 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
             <motion.div
