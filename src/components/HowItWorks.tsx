@@ -31,7 +31,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2,
+      staggerChildren: 0.3,
     },
   },
 };
@@ -67,25 +67,41 @@ export function HowItWorks() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+          className="relative flex flex-col items-center gap-0"
         >
+          {/* Vertical connecting line */}
+          <motion.div
+            initial={{ scaleY: 0 }}
+            whileInView={{ scaleY: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.2, ease: 'easeInOut' }}
+            className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px origin-top"
+            style={{
+              background: 'linear-gradient(to bottom, transparent, hsl(var(--primary) / 0.6) 10%, hsl(var(--primary) / 0.6) 90%, transparent)',
+            }}
+          />
+
           {steps.map((step, index) => (
             <motion.div
               key={index}
               variants={itemVariants}
-              className="relative group"
+              className="relative w-full max-w-lg group"
             >
-              {/* Connector Line (hidden on mobile and last item) */}
-              {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-12 left-[calc(50%+3rem)] w-[calc(100%-6rem)] h-px bg-gradient-to-r from-primary/50 to-transparent" />
-              )}
+              {/* Node dot on the line */}
+              <motion.div
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 + index * 0.3, duration: 0.4, type: 'spring' }}
+                className="absolute left-1/2 -translate-x-1/2 top-0 z-20 w-4 h-4 rounded-full bg-primary border-2 border-background shadow-[0_0_12px_hsl(var(--primary)/0.5)]"
+              />
 
-              <div className="relative p-8 text-center overflow-hidden min-h-[280px]">
-                {/* Kinetic Typography IS the card */}
+              {/* Card content */}
+              <div className="relative p-8 pt-10 text-center overflow-hidden min-h-[260px]">
                 <CardKineticBackground words={step.words} />
-                
+
                 {/* Step Number */}
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-full z-10">
+                <div className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-full z-10">
                   {step.number}
                 </div>
 
@@ -94,7 +110,7 @@ export function HowItWorks() {
                   <step.icon className="w-8 h-8 text-primary" />
                 </div>
 
-                {/* Content with Cylinder Focus Effect */}
+                {/* Content */}
                 <div className="relative z-10 mx-auto max-w-[220px] p-4 rounded-2xl bg-background/60 backdrop-blur-md border border-primary/20 shadow-[0_0_30px_-5px_hsl(195_100%_50%/0.15),inset_0_1px_0_0_hsl(195_100%_50%/0.1)]">
                   <h3 className="text-xl font-bold text-foreground mb-2">
                     {step.title}
