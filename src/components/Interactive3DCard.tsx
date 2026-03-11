@@ -146,7 +146,14 @@ export function Interactive3DCard() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center justify-center min-h-[45vh] md:min-h-[55vh] pt-6 md:pt-0">
           
-          <motion.div className="mb-16 md:mb-24 lg:mb-32 text-center" style={{ y: ctaY }}>
+          <motion.div 
+            className="mb-16 md:mb-24 lg:mb-32 text-center"
+            style={{ y: ctaY }}
+            initial={{ opacity: 0, scale: 0.3 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          >
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
               <span 
                 className="block text-white"
