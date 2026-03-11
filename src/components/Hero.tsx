@@ -110,10 +110,7 @@ export function Hero() {
       className="relative min-h-[150vh] overflow-hidden"
     >
       {/* Sticky Container */}
-      <motion.div 
-        variants={heroEntrance}
-        initial="hidden"
-        animate="visible"
+      <div
         className="sticky top-0 h-screen flex items-center justify-center overflow-hidden"
       >
         {/* Background gradient */}
