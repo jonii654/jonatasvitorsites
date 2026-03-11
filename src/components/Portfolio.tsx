@@ -65,11 +65,12 @@ export function Portfolio() {
           className="text-center"
         >
           <span className="section-label">Portfólios</span>
-          <h2 className="section-title">
-            Especialista em Landing Pages & Sites Institucionais
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+            <span className="gradient-text">Trabalhos já feitos</span>{' '}
+            <span className="gradient-text">e Protótipos</span>
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-            Foco total em criar páginas que convertem visitantes em clientes. Confira exemplos do meu trabalho.
+            Exemplos do meu trabalho abaixo.
           </p>
         </motion.div>
       </div>
