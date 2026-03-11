@@ -150,17 +150,6 @@ function TimelineStep({
         >
           <CardKineticBackground words={step.words} />
 
-          {/* Step Number */}
-          <div
-            className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-1 text-sm font-bold rounded-full z-10 transition-all duration-500"
-            style={{
-              backgroundColor: isActive ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.3)',
-              color: 'hsl(var(--primary-foreground))',
-            }}
-          >
-            {step.number}
-          </div>
-
           {/* Icon */}
           <div
             className="relative z-10 w-16 h-16 mx-auto mb-6 mt-6 rounded-2xl backdrop-blur-sm flex items-center justify-center transition-all duration-500"
