@@ -16,6 +16,7 @@ interface Project {
 
 import portfolioAdvocacia from '@/assets/portfolio-advocacia.png';
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
+import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
 
 const projects: Project[] = [
   {
@@ -34,7 +35,16 @@ const projects: Project[] = [
     description: 'Página de vendas com design impactante para curso de transformação pessoal.',
     image: portfolioVivendo,
     type: 'Projeto Real',
-   link: 'https://www.vivendopoderosamente.com.br/',
+    link: 'https://www.vivendopoderosamente.com.br/',
+  },
+  {
+    id: 3,
+    title: 'ViniDigital - Segurança & Tecnologia',
+    category: 'Site Institucional',
+    description: 'Site institucional para empresa de CFTV, Elétrica e Automação com design moderno.',
+    image: portfolioVinidigital,
+    type: 'Projeto Real',
+    link: 'https://www.vinidigtal.com.br/',
   },
 ];
 
