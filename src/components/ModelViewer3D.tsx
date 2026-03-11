@@ -1,23 +1,92 @@
 import { Suspense, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, useTexture, OrbitControls, Environment, Center } from '@react-three/drei';
+import { useGLTF, OrbitControls, Environment, Center } from '@react-three/drei';
 import * as THREE from 'three';
-import pilotCard from '@/assets/pilot-card.jpg';
 
 const MODEL_URL = 'https://static.poly.pizza/af6774b2-c748-47e6-9454-119e9e34c976.glb.br';
 
-function ScreenPlane() {
-  const texture = useTexture(pilotCard);
-  texture.colorSpace = THREE.SRGBColorSpace;
+function WindowsScreen() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const textureRef = useRef<THREE.CanvasTexture | null>(null);
+
+  if (!canvasRef.current) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 320;
+    const ctx = canvas.getContext('2d')!;
+
+    // Desktop background - Windows blue gradient
+    const bg = ctx.createLinearGradient(0, 0, 512, 320);
+    bg.addColorStop(0, '#1a73e8');
+    bg.addColorStop(0.5, '#0d47a1');
+    bg.addColorStop(1, '#002171');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 512, 320);
+
+    // Desktop icons
+    const icons = [
+      { x: 30, y: 20, label: 'Este PC', color: '#FFD54F' },
+      { x: 30, y: 90, label: 'Documentos', color: '#42A5F5' },
+      { x: 30, y: 160, label: 'Lixeira', color: '#BDBDBD' },
+    ];
+    icons.forEach(({ x, y, label, color }) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, 32, 28);
+      ctx.fillStyle = '#fff';
+      ctx.font = '9px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x + 16, y + 42);
+    });
+
+    // Taskbar
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(0, 290, 512, 30);
+
+    // Start button
+    ctx.fillStyle = '#0078D4';
+    ctx.fillRect(4, 294, 22, 22);
+    // Windows logo squares
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(8, 298, 6, 6);
+    ctx.fillRect(16, 298, 6, 6);
+    ctx.fillRect(8, 306, 6, 6);
+    ctx.fillRect(16, 306, 6, 6);
+
+    // Search bar
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.roundRect(32, 295, 140, 20, 3);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('🔍 Pesquisar', 40, 309);
+
+    // Taskbar icons
+    ctx.fillStyle = '#fff';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('📁', 185, 311);
+    ctx.fillText('🌐', 210, 311);
+
+    // Clock
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('14:32', 500, 306);
+    ctx.fillText('11/03/2026', 500, 316);
+
+    canvasRef.current = canvas;
+    textureRef.current = new THREE.CanvasTexture(canvas);
+    textureRef.current.colorSpace = THREE.SRGBColorSpace;
+  }
 
   return (
     <mesh position={[0, 1.02, -0.18]} rotation={[-0.18, 0, 0]}>
       <planeGeometry args={[2.05, 1.3]} />
       <meshStandardMaterial
-        map={texture}
-        emissive={new THREE.Color(0x666666)}
-        emissiveMap={texture}
-        emissiveIntensity={0.15}
+        map={textureRef.current}
+        emissive={new THREE.Color(0x444444)}
+        emissiveMap={textureRef.current}
+        emissiveIntensity={0.12}
         roughness={0.5}
         metalness={0}
         toneMapped={true}
@@ -41,7 +110,7 @@ function LaptopScene() {
     <Center>
       <group ref={groupRef}>
         <primitive object={scene} />
-        <ScreenPlane />
+        <WindowsScreen />
       </group>
     </Center>
   );
