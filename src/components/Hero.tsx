@@ -94,15 +94,6 @@ export function Hero() {
     return floatingDots;
   }, []);
 
-  // Hero entrance - fast smooth fade from background, no jank
-  const heroEntrance = {
-    hidden: { opacity: 0, scale: 0.92 },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
-      transition: { duration: 0.6, ease: [0, 0, 0.2, 1] as [number, number, number, number] }
-    }
-  };
 
   return (
     <section 
