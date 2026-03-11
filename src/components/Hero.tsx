@@ -111,7 +111,12 @@ export function Hero() {
       className="relative min-h-[150vh] overflow-hidden"
     >
       {/* Sticky Container */}
-      <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
+      <motion.div 
+        variants={heroEntrance}
+        initial="hidden"
+        animate="visible"
+        className="sticky top-0 h-screen flex items-center justify-center overflow-hidden"
+      >
         {/* Background gradient */}
         <motion.div 
           style={{ y: layer1Y }}
