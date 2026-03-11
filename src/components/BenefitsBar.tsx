@@ -27,12 +27,13 @@ export function BenefitsBar() {
                 transition={{ delay: i * 0.15, duration: 0.5 }}
                 className="flex flex-col items-center"
               >
-                {/* Mobile divider */}
+                {/* Mobile vertical connecting line */}
                 {i > 0 && (
                   <div 
-                    className="md:hidden w-24 h-px mb-6"
+                    className="md:hidden w-[2px] h-12 mb-2 mt-2"
                     style={{
-                      background: 'linear-gradient(90deg, transparent, hsl(195 100% 50% / 0.3), transparent)'
+                      background: 'linear-gradient(180deg, hsl(195 100% 50% / 0.6), hsl(155 100% 50% / 0.4), hsl(195 100% 50% / 0.6))',
+                      boxShadow: '0 0 8px hsl(195 100% 50% / 0.4), 0 0 16px hsl(195 100% 50% / 0.2)',
                     }}
                   />
                 )}
