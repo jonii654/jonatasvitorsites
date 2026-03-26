@@ -14,7 +14,7 @@ interface Project {
   link?: string;
 }
 
-import portfolioAdvocacia from '@/assets/portfolio-advocacia.png';
+
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
 
