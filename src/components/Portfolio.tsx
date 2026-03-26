@@ -21,15 +21,6 @@ import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
 const projects: Project[] = [
   {
     id: 1,
-    title: 'Landing Page Advocacia',
-    category: 'Landing Page',
-    description: 'Página de alta conversão para escritório de advocacia com design sofisticado.',
-    image: portfolioAdvocacia,
-    type: 'Protótipo',
-    link: 'https://advocaciaprototipo.lovable.app',
-  },
-  {
-    id: 2,
     title: 'Landing Page Venda',
     category: 'Landing Page',
     description: 'Página de vendas com design impactante para curso de transformação pessoal.',
@@ -38,7 +29,7 @@ const projects: Project[] = [
     link: 'https://www.vivendopoderosamente.com.br/',
   },
   {
-    id: 3,
+    id: 2,
     title: 'ViniDigital - Segurança & Tecnologia',
     category: 'Site Institucional',
     description: 'Site institucional para empresa de CFTV, Elétrica e Automação com design moderno.',
