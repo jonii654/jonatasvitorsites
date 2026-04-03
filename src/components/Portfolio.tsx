@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 
@@ -17,7 +17,7 @@ interface Project {
   image: string;
   type: string;
   link?: string;
-  bgColor: string; // HSL glow color matching the site
+  bgColor: string;
 }
 
 const projects: Project[] = [
@@ -31,7 +31,7 @@ const projects: Project[] = [
     image: portfolioVivendo,
     type: 'Projeto Real',
     link: 'https://www.vivendopoderosamente.com.br/',
-    bgColor: '30 80% 50%',   // warm orange/gold
+    bgColor: '30 80% 50%',
   },
   {
     id: 2,
@@ -43,7 +43,7 @@ const projects: Project[] = [
     image: portfolioVinidigital,
     type: 'Projeto Real',
     link: 'https://www.vinidigtal.com.br/',
-    bgColor: '220 70% 45%',  // deep blue
+    bgColor: '220 70% 45%',
   },
   {
     id: 3,
@@ -55,7 +55,7 @@ const projects: Project[] = [
     image: portfolioClinica,
     type: 'Site Modelo',
     link: 'https://clinicadoiphonesite.lovable.app',
-    bgColor: '0 0% 85%',     // white/light
+    bgColor: '0 0% 85%',
   },
   {
     id: 4,
@@ -67,11 +67,30 @@ const projects: Project[] = [
     image: portfolioBeatriz,
     type: 'Site Modelo',
     link: 'https://testedoteusitebeatriz.lovable.app',
-    bgColor: '280 50% 45%',  // purple
+    bgColor: '280 50% 45%',
   },
 ];
 
+// Preload all images on mount
+function usePreloadImages() {
+  useEffect(() => {
+    projects.forEach((p) => {
+      const img = new Image();
+      img.src = p.image;
+    });
+  }, []);
+}
+
+function getRelativePosition(index: number, activeIndex: number, total: number) {
+  let diff = index - activeIndex;
+  // Wrap around for infinite feel
+  if (diff > total / 2) diff -= total;
+  if (diff < -total / 2) diff += total;
+  return diff;
+}
+
 export function Portfolio() {
+  usePreloadImages();
   const [activeIndex, setActiveIndex] = useState(0);
   const isDragging = useRef(false);
 
@@ -87,30 +106,17 @@ export function Portfolio() {
     const threshold = 50;
     if (info.offset.x < -threshold) next();
     else if (info.offset.x > threshold) prev();
-    // Prevent click after drag
     isDragging.current = true;
     setTimeout(() => { isDragging.current = false; }, 200);
   }, [next, prev]);
 
-  const getVisibleProjects = () => {
-    const len = projects.length;
-    const prevIdx = ((activeIndex - 1) % len + len) % len;
-    const nextIdx = (activeIndex + 1) % len;
-    return [
-      { project: projects[prevIdx], position: 'left' as const },
-      { project: projects[activeIndex], position: 'center' as const },
-      { project: projects[nextIdx], position: 'right' as const },
-    ];
-  };
-
-  const visible = getVisibleProjects();
   const active = projects[activeIndex];
 
   return (
     <section id="portfolio" className="py-20 md:py-32 relative overflow-hidden">
       {/* Adaptive background glow */}
       <motion.div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none will-change-[background]"
         animate={{
           background: `radial-gradient(ellipse 80% 60% at 50% 40%, hsla(${active.bgColor} / 0.12) 0%, transparent 70%)`,
         }}
@@ -136,12 +142,12 @@ export function Portfolio() {
         </motion.div>
       </div>
 
-      {/* Carousel with swipe */}
+      {/* Carousel with swipe — all items always mounted */}
       <motion.div
         className="relative z-10 w-full overflow-hidden touch-pan-y"
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.2}
+        dragElastic={0.15}
         onDragEnd={handleDragEnd}
         style={{ cursor: 'grab' }}
         whileDrag={{ cursor: 'grabbing' }}
@@ -150,35 +156,36 @@ export function Portfolio() {
           className="relative flex items-center justify-center select-none"
           style={{ height: 'clamp(260px, 45vw, 420px)' }}
         >
-          {visible.map(({ project, position }) => {
-            const isCenter = position === 'center';
-            const isLeft = position === 'left';
+          {projects.map((project, index) => {
+            const diff = getRelativePosition(index, activeIndex, projects.length);
+            const isCenter = diff === 0;
+            const isVisible = Math.abs(diff) <= 1;
 
             return (
               <motion.div
-                key={`${project.id}-${position}`}
+                key={project.id}
                 className="absolute"
                 onClick={() => {
                   if (isDragging.current) return;
-                  if (isLeft) prev();
-                  if (position === 'right') next();
-                  if (isCenter && project.link) window.open(project.link, '_blank');
+                  if (diff === -1) prev();
+                  else if (diff === 1) next();
+                  else if (isCenter && project.link) window.open(project.link, '_blank');
                 }}
-                initial={false}
                 animate={{
-                  x: isCenter ? '0%' : isLeft ? '-75%' : '75%',
+                  x: `${diff * 75}%`,
                   scale: isCenter ? 1 : 0.75,
-                  opacity: isCenter ? 1 : 0.5,
+                  opacity: isVisible ? (isCenter ? 1 : 0.5) : 0,
                   zIndex: isCenter ? 10 : 5,
                 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                style={{ width: 'clamp(280px, 55vw, 580px)' }}
+                style={{
+                  width: 'clamp(280px, 55vw, 580px)',
+                  pointerEvents: isVisible ? 'auto' : 'none',
+                }}
               >
                 <div
                   className={`relative overflow-hidden rounded-[20px] md:rounded-[30px] border transition-shadow duration-500 ${
-                    isCenter
-                      ? 'border-primary/30'
-                      : 'border-border/20'
+                    isCenter ? 'border-primary/30' : 'border-border/20'
                   }`}
                   style={isCenter ? {
                     boxShadow: `0 0 60px -15px hsla(${active.bgColor} / 0.35)`,
@@ -188,8 +195,7 @@ export function Portfolio() {
                     <img
                       src={project.image}
                       alt={project.title}
-                      className="w-full h-full object-cover will-change-transform"
-                      loading="lazy"
+                      className="w-full h-full object-cover"
                       draggable={false}
                     />
                   </div>
@@ -217,7 +223,7 @@ export function Portfolio() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2 }}
             className="text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-3">
