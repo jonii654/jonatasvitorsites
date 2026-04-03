@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useCallback, useRef } from 'react';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
@@ -17,6 +17,7 @@ interface Project {
   image: string;
   type: string;
   link?: string;
+  bgColor: string; // HSL glow color matching the site
 }
 
 const projects: Project[] = [
@@ -30,6 +31,7 @@ const projects: Project[] = [
     image: portfolioVivendo,
     type: 'Projeto Real',
     link: 'https://www.vivendopoderosamente.com.br/',
+    bgColor: '30 80% 50%',   // warm orange/gold
   },
   {
     id: 2,
@@ -41,6 +43,7 @@ const projects: Project[] = [
     image: portfolioVinidigital,
     type: 'Projeto Real',
     link: 'https://www.vinidigtal.com.br/',
+    bgColor: '220 70% 45%',  // deep blue
   },
   {
     id: 3,
@@ -52,6 +55,7 @@ const projects: Project[] = [
     image: portfolioClinica,
     type: 'Site Modelo',
     link: 'https://clinicadoiphonesite.lovable.app',
+    bgColor: '0 0% 85%',     // white/light
   },
   {
     id: 4,
@@ -63,19 +67,30 @@ const projects: Project[] = [
     image: portfolioBeatriz,
     type: 'Site Modelo',
     link: 'https://testedoteusitebeatriz.lovable.app',
+    bgColor: '280 50% 45%',  // purple
   },
 ];
 
 export function Portfolio() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const isDragging = useRef(false);
 
   const goTo = useCallback((index: number) => {
     const len = projects.length;
     setActiveIndex(((index % len) + len) % len);
   }, []);
 
-  const prev = () => goTo(activeIndex - 1);
-  const next = () => goTo(activeIndex + 1);
+  const prev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
+  const next = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
+
+  const handleDragEnd = useCallback((_: unknown, info: PanInfo) => {
+    const threshold = 50;
+    if (info.offset.x < -threshold) next();
+    else if (info.offset.x > threshold) prev();
+    // Prevent click after drag
+    isDragging.current = true;
+    setTimeout(() => { isDragging.current = false; }, 200);
+  }, [next, prev]);
 
   const getVisibleProjects = () => {
     const len = projects.length;
@@ -93,8 +108,14 @@ export function Portfolio() {
 
   return (
     <section id="portfolio" className="py-20 md:py-32 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background/95 pointer-events-none" />
+      {/* Adaptive background glow */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        animate={{
+          background: `radial-gradient(ellipse 80% 60% at 50% 40%, hsla(${active.bgColor} / 0.12) 0%, transparent 70%)`,
+        }}
+        transition={{ duration: 0.8, ease: 'easeInOut' }}
+      />
 
       <div className="container mx-auto px-4 relative z-10 mb-10">
         <motion.div
@@ -115,10 +136,18 @@ export function Portfolio() {
         </motion.div>
       </div>
 
-      {/* Carousel */}
-      <div className="relative z-10 w-full overflow-hidden">
+      {/* Carousel with swipe */}
+      <motion.div
+        className="relative z-10 w-full overflow-hidden touch-pan-y"
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
+        style={{ cursor: 'grab' }}
+        whileDrag={{ cursor: 'grabbing' }}
+      >
         <div
-          className="relative flex items-center justify-center"
+          className="relative flex items-center justify-center select-none"
           style={{ height: 'clamp(260px, 45vw, 420px)' }}
         >
           {visible.map(({ project, position }) => {
@@ -128,8 +157,9 @@ export function Portfolio() {
             return (
               <motion.div
                 key={`${project.id}-${position}`}
-                className="absolute cursor-pointer"
+                className="absolute"
                 onClick={() => {
+                  if (isDragging.current) return;
                   if (isLeft) prev();
                   if (position === 'right') next();
                   if (isCenter && project.link) window.open(project.link, '_blank');
@@ -142,27 +172,28 @@ export function Portfolio() {
                   zIndex: isCenter ? 10 : 5,
                 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                style={{
-                  width: 'clamp(280px, 55vw, 580px)',
-                }}
+                style={{ width: 'clamp(280px, 55vw, 580px)' }}
               >
                 <div
-                  className={`relative overflow-hidden rounded-[20px] md:rounded-[30px] border transition-all duration-300 ${
+                  className={`relative overflow-hidden rounded-[20px] md:rounded-[30px] border transition-shadow duration-500 ${
                     isCenter
-                      ? 'border-primary/30 shadow-[0_0_40px_-10px_hsl(var(--primary)/0.3)]'
+                      ? 'border-primary/30'
                       : 'border-border/20'
                   }`}
+                  style={isCenter ? {
+                    boxShadow: `0 0 60px -15px hsla(${active.bgColor} / 0.35)`,
+                  } : undefined}
                 >
                   <div className="aspect-[16/10] overflow-hidden">
                     <img
                       src={project.image}
                       alt={project.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover will-change-transform"
                       loading="lazy"
+                      draggable={false}
                     />
                   </div>
 
-                  {/* Hover overlay for center item */}
                   {isCenter && project.link && (
                     <div className="absolute inset-0 bg-background/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-[20px] md:rounded-[30px]">
                       <span className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
@@ -176,9 +207,9 @@ export function Portfolio() {
             );
           })}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Content below carousel */}
+      {/* Content */}
       <div className="relative z-10 container mx-auto px-4 mt-8">
         <AnimatePresence mode="wait">
           <motion.div
@@ -186,10 +217,9 @@ export function Portfolio() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.25 }}
             className="text-center"
           >
-            {/* Category tag */}
             <div className="flex items-center justify-center gap-2 mb-3">
               <span className="w-2 h-2 rounded-full bg-primary" />
               <span className="text-xs font-semibold tracking-widest text-primary uppercase">
@@ -197,18 +227,15 @@ export function Portfolio() {
               </span>
             </div>
 
-            {/* Title */}
             <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
               <span className="text-foreground">{active.title}</span>{' '}
               <span className="text-muted-foreground">{active.titleHighlight}</span>
             </h3>
 
-            {/* Description */}
             <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto leading-relaxed">
               {active.description}
             </p>
 
-            {/* Type badge */}
             <div className="mt-4">
               <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
                 {active.type}
@@ -218,9 +245,8 @@ export function Portfolio() {
         </AnimatePresence>
       </div>
 
-      {/* Navigation Controls */}
+      {/* Navigation */}
       <div className="relative z-10 flex items-center justify-center gap-6 mt-8">
-        {/* Prev button */}
         <button
           onClick={prev}
           className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
@@ -229,7 +255,6 @@ export function Portfolio() {
           <ChevronLeft className="w-5 h-5" />
         </button>
 
-        {/* Dots */}
         <div className="flex items-center gap-2">
           {projects.map((_, i) => (
             <button
@@ -245,7 +270,6 @@ export function Portfolio() {
           ))}
         </div>
 
-        {/* Next button */}
         <button
           onClick={next}
           className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-all duration-200"
