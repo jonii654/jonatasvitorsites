@@ -17,6 +17,8 @@ interface Project {
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
+import portfolioClinica from '@/assets/portfolio-clinicaiphone.png';
+import portfolioBeatriz from '@/assets/portfolio-beatriz.png';
 
 const projects: Project[] = [
   {
@@ -36,6 +38,24 @@ const projects: Project[] = [
     image: portfolioVinidigital,
     type: 'Projeto Real',
     link: 'https://www.vinidigtal.com.br/',
+  },
+  {
+    id: 3,
+    title: 'Clínica do iPhone',
+    category: 'Site Institucional',
+    description: 'Site modelo para assistência técnica de iPhones com design moderno e profissional.',
+    image: portfolioClinica,
+    type: 'Site Modelo',
+    link: 'https://clinicadoiphonesite.lovable.app',
+  },
+  {
+    id: 4,
+    title: 'Beatriz - Marca Pessoal',
+    category: 'Site Pessoal',
+    description: 'Site modelo para estrategista digital e mentora com design elegante e sofisticado.',
+    image: portfolioBeatriz,
+    type: 'Site Modelo',
+    link: 'https://testedoteusitebeatriz.lovable.app',
   },
 ];
 
