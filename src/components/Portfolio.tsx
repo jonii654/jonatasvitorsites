@@ -1,30 +1,31 @@
-import { motion } from 'framer-motion';
-import { ExternalLink, Play } from 'lucide-react';
-import { useRef } from 'react';
-import { Button } from '@/components/ui/button';
-
-interface Project {
-  id: number;
-  title: string;
-  category: string;
-  description: string;
-  image: string;
-  type: string;
-  hasVideo?: boolean;
-  link?: string;
-}
-
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
 import portfolioClinica from '@/assets/portfolio-clinicaiphone.png';
 import portfolioBeatriz from '@/assets/portfolio-beatriz.png';
 
+interface Project {
+  id: number;
+  title: string;
+  titleHighlight: string;
+  category: string;
+  categoryLabel: string;
+  description: string;
+  image: string;
+  type: string;
+  link?: string;
+}
+
 const projects: Project[] = [
   {
     id: 1,
-    title: 'Landing Page Venda',
+    title: 'Landing Page',
+    titleHighlight: 'Venda',
     category: 'Landing Page',
+    categoryLabel: 'LANDING PAGE',
     description: 'Página de vendas com design impactante para curso de transformação pessoal.',
     image: portfolioVivendo,
     type: 'Projeto Real',
@@ -32,8 +33,10 @@ const projects: Project[] = [
   },
   {
     id: 2,
-    title: 'ViniDigital - Segurança & Tecnologia',
+    title: 'ViniDigital',
+    titleHighlight: 'Segurança',
     category: 'Site Institucional',
+    categoryLabel: 'SITE INSTITUCIONAL',
     description: 'Site institucional para empresa de CFTV, Elétrica e Automação com design moderno.',
     image: portfolioVinidigital,
     type: 'Projeto Real',
@@ -41,8 +44,10 @@ const projects: Project[] = [
   },
   {
     id: 3,
-    title: 'Clínica do iPhone',
+    title: 'Clínica do',
+    titleHighlight: 'iPhone',
     category: 'Site Institucional',
+    categoryLabel: 'SITE MODELO',
     description: 'Site modelo para assistência técnica de iPhones com design moderno e profissional.',
     image: portfolioClinica,
     type: 'Site Modelo',
@@ -50,8 +55,10 @@ const projects: Project[] = [
   },
   {
     id: 4,
-    title: 'Beatriz - Marca Pessoal',
+    title: 'Beatriz',
+    titleHighlight: 'Marca Pessoal',
     category: 'Site Pessoal',
+    categoryLabel: 'MARCA PESSOAL',
     description: 'Site modelo para estrategista digital e mentora com design elegante e sofisticado.',
     image: portfolioBeatriz,
     type: 'Site Modelo',
@@ -60,14 +67,36 @@ const projects: Project[] = [
 ];
 
 export function Portfolio() {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const goTo = useCallback((index: number) => {
+    const len = projects.length;
+    setActiveIndex(((index % len) + len) % len);
+  }, []);
+
+  const prev = () => goTo(activeIndex - 1);
+  const next = () => goTo(activeIndex + 1);
+
+  const getVisibleProjects = () => {
+    const len = projects.length;
+    const prevIdx = ((activeIndex - 1) % len + len) % len;
+    const nextIdx = (activeIndex + 1) % len;
+    return [
+      { project: projects[prevIdx], position: 'left' as const },
+      { project: projects[activeIndex], position: 'center' as const },
+      { project: projects[nextIdx], position: 'right' as const },
+    ];
+  };
+
+  const visible = getVisibleProjects();
+  const active = projects[activeIndex];
 
   return (
     <section id="portfolio" className="py-20 md:py-32 relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-glow-gradient pointer-events-none opacity-20" />
-      
-      <div className="container mx-auto px-4 relative z-10 mb-12">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background/95 pointer-events-none" />
+
+      <div className="container mx-auto px-4 relative z-10 mb-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -76,129 +105,155 @@ export function Portfolio() {
           className="text-center"
         >
           <span className="section-label">Portfólios</span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             <span className="gradient-text">Trabalhos Já Feitos</span>{' '}
             <span className="gradient-text">/ Protótipos</span>
           </h2>
-          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+          <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
             Exemplos do meu trabalho abaixo.
           </p>
         </motion.div>
       </div>
 
-      {/* Horizontal Scrolling Portfolio - Native Scroll */}
-      <div 
-        ref={scrollContainerRef}
-        className="overflow-x-auto scrollbar-hide pb-4 cursor-grab active:cursor-grabbing"
-        style={{ 
-          scrollBehavior: 'smooth',
-          WebkitOverflowScrolling: 'touch',
-          scrollSnapType: 'x mandatory'
-        }}
-      >
-        <div className="flex gap-6 px-4 md:px-8 w-max">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              className="flex-shrink-0 w-[80vw] md:w-[380px] lg:w-[420px]"
-              style={{ scrollSnapAlign: 'start' }}
-            >
-              <div className="glass-card-hover group overflow-hidden h-full">
-                {/* Image Container */}
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <motion.img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent opacity-60" />
-                  
-                  {/* Video Badge */}
-                  {project.hasVideo && (
-                    <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-primary/90 backdrop-blur-sm rounded-full">
-                      <Play className="w-3 h-3 text-primary-foreground" fill="currentColor" />
-                      <span className="text-xs font-medium text-primary-foreground">Vídeo</span>
-                    </div>
-                  )}
+      {/* Carousel */}
+      <div className="relative z-10 w-full overflow-hidden">
+        <div
+          className="relative flex items-center justify-center"
+          style={{ height: 'clamp(260px, 45vw, 420px)' }}
+        >
+          {visible.map(({ project, position }) => {
+            const isCenter = position === 'center';
+            const isLeft = position === 'left';
 
-                  {/* Category Tag */}
-                  <div className="absolute top-4 right-4">
-                    <span className="px-3 py-1 text-xs font-medium rounded-full bg-background/80 backdrop-blur-sm text-primary border border-primary/30">
-                      {project.category}
-                    </span>
+            return (
+              <motion.div
+                key={`${project.id}-${position}`}
+                className="absolute cursor-pointer"
+                onClick={() => {
+                  if (isLeft) prev();
+                  if (position === 'right') next();
+                  if (isCenter && project.link) window.open(project.link, '_blank');
+                }}
+                initial={false}
+                animate={{
+                  x: isCenter ? '0%' : isLeft ? '-75%' : '75%',
+                  scale: isCenter ? 1 : 0.75,
+                  opacity: isCenter ? 1 : 0.5,
+                  zIndex: isCenter ? 10 : 5,
+                }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                style={{
+                  width: 'clamp(280px, 55vw, 580px)',
+                }}
+              >
+                <div
+                  className={`relative overflow-hidden rounded-[20px] md:rounded-[30px] border transition-all duration-300 ${
+                    isCenter
+                      ? 'border-primary/30 shadow-[0_0_40px_-10px_hsl(var(--primary)/0.3)]'
+                      : 'border-border/20'
+                  }`}
+                >
+                  <div className="aspect-[16/10] overflow-hidden">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
                   </div>
 
-                  {/* Overlay on Hover */}
-                  <div className="absolute inset-0 bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {project.link ? (
-                      <Button 
-                        variant="secondary" 
-                        size="sm" 
-                        className="gap-2 active:scale-95 transition-transform duration-150"
-                        asChild
-                      >
-                        <a href={project.link} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-4 h-4" />
-                          Ver projeto
-                        </a>
-                      </Button>
-                    ) : (
-                      <Button variant="secondary" size="sm" className="gap-2 active:scale-95 transition-transform duration-150">
+                  {/* Hover overlay for center item */}
+                  {isCenter && project.link && (
+                    <div className="absolute inset-0 bg-background/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-[20px] md:rounded-[30px]">
+                      <span className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
                         <ExternalLink className="w-4 h-4" />
                         Ver projeto
-                      </Button>
-                    )}
-                  </div>
+                      </span>
+                    </div>
+                  )}
                 </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-foreground mb-2">
-                    {project.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                    {project.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                    <span className="text-sm text-muted-foreground">Tipo:</span>
-                    <span className="text-sm font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">
-                      {project.type}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <motion.div 
-        className="flex justify-center mt-8 gap-2"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-      >
-        <span className="text-sm text-muted-foreground flex items-center gap-2">
-          <motion.span
-            animate={{ x: [0, 10, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
+      {/* Content below carousel */}
+      <div className="relative z-10 container mx-auto px-4 mt-8">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={active.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="text-center"
           >
-            ←
-          </motion.span>
-          Arraste para ver mais
-          <motion.span
-            animate={{ x: [0, -10, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            →
-          </motion.span>
-        </span>
-      </motion.div>
+            {/* Category tag */}
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <span className="w-2 h-2 rounded-full bg-primary" />
+              <span className="text-xs font-semibold tracking-widest text-primary uppercase">
+                {active.categoryLabel}
+              </span>
+            </div>
+
+            {/* Title */}
+            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
+              <span className="text-foreground">{active.title}</span>{' '}
+              <span className="text-muted-foreground">{active.titleHighlight}</span>
+            </h3>
+
+            {/* Description */}
+            <p className="text-muted-foreground text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+              {active.description}
+            </p>
+
+            {/* Type badge */}
+            <div className="mt-4">
+              <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                {active.type}
+              </span>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Navigation Controls */}
+      <div className="relative z-10 flex items-center justify-center gap-6 mt-8">
+        {/* Prev button */}
+        <button
+          onClick={prev}
+          className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-muted/50 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
+          aria-label="Anterior"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        {/* Dots */}
+        <div className="flex items-center gap-2">
+          {projects.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`Ir para projeto ${i + 1}`}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                i === activeIndex
+                  ? 'w-8 bg-primary'
+                  : 'w-3 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Next button */}
+        <button
+          onClick={next}
+          className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/90 transition-all duration-200"
+          aria-label="Próximo"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
     </section>
   );
 }
