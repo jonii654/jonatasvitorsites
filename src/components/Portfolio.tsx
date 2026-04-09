@@ -54,7 +54,7 @@ const projects: Project[] = [
     description: 'Site modelo para assistência técnica de iPhones com design moderno e profissional.',
     image: portfolioClinica,
     type: 'Site Modelo',
-    link: 'https://clinicadoiphonesite.lovable.app',
+    link: 'https://iphoneclinica.lovable.app',
     bgColor: '0 0% 85%',
   },
   {
@@ -66,7 +66,7 @@ const projects: Project[] = [
     description: 'Site modelo para estrategista digital e mentora com design elegante e sofisticado.',
     image: portfolioBeatriz,
     type: 'Site Modelo',
-    link: 'https://testedoteusitebeatriz.lovable.app',
+    link: 'https://marketingpessoal.lovable.app',
     bgColor: '280 50% 45%',
   },
 ];
