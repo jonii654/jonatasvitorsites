@@ -1,55 +1,89 @@
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
-import { Interactive3DCard } from '@/components/Interactive3DCard';
-import { ModelViewer3D } from '@/components/ModelViewer3D';
 import { BenefitsBar } from '@/components/BenefitsBar';
 import { AboutMe } from '@/components/AboutMe';
-import { HorizontalNotebookScroll } from '@/components/HorizontalNotebookScroll';
-import { HowItWorks } from '@/components/HowItWorks';
-import { Portfolio } from '@/components/Portfolio';
-import { Testimonials } from '@/components/Testimonials';
-import { FAQ } from '@/components/FAQ';
-import { CTASection } from '@/components/CTASection';
 import { Footer } from '@/components/Footer';
-import { VideoBackground } from '@/components/VideoBackground';
+import { Preloader } from '@/components/Preloader';
+
+const ModelViewer3D = lazy(() => import('@/components/ModelViewer3D').then(m => ({ default: m.ModelViewer3D })));
+const Interactive3DCard = lazy(() => import('@/components/Interactive3DCard').then(m => ({ default: m.Interactive3DCard })));
+const HorizontalNotebookScroll = lazy(() => import('@/components/HorizontalNotebookScroll').then(m => ({ default: m.HorizontalNotebookScroll })));
+const HowItWorks = lazy(() => import('@/components/HowItWorks').then(m => ({ default: m.HowItWorks })));
+const Portfolio = lazy(() => import('@/components/Portfolio').then(m => ({ default: m.Portfolio })));
+const Testimonials = lazy(() => import('@/components/Testimonials').then(m => ({ default: m.Testimonials })));
+const FAQ = lazy(() => import('@/components/FAQ').then(m => ({ default: m.FAQ })));
+const CTASection = lazy(() => import('@/components/CTASection').then(m => ({ default: m.CTASection })));
+const VideoBackground = lazy(() => import('@/components/VideoBackground').then(m => ({ default: m.VideoBackground })));
+
+const Fallback = () => <div className="min-h-[200px]" aria-hidden />;
 
 const Index = () => {
+  const [loading, setLoading] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return !sessionStorage.getItem('jv_preloaded');
+  });
+
+  useEffect(() => {
+    if (!loading) return;
+    const t = setTimeout(() => {
+      sessionStorage.setItem('jv_preloaded', '1');
+    }, 100);
+    return () => clearTimeout(t);
+  }, [loading]);
+
   return (
-    <div className="min-h-screen bg-background w-full" style={{ overflowX: 'clip' }}>
-      <Header />
-      <main>
-        {/* Hero section - NO video background */}
-        <Hero />
-        
-        {/* 3D Model Viewer */}
-        <ModelViewer3D />
-        
-        {/* 3D Interactive Card Transition */}
-        <Interactive3DCard />
-        
-        <BenefitsBar />
-        
-        {/* Video background - starts from AboutMe until Footer */}
-        <div className="relative">
-          <VideoBackground />
-          <div className="relative z-10">
-            <AboutMe />
-            
-            {/* Horizontal Notebook Scroll - Compromisso com qualidade */}
-            <HorizontalNotebookScroll />
-            
-            <HowItWorks />
-            <Portfolio />
-            
-            <Testimonials />
-            
-            <FAQ />
-            <CTASection />
+    <>
+      {loading && <Preloader onFinish={() => setLoading(false)} />}
+      <div className="min-h-screen bg-background w-full" style={{ overflowX: 'clip' }}>
+        <Header />
+        <main>
+          <Hero />
+
+          <Suspense fallback={<Fallback />}>
+            <ModelViewer3D />
+          </Suspense>
+
+          <Suspense fallback={<Fallback />}>
+            <Interactive3DCard />
+          </Suspense>
+
+          <BenefitsBar />
+
+          <div className="relative">
+            <Suspense fallback={null}>
+              <VideoBackground />
+            </Suspense>
+            <div className="relative z-10">
+              <AboutMe />
+
+              <Suspense fallback={<Fallback />}>
+                <HorizontalNotebookScroll />
+              </Suspense>
+
+              <Suspense fallback={<Fallback />}>
+                <HowItWorks />
+              </Suspense>
+              <Suspense fallback={<Fallback />}>
+                <Portfolio />
+              </Suspense>
+
+              <Suspense fallback={<Fallback />}>
+                <Testimonials />
+              </Suspense>
+
+              <Suspense fallback={<Fallback />}>
+                <FAQ />
+              </Suspense>
+              <Suspense fallback={<Fallback />}>
+                <CTASection />
+              </Suspense>
+            </div>
           </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
+        </main>
+        <Footer />
+      </div>
+    </>
   );
 };
 
