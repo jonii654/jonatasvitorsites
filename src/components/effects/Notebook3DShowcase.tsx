@@ -354,7 +354,7 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
 
         {/* Glass reflection */}
         {tier === 'full' && (
-          <mesh position={[0, lidH / 2 + 0.12, 0.02]}>
+          <mesh position={[0, lidH / 2 + 0.05, 0.02]}>
             <planeGeometry args={[screenW, screenH]} />
             <meshPhysicalMaterial
               transparent
