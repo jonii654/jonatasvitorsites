@@ -185,16 +185,18 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
 
   useEffect(() => {
     if (!lidRef.current) return;
-    lidRef.current.rotation.x = 0.05;
+    // closed: tampa deitada sobre a base (rotação PI/2 = deitada para frente)
+    lidRef.current.rotation.x = Math.PI / 2;
     if (screenMatRef.current) {
       screenMatRef.current.opacity = 0;
       screenMatRef.current.transparent = true;
     }
 
     const tl = gsap.timeline();
+    // aberta: levemente reclinada para trás (~100°)
     tl.to(
       lidRef.current.rotation,
-      { x: -Math.PI / 2 - 0.05, duration: 1.6, ease: 'power4.out' },
+      { x: -0.18, duration: 1.8, ease: 'power4.out' },
       0.3
     );
     if (screenMatRef.current) {
