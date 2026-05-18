@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { PortfolioMosaicHero } from './effects/PortfolioMosaicHero';
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
@@ -123,24 +124,7 @@ export function Portfolio() {
         transition={{ duration: 0.8, ease: 'easeInOut' }}
       />
 
-      <div className="container mx-auto px-4 relative z-10 mb-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
-          <span className="section-label">Portfólios</span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            <span className="gradient-text">Trabalhos Já Feitos</span>{' '}
-            <span className="gradient-text">/ Protótipos</span>
-          </h2>
-          <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-            Exemplos do meu trabalho abaixo.
-          </p>
-        </motion.div>
-      </div>
+      <PortfolioMosaicHero />
 
       {/* Carousel with swipe — all items always mounted */}
       <motion.div
