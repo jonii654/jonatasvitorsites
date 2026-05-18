@@ -463,7 +463,10 @@ export function Notebook3DShowcase() {
           <Canvas
             shadows={tier === 'full'}
             dpr={tier === 'light' ? [1, 1.3] : [1, 2]}
-            camera={{ position: [0, 0.5, 5.6], fov: 32 }}
+            camera={{
+              position: tier === 'light' ? [0, 0.9, 7.2] : [0, 0.9, 6.2],
+              fov: tier === 'light' ? 30 : 28,
+            }}
             gl={{
               antialias: true,
               alpha: true,
@@ -477,10 +480,11 @@ export function Notebook3DShowcase() {
               enableDamping
               dampingFactor={0.08}
               autoRotate={false}
-              minPolarAngle={Math.PI / 2.4}
-              maxPolarAngle={Math.PI / 2.05}
-              minAzimuthAngle={-Math.PI / 6}
-              maxAzimuthAngle={Math.PI / 6}
+              target={[0, 0.4, 0]}
+              minPolarAngle={Math.PI / 2.15}
+              maxPolarAngle={Math.PI / 2.02}
+              minAzimuthAngle={-Math.PI / 10}
+              maxAzimuthAngle={Math.PI / 10}
             />
           </Canvas>
         )}
