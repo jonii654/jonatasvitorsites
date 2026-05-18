@@ -341,24 +341,8 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
           position={[0, lidH / 2 + 0.05, 0.008]}
         />
 
-        {/* Chin area (subtle highlight strip) */}
-        <mesh position={[0, 0.18, 0.015]}>
-          <planeGeometry args={[screenW, 0.18]} />
-          <meshStandardMaterial color="#050505" metalness={0.4} roughness={0.6} />
-        </mesh>
-
-        {/* Discreet brand dot on chin */}
-        <mesh position={[0, 0.18, 0.018]}>
-          <circleGeometry args={[0.018, 24]} />
-          <meshStandardMaterial
-            color="#5a5a5a"
-            metalness={0.8}
-            roughness={0.3}
-          />
-        </mesh>
-
-        {/* Screen poster (uses center crop letterbox via UV) */}
-        <mesh position={[0, lidH / 2 + 0.12, 0.016]}>
+        {/* Screen poster (cover-fit, fills entire bezel) */}
+        <mesh position={[0, lidH / 2 + 0.05, 0.016]}>
           <planeGeometry args={[screenW, screenH]} />
           <meshBasicMaterial
             ref={screenMatRef}
@@ -366,15 +350,6 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
             toneMapped={false}
             transparent
           />
-        </mesh>
-        {/* Black side bars (letterbox to keep poster proportion) */}
-        <mesh position={[-(screenW * (1 - repeatX)) / 4 - screenW / 2 + (screenW * (1 - repeatX)) / 4, lidH / 2 + 0.12, 0.0165]}>
-          <planeGeometry args={[(screenW * (1 - repeatX)) / 2, screenH]} />
-          <meshBasicMaterial color="#000" />
-        </mesh>
-        <mesh position={[screenW / 2 - (screenW * (1 - repeatX)) / 4, lidH / 2 + 0.12, 0.0165]}>
-          <planeGeometry args={[(screenW * (1 - repeatX)) / 2, screenH]} />
-          <meshBasicMaterial color="#000" />
         </mesh>
 
         {/* Glass reflection */}
