@@ -228,21 +228,20 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
   const baseD = 2.25;
   const baseH = 0.16;
   const lidH = 1.95;
-  const screenW = 2.92;
-  const screenH = 1.55; // chin reservado abaixo
-  // imagem é 3:4 (vertical). Para caber sem distorcer em tela 16:10 horizontal,
-  // usamos repeat<1 em X centralizado, deixando faixas pretas laterais.
-  const imgAspect = 3 / 4; // w/h da imagem original
+  const screenW = 3.04;
+  const screenH = 1.84;
+  // imagem 3:4 vertical. "cover" no plano horizontal: crop vertical, preenche tudo.
+  const imgAspect = 3 / 4;
   const screenAspect = screenW / screenH;
-  const repeatX = imgAspect / screenAspect; // <1, centraliza
+  const repeatY = imgAspect / screenAspect; // <1
   useEffect(() => {
     if (!screenMap) return;
     screenMap.wrapS = THREE.ClampToEdgeWrapping;
     screenMap.wrapT = THREE.ClampToEdgeWrapping;
-    screenMap.repeat.set(1, 1);
-    screenMap.offset.set(0, 0);
+    screenMap.repeat.set(1, repeatY);
+    screenMap.offset.set(0, (1 - repeatY) / 2);
     screenMap.needsUpdate = true;
-  }, [screenMap]);
+  }, [screenMap, repeatY]);
 
   return (
     <group ref={groupRef} position={[0, -0.25, 0]}>
