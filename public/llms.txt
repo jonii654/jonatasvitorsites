@@ -1,0 +1,9 @@
+# Jonatas Vitor
+
+> Criador de sites, landing pages, e-commerces e web apps com design moderno e foco em conversão.
+
+Portfólio e página de serviços de Jonatas Vitor. O site apresenta projetos realizados, processo de trabalho, benefícios, depoimentos, perguntas frequentes e canais de contato (WhatsApp).
+
+## Pages
+
+- [Home](/): Apresentação, portfólio, como funciona, benefícios, FAQ e CTA para contratação via WhatsApp.
