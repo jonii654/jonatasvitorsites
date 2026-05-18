@@ -34,8 +34,8 @@ export function PortfolioMosaicHero() {
         {tier === 'light' ? (
           <>
             <h2
-              className="font-black leading-[0.85] tracking-tight uppercase text-center gradient-text"
-              style={{ fontSize: 'clamp(3rem, 16vw, 7rem)', letterSpacing: '-0.04em' }}
+              className="font-black leading-[0.85] tracking-tight uppercase text-center gradient-text px-2"
+              style={{ fontSize: 'clamp(2.5rem, 13vw, 6rem)', letterSpacing: '-0.05em', wordBreak: 'keep-all' }}
             >
               Trabalhos
             </h2>
@@ -61,7 +61,7 @@ export function PortfolioMosaicHero() {
             </div>
 
             {/* Giant title in foreground */}
-            <div className="relative z-10 flex items-center justify-center min-h-[400px] md:min-h-[520px] pointer-events-none">
+            <div className="relative z-10 flex items-center justify-center min-h-[400px] md:min-h-[520px] pointer-events-none px-4">
               <motion.h2
                 initial={{ opacity: 0, scale: 0.92 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -69,13 +69,14 @@ export function PortfolioMosaicHero() {
                 transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
                 className="font-black leading-[0.8] tracking-tight uppercase text-center"
                 style={{
-                  fontSize: 'clamp(5rem, 18vw, 16rem)',
-                  letterSpacing: '-0.05em',
+                  fontSize: 'clamp(4rem, 15vw, 14rem)',
+                  letterSpacing: '-0.06em',
                   background: 'linear-gradient(135deg, hsl(195 100% 60%), hsl(155 100% 55%))',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
                   textShadow: '0 30px 60px hsl(0 0% 0% / 0.5)',
+                  wordBreak: 'keep-all',
                 }}
               >
                 TRABALHOS
