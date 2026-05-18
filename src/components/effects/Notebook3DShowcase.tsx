@@ -317,38 +317,37 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
 
       <Keyboard tier={tier} />
 
-      {/* Speaker grills flanking keyboard (full tier) */}
+      {/* Speaker grills along back edge, flanking the hinge */}
       {tier === 'full' && (
         <>
-          <mesh position={[-1.3, 0.082, 0.05]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[0.16, 1.05]} />
+          <mesh position={[-1.05, 0.083, -1.0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.9, 0.12]} />
             <meshStandardMaterial map={grillTex} roughness={0.9} />
           </mesh>
-          <mesh position={[1.3, 0.082, 0.05]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[0.16, 1.05]} />
+          <mesh position={[1.05, 0.083, -1.0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.9, 0.12]} />
             <meshStandardMaterial map={grillTex} roughness={0.9} />
           </mesh>
         </>
       )}
 
-      {/* Trackpad */}
-      <group position={[0, 0.082, 0.85]}>
-        <mesh>
-          <boxGeometry args={[1.05, 0.004, 0.6]} />
-          <meshStandardMaterial color="#0f0f10" metalness={0.5} roughness={0.35} />
+      {/* Trackpad — à frente do teclado, recessed */}
+      <group position={[0, 0.0825, 0.55]}>
+        <mesh position={[0, -0.002, 0]}>
+          <boxGeometry args={[1.22, 0.006, 0.72]} />
+          <meshStandardMaterial color="#050505" metalness={0.3} roughness={0.85} />
         </mesh>
-        <mesh position={[0, -0.003, 0]}>
-          <boxGeometry args={[1.08, 0.008, 0.63]} />
-          <meshStandardMaterial color="#050505" metalness={0.4} roughness={0.6} />
-        </mesh>
+        <RoundedBox args={[1.18, 0.004, 0.68]} radius={0.02} smoothness={3}>
+          <meshStandardMaterial color="#0e0e10" metalness={0.55} roughness={0.3} />
+        </RoundedBox>
       </group>
 
-      {/* Hinge */}
+      {/* Hinge — atrás, baixa, fora do deck */}
       <mesh
-        position={[0, 0.05, -baseD / 2 + 0.04]}
+        position={[0, 0.02, -baseD / 2 + 0.02]}
         rotation={[0, 0, Math.PI / 2]}
       >
-        <cylinderGeometry args={[0.05, 0.05, baseW - 0.4, 24]} />
+        <cylinderGeometry args={[0.04, 0.04, baseW - 0.5, 24]} />
         <meshStandardMaterial color="#0a0a0a" metalness={0.7} roughness={0.4} />
       </mesh>
 
