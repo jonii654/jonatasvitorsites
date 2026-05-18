@@ -1,96 +1,54 @@
-# Plano de ajustes
+# Melhorar Notebook 3D
 
-## 1. Reduzir excesso de efeitos
-Manter só os 3 mais elegantes e remover o resto:
-- **MANTER**: reveal palavra-por-palavra no Sobre Mim (v5), tipografia gigante "TRABALHOS" no Portfólio (v8), blobs orgânicos no CTA final (v1) — sem exagero.
-- **REMOVER e voltar versão simples**:
-  - `StickerAvatar` (adesivos flutuando na foto) → substituir por carrossel suave de fotos (ver item 5).
-  - `HorizontalCards` (Compromisso sticky) → voltar para o layout vertical anterior do "Meu Compromisso com Você" com fade simples no scroll.
-  - `ExpandingBars` (Como Funciona) → voltar para a timeline vertical original.
-  - `Coverflow3D` nos Depoimentos → voltar pro carrossel horizontal simples com snap.
+## Problema atual
+O notebook em `Notebook3DShowcase.tsx` é só 4 caixas (base, bezel, tela, trackpad). Sem teclas, sem dobradiça, sem logo, sem espessura realista, sem bordas chanfradas. Parece um bloco. Fundo transparente, sem ambientação.
 
-Resultado: site mais limpo, foco no conteúdo, só 3 momentos "uau".
+## O que vou construir
 
-## 2. Hero mais leve no mobile
-Causa do peso atual no celular:
-- Canvas de pontos de luz animados rodando em `requestAnimationFrame` mesmo no mobile.
-- Filtros `blur(100px)` em múltiplas camadas (custosos no GPU).
-- Animações de gradiente em loop.
+### 1. Modelo 3D detalhado (Three.js + R3F + drei)
+Reconstruir o laptop em `Notebook3DShowcase.tsx` baseado nas 7 fotos do Asus que você enviou (`src/assets/notebook/view-1..7.png`):
 
-Correção:
-- No mobile (`useDeviceTier === 'light'`): desligar o canvas de pontos, substituir por 2-3 pontos de luz CSS estáticos com `box-shadow` glow.
-- Trocar `blur(100px)` por `blur(40px)` no mobile.
-- Remover animação de gradient infinito no headline mobile; manter só o gradiente estático.
-- Manter o efeito "puf clareia CTA" no load (já está leve).
-- Hierarquia: título mais respirável, espaçamentos consistentes com o resto do site.
+- **Base (chassis)**: `RoundedBox` (drei) com cantos arredondados, espessura real ~0.18, chanfros nas bordas — não mais cubo plano.
+- **Teclado**: grid 6x15 de teclas individuais (`RoundedBox` pequenas) com leve elevação, gaps escuros entre elas, retroiluminação sutil (emissive baixo).
+- **Trackpad**: rebaixado, borda chanfrada visível, material levemente mais claro.
+- **Dobradiça (hinge)**: cilindro real conectando base e tampa, visível atrás.
+- **Tampa (lid)**: `RoundedBox` fino com leve curvatura, logo Asus discreto (emissive) no centro das costas.
+- **Tela**: bezel preto fino + tela com a textura `view-1.png`. Adicionar um plano frontal com `MeshPhysicalMaterial` (transmission/clearcoat) simulando o vidro reflexivo.
+- **Pés de borracha**: 4 cilindros pequenos embaixo.
+- **Portas USB/laterais**: pequenos recortes (BoxGeometry escura) nas laterais da base.
+- **Material**: `MeshPhysicalMaterial` com `clearcoat: 1`, `clearcoatRoughness: 0.25`, `metalness: 0.85`, `roughness: 0.32` — alumínio escovado realista.
 
-## 3. Novo menu (estilo dos vídeos enviados)
-Substituir o drawer lateral atual por um **menu fullscreen** com:
-- Botão hambúrguer no canto → ao clicar, overlay escuro cobre a tela com transição (clip-path circular do canto).
-- Links GIGANTES centralizados (texto 6-8vw), um abaixo do outro.
-- Cada link com hover: contorno luminoso + leve translação X.
-- WhatsApp como CTA destacado no rodapé do overlay.
-- Versão desktop: mantém a navbar horizontal atual (não muda nada lá).
-- Versão mobile: usa o novo fullscreen no lugar do drawer lateral.
+### 2. Fundo gradiente cinza (estilo Pinterest/studio)
+Trocar fundo transparente por uma cena studio:
 
-## 4. Notebook 3D próprio (sem Sketchfab)
-Remover o iframe externo. Construir showcase 3D usando as **7 fotos do notebook** que você enviou (ângulos diferentes do mesmo Asus).
+- Plano de fundo grande com gradiente vertical: cinza claro (#d4d4d4) no topo → cinza médio (#8a8a8a) no meio → cinza escuro (#3a3a3a) embaixo. Feito via `CanvasTexture` ou `shaderMaterial` simples.
+- Piso refletivo sutil (`MeshReflectorMaterial` da drei) com blur alto e mixStrength baixa — só uma insinuação de reflexo embaixo do laptop, tipo foto de produto.
+- `ContactShadows` mais densos.
+- Vinheta sutil nas bordas (CSS overlay).
 
-Abordagem: **rotating image sequence** (carrossel 3D suave estilo "sprite turntable"):
-- Container com perspectiva CSS.
-- As 7 fotos pré-carregadas, mostradas uma por vez com crossfade rápido conforme o scroll/drag rotaciona o notebook.
-- No desktop: usuário pode arrastar pra girar; também roda sozinho devagar.
-- No mobile: rotação automática só (sem drag pra economizar processamento).
-- Sem WebGL/Three.js — puro CSS + JS leve. Performance ótima em qualquer celular.
-- Mantém o título "Explore em 3D".
+### 3. Iluminação cinematográfica
+- Key light: `directionalLight` quente (#fff5e8) frontal-superior.
+- Fill light: `directionalLight` azulado (#b8d4ff) lateral oposta, intensidade baixa.
+- Rim light: `spotLight` por trás criando contorno luminoso na tampa.
+- `Environment preset="studio"` (drei) para reflexões de alumínio.
 
-Arquivos das fotos copiados pra `src/assets/notebook/`.
+### 4. Animações (GSAP + R3F)
+- **Entrada**: tampa fecha → câmera afasta → tampa abre 110° com easing `power4.out` + leve "snap" no final. Já existe, vou refinar timing.
+- **Idle**: rotação lenta contínua + float vertical sutil (`useFrame` com sin).
+- **Hover/drag**: `OrbitControls` com damping, autoRotate desliga ao interagir e religa após 3s ocioso (GSAP timeout).
+- **Tela ligando**: textura entra com fade de brilho (emissive 0 → 1) 0.5s depois da tampa abrir.
 
-## 5. Voltar 2ª foto + carrossel com efeito de surgir do escuro
-Restaurar a foto que foi excluída (vou verificar `src/assets` qual era — provavelmente `jonatas-photo-2.jpg`).
+### 5. Performance (mobile)
+Mantém `useDeviceTier`:
+- **light**: sem teclas individuais (textura plana de teclado em vez de geometria), `MeshStandardMaterial` em vez de `Physical`, sem `MeshReflectorMaterial` (piso simples), DPR máx 1.3, sem autoRotate.
+- **full**: tudo ligado.
 
-Novo componente `PhotoCarousel`:
-- 2 fotos lado a lado com swipe (mobile) e setas (desktop) + dots embaixo.
-- Cada foto entra com efeito **"emergir do escuro"**: começa com `opacity: 0` + `filter: brightness(0)` + `scale: 1.15`, e conforme o scroll entra na viewport vai clareando até `brightness(1)` e `scale: 1`. Usa `useScroll` do framer-motion.
-- Sem adesivos flutuando, sem halo neon excessivo — só um glow sutil atrás.
-
-## 6. Corte do "TRABALHOS" no Portfólio
-O `PortfolioMosaicHero` usa `font-size: clamp(...)` com `letter-spacing` que estoura no mobile, cortando o "S" final.
-
-Correção:
-- Reduzir `font-size` máximo no mobile (de ~18vw pra ~14vw).
-- `letter-spacing: -0.04em` (mais apertado).
-- Garantir `padding-inline` no container e `overflow: visible` no texto.
-- Testar com viewport 360px-768px.
-
-## 7. Compromisso com Você — efeito "morrer no fundo"
-Você mencionou antes que o efeito tá passando POR CIMA do título. Como vou remover o `HorizontalCards` e voltar pro layout vertical (item 1), o problema some naturalmente. Vou adicionar no lugar uma animação suave: cards aparecem com fade+translateY ao entrar, e ao sair pra cima fazem fade pro fundo escuro (opacity → 0 + blur leve + scale 0.95), dando essa sensação de "ir pra dentro do site".
-
----
+## Bibliotecas
+Já instaladas: `three`, `@react-three/fiber@^8.18`, `@react-three/drei@^9.122`, `gsap`. Não preciso adicionar nada novo.
 
 ## Arquivos afetados
+- **Editar**: `src/components/effects/Notebook3DShowcase.tsx` (reescrever modelo, cena, iluminação, fundo).
+- Nada mais muda.
 
-**Criar:**
-- `src/components/effects/FullscreenMenu.tsx` — novo menu fullscreen
-- `src/components/effects/Notebook3DShowcase.tsx` — showcase do notebook com as 7 fotos
-- `src/components/PhotoCarousel.tsx` — carrossel das 2 fotos com efeito de emergir
-- `src/assets/notebook/*.png` — copiar as 7 imagens enviadas
-
-**Editar:**
-- `src/components/Hero.tsx` — desligar canvas/blur pesado no mobile
-- `src/components/Header.tsx` — trocar drawer mobile pelo FullscreenMenu
-- `src/components/AboutMe.tsx` — trocar `StickerAvatar` por `PhotoCarousel`
-- `src/components/ModelViewer3D.tsx` — trocar iframe Sketchfab pelo `Notebook3DShowcase`
-- `src/components/HorizontalNotebookScroll.tsx` — voltar pro layout vertical do "Compromisso" com fade-out no scroll
-- `src/components/HowItWorks.tsx` — voltar pra timeline vertical
-- `src/components/Testimonials.tsx` — voltar pro carrossel simples
-- `src/components/effects/PortfolioMosaicHero.tsx` — corrigir corte do "TRABALHOS"
-
-**Excluir:**
-- `src/components/effects/StickerAvatar.tsx`
-- `src/components/effects/HorizontalCards.tsx`
-- `src/components/effects/ExpandingBars.tsx`
-- `src/components/effects/Coverflow3D.tsx`
-
-## Dúvida única antes de implementar
-Confirma esses 3 efeitos pra manter (Sobre Mim reveal + TRABALHOS gigante + blobs no CTA)? Se quiser remover algum desses 3 também, me fala antes que eu começo.
+## Confirmação
+Posso seguir? Se preferir o laptop em cor diferente (prata/branco em vez do preto-grafite atual) me avisa antes.
