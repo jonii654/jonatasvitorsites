@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Notebook3DShowcase } from './effects/Notebook3DShowcase';
 
 export function ModelViewer3D() {
   return (
@@ -13,16 +14,7 @@ export function ModelViewer3D() {
         >
           Explore em 3D
         </motion.h3>
-        <div className="w-full rounded-2xl overflow-hidden" style={{ maxWidth: 800, height: 550 }}>
-          <iframe
-            title="Asus NoteBook"
-            frameBorder="0"
-            allowFullScreen
-            allow="autoplay; fullscreen; xr-spatial-tracking"
-            src="https://sketchfab.com/models/acde12c15de34befbe4dc0fd32489ab8/embed?autospin=1&preload=1&dnt=1&ui_theme=dark&transparent=1&ui_infos=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&ui_vr=0"
-            style={{ width: '100%', height: '100%', border: 'none' }}
-          />
-        </div>
+        <Notebook3DShowcase />
       </div>
     </section>
   );

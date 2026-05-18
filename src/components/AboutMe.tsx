@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
-import photo1 from '@/assets/jonatas-photo-1.jpg';
-import { StickerAvatar } from './effects/StickerAvatar';
+import { PhotoCarousel } from './PhotoCarousel';
 import { WordRevealText } from './effects/WordRevealText';
 
 export function AboutMe() {
@@ -24,12 +23,7 @@ export function AboutMe() {
               transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
               className="order-1 md:order-1"
             >
-              <StickerAvatar
-                src={photo1}
-                alt="Jônatas Vitor - Criador de Sites"
-                name="Jônatas Vitor"
-                role="Criador de Sites"
-              />
+              <PhotoCarousel />
             </motion.div>
 
             {/* Text content */}

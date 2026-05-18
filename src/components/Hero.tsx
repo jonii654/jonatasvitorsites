@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'fram
 import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRef, useMemo, useEffect } from 'react';
+import { useDeviceTier } from '@/hooks/use-device-tier';
 import layoutTop from '@/assets/layout-mockup-top.webp';
 import layoutBottom from '@/assets/layout-mockup-bottom.webp';
 import layoutLeft from '@/assets/layout-mockup-left.webp';
@@ -44,18 +45,22 @@ const floatingDots = [
 export function Hero() {
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Quero saber mais sobre criação de sites.`;
   const sectionRef = useRef<HTMLElement>(null);
-  
-  // Mouse position for 3D tilt effect
+  const tier = useDeviceTier();
+  const isLight = tier === 'light';
+
+  // Mouse position for 3D tilt effect (desktop only)
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  
+
   // Spring physics for ultra light 3D tilt
   const springConfig = { damping: 30, stiffness: 100 };
   const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [5, -5]), springConfig);
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
-  
-  // Handle mouse move for tilt effect
+  const rotateYWide = useSpring(useTransform(mouseX, [-0.5, 0.5], [-20, 20]), springConfig);
+
+  // Handle mouse move for tilt effect (desktop only)
   useEffect(() => {
+    if (isLight) return;
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
@@ -64,35 +69,33 @@ export function Hero() {
       mouseX.set(x);
       mouseY.set(y);
     };
-    
+
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY]);
-  
+  }, [mouseX, mouseY, isLight]);
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"]
   });
 
-  // Multi-layer parallax transforms
-  const layer1Y = useTransform(scrollYProgress, [0, 1], [0, -150]);
-  const layer3Y = useTransform(scrollYProgress, [0, 1], [0, -50]);
+  // Multi-layer parallax transforms (smaller range on mobile)
+  const layer1Y = useTransform(scrollYProgress, [0, 1], [0, isLight ? -40 : -150]);
+  const layer3Y = useTransform(scrollYProgress, [0, 1], [0, isLight ? -15 : -50]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const textScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
-  
-  // Parallax for layout images
-  const topImageY = useTransform(scrollYProgress, [0, 1], [0, -80]);
-  const bottomImageY = useTransform(scrollYProgress, [0, 1], [0, -40]);
-  const leftImageY = useTransform(scrollYProgress, [0, 1], [0, -60]);
-  const rightImageY = useTransform(scrollYProgress, [0, 1], [0, -70]);
 
-  // Fewer dots on mobile
+  // Parallax for layout images (disabled on mobile)
+  const topImageY = useTransform(scrollYProgress, [0, 1], [0, isLight ? 0 : -80]);
+  const bottomImageY = useTransform(scrollYProgress, [0, 1], [0, isLight ? 0 : -40]);
+  const leftImageY = useTransform(scrollYProgress, [0, 1], [0, isLight ? 0 : -60]);
+  const rightImageY = useTransform(scrollYProgress, [0, 1], [0, isLight ? 0 : -70]);
+
+  // Far fewer dots on mobile (or none if super light)
   const dots = useMemo(() => {
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      return floatingDots.slice(0, 10);
-    }
+    if (isLight) return floatingDots.slice(0, 5);
     return floatingDots;
-  }, []);
+  }, [isLight]);
 
 
   return (
@@ -134,16 +137,23 @@ export function Hero() {
           ))}
         </div>
 
-        {/* Ambient glow orbs */}
+        {/* Ambient glow orbs - lighter on mobile */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div 
-            className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full blur-[100px] opacity-20"
-            style={{ background: 'hsl(195 100% 50%)' }}
+          <div
+            className="absolute top-1/4 left-1/4 rounded-full opacity-20"
+            style={{
+              width: isLight ? 180 : 300,
+              height: isLight ? 180 : 300,
+              filter: `blur(${isLight ? 40 : 100}px)`,
+              background: 'hsl(195 100% 50%)',
+            }}
           />
-          <div 
-            className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] rounded-full blur-[120px] opacity-15"
-            style={{ background: 'hsl(155 100% 50%)' }}
-          />
+          {!isLight && (
+            <div
+              className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] rounded-full blur-[120px] opacity-15"
+              style={{ background: 'hsl(155 100% 50%)' }}
+            />
+          )}
         </div>
         
         {/* Layout Mockup Images - Top with 3D Tilt */}
@@ -177,7 +187,7 @@ export function Hero() {
           style={{ 
             y: leftImageY,
             rotateX: rotateX,
-            rotateY: useSpring(useTransform(mouseX, [-0.5, 0.5], [-20, 20]), springConfig),
+            rotateY: rotateYWide,
             transformStyle: 'preserve-3d',
             perspective: 1000
           }}
@@ -203,7 +213,7 @@ export function Hero() {
           style={{ 
             y: rightImageY,
             rotateX: rotateX,
-            rotateY: useSpring(useTransform(mouseX, [-0.5, 0.5], [-20, 20]), springConfig),
+            rotateY: rotateYWide,
             transformStyle: 'preserve-3d',
             perspective: 1000
           }}

@@ -1,140 +1,96 @@
-## Visão geral
+# Plano de ajustes
 
-Aplicar **9 efeitos cinematográficos** distribuídos pelas seções, com **detecção automática de mobile/dispositivo fraco** que troca cada efeito pesado por uma versão leve equivalente. Resultado: desktop com experiência Awwwards-level, celular com performance fluida e visual ainda diferenciado.
+## 1. Reduzir excesso de efeitos
+Manter só os 3 mais elegantes e remover o resto:
+- **MANTER**: reveal palavra-por-palavra no Sobre Mim (v5), tipografia gigante "TRABALHOS" no Portfólio (v8), blobs orgânicos no CTA final (v1) — sem exagero.
+- **REMOVER e voltar versão simples**:
+  - `StickerAvatar` (adesivos flutuando na foto) → substituir por carrossel suave de fotos (ver item 5).
+  - `HorizontalCards` (Compromisso sticky) → voltar para o layout vertical anterior do "Meu Compromisso com Você" com fade simples no scroll.
+  - `ExpandingBars` (Como Funciona) → voltar para a timeline vertical original.
+  - `Coverflow3D` nos Depoimentos → voltar pro carrossel horizontal simples com snap.
 
-## Distribuição final dos efeitos
+Resultado: site mais limpo, foco no conteúdo, só 3 momentos "uau".
 
-| Seção | Efeito (desktop) | Versão mobile leve |
-|---|---|---|
-| **Hero** | mantém atual + brilho extra no CTA | igual (já é otimizado) |
-| **Sobre Mim — foto** | v6 Lando Norris: retrato grande + adesivos tipográficos flutuando + halo neon | foto + 2 stickers estáticos, sem float |
-| **Sobre Mim — parágrafo** | v5 reveal palavra-por-palavra (cinza→branco no scroll) | reveal por bloco (fade-in simples) |
-| **Meu Compromisso com Você** | v2 Jeton: título sticky + cards horizontais passando por cima | título fixo + cards verticais com fade |
-| **Como Funciona** | v3: barras finas verticais que expandem em cards no scroll | cards já abertos com stagger fade-in |
-| **Explore em 3D** | v7 Beeyond: páginas dos sites flutuando em 3D WebGL (Three.js) | grid 2D estático das mesmas screenshots |
-| **Portfólio — abertura** | v8 Moss: tipografia GIGANTE "TRABALHOS" + mosaico de fotos | título grande + grid 2x2 estático |
-| **Portfólio — cards** | v4 Shoes Float: nome gigante atrás + tela flutuando + ciclo automático | carrossel atual (já funciona bem) |
-| **Depoimentos** | v9 VK Fest: coverflow 3D em arco curvo rotacionando | carrossel horizontal flat com snap |
-| **CTA final** | v1 Sonneto: tipo gigante "BORA COMEÇAR?" + blobs orgânicos animados | tipo grande + blobs estáticos com gradiente |
+## 2. Hero mais leve no mobile
+Causa do peso atual no celular:
+- Canvas de pontos de luz animados rodando em `requestAnimationFrame` mesmo no mobile.
+- Filtros `blur(100px)` em múltiplas camadas (custosos no GPU).
+- Animações de gradiente em loop.
 
-## Sistema de detecção de dispositivo (mobile-light mode)
+Correção:
+- No mobile (`useDeviceTier === 'light'`): desligar o canvas de pontos, substituir por 2-3 pontos de luz CSS estáticos com `box-shadow` glow.
+- Trocar `blur(100px)` por `blur(40px)` no mobile.
+- Remover animação de gradient infinito no headline mobile; manter só o gradiente estático.
+- Manter o efeito "puf clareia CTA" no load (já está leve).
+- Hierarquia: título mais respirável, espaçamentos consistentes com o resto do site.
 
-Hook único `useDeviceTier()` que retorna `'light' | 'full'`:
+## 3. Novo menu (estilo dos vídeos enviados)
+Substituir o drawer lateral atual por um **menu fullscreen** com:
+- Botão hambúrguer no canto → ao clicar, overlay escuro cobre a tela com transição (clip-path circular do canto).
+- Links GIGANTES centralizados (texto 6-8vw), um abaixo do outro.
+- Cada link com hover: contorno luminoso + leve translação X.
+- WhatsApp como CTA destacado no rodapé do overlay.
+- Versão desktop: mantém a navbar horizontal atual (não muda nada lá).
+- Versão mobile: usa o novo fullscreen no lugar do drawer lateral.
 
-```text
-- Detecta: largura < 768px OU
-- navigator.hardwareConcurrency < 4 OU
-- navigator.deviceMemory < 4 OU
-- prefers-reduced-motion: reduce OU
-- Conexão 'slow-2g'/'2g'/'3g' (Network Information API)
-→ Retorna 'light'
-```
+## 4. Notebook 3D próprio (sem Sketchfab)
+Remover o iframe externo. Construir showcase 3D usando as **7 fotos do notebook** que você enviou (ângulos diferentes do mesmo Asus).
 
-Cada componente pesado consulta o hook e renderiza a variante apropriada. Componentes WebGL são **code-splitted** (`React.lazy`) — só baixam o bundle do Three.js quando o dispositivo é `full`. Em `light`, nem o JS do Three.js é carregado.
+Abordagem: **rotating image sequence** (carrossel 3D suave estilo "sprite turntable"):
+- Container com perspectiva CSS.
+- As 7 fotos pré-carregadas, mostradas uma por vez com crossfade rápido conforme o scroll/drag rotaciona o notebook.
+- No desktop: usuário pode arrastar pra girar; também roda sozinho devagar.
+- No mobile: rotação automática só (sem drag pra economizar processamento).
+- Sem WebGL/Three.js — puro CSS + JS leve. Performance ótima em qualquer celular.
+- Mantém o título "Explore em 3D".
 
-## Detalhes técnicos por efeito
+Arquivos das fotos copiados pra `src/assets/notebook/`.
 
-### v6 — AboutMe foto (sticker hero)
-- Foto principal grande, centralizada
-- 4-5 SVGs/badges flutuando (nome, "Web Designer", estrelas) usando `motion` com `animate={y: [0, -8, 0]}` em loop
-- Halo neon ciano/verde atrás via `box-shadow` animado
-- Mobile-light: foto + 2 badges estáticos
+## 5. Voltar 2ª foto + carrossel com efeito de surgir do escuro
+Restaurar a foto que foi excluída (vou verificar `src/assets` qual era — provavelmente `jonatas-photo-2.jpg`).
 
-### v5 — AboutMe parágrafo (word-by-word reveal)
-- Divide texto em `<span>` por palavra
-- `useScroll` + `useTransform` mapeia progresso para opacidade/cor de cada palavra (transição cinza→branco)
-- Mobile-light: parágrafo inteiro com `whileInView` fade-in
+Novo componente `PhotoCarousel`:
+- 2 fotos lado a lado com swipe (mobile) e setas (desktop) + dots embaixo.
+- Cada foto entra com efeito **"emergir do escuro"**: começa com `opacity: 0` + `filter: brightness(0)` + `scale: 1.15`, e conforme o scroll entra na viewport vai clareando até `brightness(1)` e `scale: 1`. Usa `useScroll` do framer-motion.
+- Sem adesivos flutuando, sem halo neon excessivo — só um glow sutil atrás.
 
-### v2 — Compromisso (sticky horizontal scroll)
-- Reescreve `HorizontalNotebookScroll` no padrão Jeton:
-- Container alto (300vh). Dentro, `sticky top-0` com título à esquerda + track horizontal à direita
-- Track translateX baseado em `scrollYProgress`
-- 4 cards passam por cima do título
-- Mobile-light: título normal + cards empilhados verticais com fade-in
+## 6. Corte do "TRABALHOS" no Portfólio
+O `PortfolioMosaicHero` usa `font-size: clamp(...)` com `letter-spacing` que estoura no mobile, cortando o "S" final.
 
-### v3 — Como Funciona (barras que expandem)
-- 4-5 barras finas verticais (40px de largura cada) lado a lado
-- `useTransform` por barra: largura cresce de 40px → 280px conforme entra na viewport
-- Texto da etapa aparece dentro da barra quando expandida (`opacity` ligado ao mesmo progresso)
-- Mobile-light: timeline vertical atual com fade-in stagger
+Correção:
+- Reduzir `font-size` máximo no mobile (de ~18vw pra ~14vw).
+- `letter-spacing: -0.04em` (mais apertado).
+- Garantir `padding-inline` no container e `overflow: visible` no texto.
+- Testar com viewport 360px-768px.
 
-### v7 — Explore em 3D (páginas flutuando)
-- Substitui iframe Sketchfab por cena **Three.js** com `@react-three/fiber@^8.18` + `@react-three/drei@^9.122.0`
-- 4-5 planos 3D com textura de cada screenshot do portfólio
-- Posicionados em profundidade aleatória, com flutuação senoidal contínua + leve rotação
-- `OrbitControls` (sem zoom) para drag suave
-- Iluminação: 2 spotlights coloridos (ciano + verde) + ambient
-- `Suspense` com fallback skeleton
-- `Canvas` em `React.lazy` → bundle separado
-- Mobile-light: grid 2x2 estático das mesmas screenshots com leve `hover:scale`
+## 7. Compromisso com Você — efeito "morrer no fundo"
+Você mencionou antes que o efeito tá passando POR CIMA do título. Como vou remover o `HorizontalCards` e voltar pro layout vertical (item 1), o problema some naturalmente. Vou adicionar no lugar uma animação suave: cards aparecem com fade+translateY ao entrar, e ao sair pra cima fazem fade pro fundo escuro (opacity → 0 + blur leve + scale 0.95), dando essa sensação de "ir pra dentro do site".
 
-### v8 — Portfolio abertura (mosaic + giant type)
-- Antes dos cards de projeto, adicionar bloco hero:
-- Tipografia "TRABALHOS" em `text-[20vw]` com `letter-spacing: -0.05em` e gradiente
-- 6-8 thumbnails de projetos em mosaico bento ao redor, com paralaxe leve no scroll
-- Mobile-light: título 8vw + grid 2x2 sem paralaxe
+---
 
-### v4 — Portfolio cards (nome atrás + tela flutuando)
-- Mantém carrossel infinito atual, mas reformula cada card:
-- Camada de fundo: nome do projeto em `text-8xl` opacidade 15%, posição absoluta
-- Camada da frente: screenshot do site com `transform: translateZ(60px) rotate(-2deg)`, sombra elevada
-- Auto-rotação a cada 4s troca o card central com `AnimatePresence`
-- Mobile-light: carrossel atual sem profundidade 3D
+## Arquivos afetados
 
-### v9 — Depoimentos (coverflow 3D)
-- Substitui carrossel atual por coverflow:
-- 5 cards em arco curvo, card central em foco (escala 1, frente)
-- Cards laterais com `rotateY` ±35°, `translateZ -100`, escala 0.8, opacidade 0.5
-- Setas e auto-rotação a cada 5s
-- CSS pure: `transform-style: preserve-3d` no container + `perspective: 1200px`
-- Mobile-light: carrossel horizontal flat com `scroll-snap`
+**Criar:**
+- `src/components/effects/FullscreenMenu.tsx` — novo menu fullscreen
+- `src/components/effects/Notebook3DShowcase.tsx` — showcase do notebook com as 7 fotos
+- `src/components/PhotoCarousel.tsx` — carrossel das 2 fotos com efeito de emergir
+- `src/assets/notebook/*.png` — copiar as 7 imagens enviadas
 
-### v1 — CTA final (kinetic type + blobs)
-- Headline "BORA COMEÇAR?" em `text-[15vw]` com font weight 900
-- 3-4 blobs SVG orgânicos verdes/cianos absolutamente posicionados, `animate` com morph de `borderRadius` em loop
-- Blobs com `mix-blend-mode: screen` por cima do título
-- Mobile-light: título menor (text-6xl) + blobs estáticos com gradiente
+**Editar:**
+- `src/components/Hero.tsx` — desligar canvas/blur pesado no mobile
+- `src/components/Header.tsx` — trocar drawer mobile pelo FullscreenMenu
+- `src/components/AboutMe.tsx` — trocar `StickerAvatar` por `PhotoCarousel`
+- `src/components/ModelViewer3D.tsx` — trocar iframe Sketchfab pelo `Notebook3DShowcase`
+- `src/components/HorizontalNotebookScroll.tsx` — voltar pro layout vertical do "Compromisso" com fade-out no scroll
+- `src/components/HowItWorks.tsx` — voltar pra timeline vertical
+- `src/components/Testimonials.tsx` — voltar pro carrossel simples
+- `src/components/effects/PortfolioMosaicHero.tsx` — corrigir corte do "TRABALHOS"
 
-## Performance
+**Excluir:**
+- `src/components/effects/StickerAvatar.tsx`
+- `src/components/effects/HorizontalCards.tsx`
+- `src/components/effects/ExpandingBars.tsx`
+- `src/components/effects/Coverflow3D.tsx`
 
-- Todos os WebGL/Canvas (`v7`) em `React.lazy()` + `Suspense`
-- Animações pesadas só registram listeners se `useDeviceTier() === 'full'`
-- Imagens dos efeitos com `loading="lazy"` exceto LCP
-- Three.js scene: `dpr={[1, 2]}` desktop, `frameloop="demand"` em pause quando fora da viewport (IntersectionObserver)
-- Total de novos pacotes: `three`, `@react-three/fiber@^8.18`, `@react-three/drei@^9.122.0`
-
-## Arquivos
-
-**Novos:**
-- `src/hooks/use-device-tier.ts` — detecção light/full
-- `src/components/effects/StickerAvatar.tsx` (v6)
-- `src/components/effects/WordRevealText.tsx` (v5)
-- `src/components/effects/HorizontalCards.tsx` (v2, substitui Compromisso)
-- `src/components/effects/ExpandingBars.tsx` (v3)
-- `src/components/effects/FloatingPages3D.tsx` (v7, lazy)
-- `src/components/effects/PortfolioMosaicHero.tsx` (v8)
-- `src/components/effects/Coverflow3D.tsx` (v9)
-- `src/components/effects/KineticBlobsCTA.tsx` (v1)
-
-**Editados:**
-- `src/components/AboutMe.tsx` (usa StickerAvatar + WordRevealText)
-- `src/components/HorizontalNotebookScroll.tsx` (vira wrapper que escolhe HorizontalCards)
-- `src/components/HowItWorks.tsx` (usa ExpandingBars no desktop)
-- `src/components/ModelViewer3D.tsx` (usa FloatingPages3D)
-- `src/components/Portfolio.tsx` (adiciona PortfolioMosaicHero + cards reformulados)
-- `src/components/Testimonials.tsx` (usa Coverflow3D no desktop)
-- `src/components/CTASection.tsx` (usa KineticBlobsCTA)
-
-**Sem mudança:** Hero, BenefitsBar, FAQ, Header, Footer
-
-## Ordem de implementação
-
-1. Hook `useDeviceTier` (base de tudo)
-2. Efeitos leves primeiro (v5, v6, v1) — sem dependências novas
-3. Efeitos médios (v2, v3, v8, v9) — só CSS/Framer Motion
-4. Efeitos pesados (v4) — refactor do Portfolio
-5. WebGL (v7) — instalar three + lazy load
-
-## Limitação honesta
-
-O efeito v7 (páginas 3D flutuando) usa **planos com textura**, não modelos 3D completos dos sites. Reconstruir 3D real de cada site daria 10x mais trabalho e mataria a performance — a solução com planos é o padrão usado por Beeyond e similares e visualmente fica idêntico.
+## Dúvida única antes de implementar
+Confirma esses 3 efeitos pra manter (Sobre Mim reveal + TRABALHOS gigante + blobs no CTA)? Se quiser remover algum desses 3 também, me fala antes que eu começo.
