@@ -12,16 +12,12 @@ import * as THREE from 'three';
 import { TextureLoader } from 'three';
 import gsap from 'gsap';
 import { useDeviceTier } from '@/hooks/use-device-tier';
-import screenTexture from '@/assets/notebook/view-1.png';
+import screenTexture from '@/assets/notebook/screen-poster.jpg';
 
 /**
- * Detailed 3D laptop (Asus-inspired) built with three.js + R3F + drei + GSAP.
- * - RoundedBox chassis + lid with chamfered edges.
- * - Keyboard built as a grid of individual keys.
- * - Trackpad inset, hinge cylinder, rubber feet, side ports.
- * - MeshPhysicalMaterial brushed aluminum with clearcoat.
- * - Studio scene: vertical gray gradient backdrop + subtle reflective floor.
- * - GSAP timeline opens the lid on mount; screen fades in.
+ * Premium 3D laptop: chamfered chassis, individual keys, speaker grills,
+ * power key, bezel + chin with discreet logo, GSAP open animation.
+ * Purple studio backdrop tuned to match the on-screen poster.
  */
 
 // ---------- Backdrop ----------
@@ -32,9 +28,9 @@ function GradientBackdrop() {
     c.height = 512;
     const ctx = c.getContext('2d')!;
     const g = ctx.createLinearGradient(0, 0, 0, 512);
-    g.addColorStop(0, '#dcdcdc');
-    g.addColorStop(0.45, '#9a9a9a');
-    g.addColorStop(1, '#2c2c2c');
+    g.addColorStop(0, '#2a1a4a');
+    g.addColorStop(0.5, '#1a0d2e');
+    g.addColorStop(1, '#0a0512');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 16, 512);
     const tex = new THREE.CanvasTexture(c);
@@ -43,11 +39,34 @@ function GradientBackdrop() {
   }, []);
 
   return (
-    <mesh position={[0, 1.5, -6]} rotation={[0, 0, 0]}>
+    <mesh position={[0, 1.5, -6]}>
       <planeGeometry args={[30, 16]} />
       <meshBasicMaterial map={texture} toneMapped={false} />
     </mesh>
   );
+}
+
+// ---------- Speaker grill (procedural dots) ----------
+function useGrillTexture() {
+  return useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = 256;
+    c.height = 32;
+    const ctx = c.getContext('2d')!;
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, 256, 32);
+    ctx.fillStyle = '#1c1c1e';
+    for (let y = 4; y < 32; y += 5) {
+      for (let x = 4; x < 256; x += 5) {
+        ctx.beginPath();
+        ctx.arc(x, y, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }, []);
 }
 
 // ---------- Keyboard ----------
@@ -61,17 +80,23 @@ function Keyboard({ tier }: { tier: 'light' | 'full' }) {
       }),
     []
   );
+  const powerMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: '#0a0a0a',
+        metalness: 0.6,
+        roughness: 0.3,
+        emissive: '#a78bfa',
+        emissiveIntensity: 0.25,
+      }),
+    []
+  );
 
   if (tier === 'light') {
-    // flat keyboard plate to save geometry
     return (
       <mesh position={[0, 0.066, 0.05]}>
         <planeGeometry args={[2.6, 1.05]} />
-        <meshStandardMaterial
-          color="#0d0d0d"
-          metalness={0.3}
-          roughness={0.7}
-        />
+        <meshStandardMaterial color="#0d0d0d" metalness={0.3} roughness={0.7} />
       </mesh>
     );
   }
@@ -91,6 +116,7 @@ function Keyboard({ tier }: { tier: 'light' | 'full' }) {
     for (let c = 0; c < cols; c++) {
       const x = startX + c * (keyW + gap);
       const z = startZ + r * (keyH + gap);
+      const isPower = r === 0 && c === cols - 1;
       keys.push(
         <RoundedBox
           key={`${r}-${c}`}
@@ -98,8 +124,7 @@ function Keyboard({ tier }: { tier: 'light' | 'full' }) {
           radius={0.015}
           smoothness={2}
           position={[x, 0.078, z]}
-          material={keyMat}
-          castShadow={false}
+          material={isPower ? powerMat : keyMat}
         />
       );
     }
@@ -107,7 +132,6 @@ function Keyboard({ tier }: { tier: 'light' | 'full' }) {
 
   return (
     <group>
-      {/* recessed plate under keys */}
       <mesh position={[0, 0.062, 0.05]}>
         <boxGeometry args={[totalW + 0.15, 0.005, totalH + 0.15]} />
         <meshStandardMaterial color="#050505" metalness={0.3} roughness={0.8} />
@@ -123,6 +147,7 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
   const lidRef = useRef<THREE.Group>(null);
   const screenMatRef = useRef<THREE.MeshBasicMaterial>(null);
   const screenMap = useLoader(TextureLoader, screenTexture);
+  const grillTex = useGrillTexture();
 
   useEffect(() => {
     if (screenMap) {
@@ -131,7 +156,6 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
     }
   }, [screenMap]);
 
-  // Body material - brushed aluminum
   const bodyMat = useMemo(() => {
     if (tier === 'light') {
       return new THREE.MeshStandardMaterial({
@@ -142,24 +166,23 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
     }
     return new THREE.MeshPhysicalMaterial({
       color: '#1c1c1e',
-      metalness: 0.88,
-      roughness: 0.32,
+      metalness: 0.9,
+      roughness: 0.3,
       clearcoat: 1,
-      clearcoatRoughness: 0.25,
+      clearcoatRoughness: 0.2,
     });
   }, [tier]);
 
   const bezelMat = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: '#040404',
+        color: '#030303',
         metalness: 0.4,
-        roughness: 0.6,
+        roughness: 0.55,
       }),
     []
   );
 
-  // Open lid + screen-on
   useEffect(() => {
     if (!lidRef.current) return;
     lidRef.current.rotation.x = 0.05;
@@ -171,11 +194,7 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
     const tl = gsap.timeline();
     tl.to(
       lidRef.current.rotation,
-      {
-        x: -Math.PI / 2 + 0.2,
-        duration: 1.6,
-        ease: 'power4.out',
-      },
+      { x: -Math.PI / 2 + 0.2, duration: 1.6, ease: 'power4.out' },
       0.3
     );
     if (screenMatRef.current) {
@@ -199,7 +218,6 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
     }
   }, []);
 
-  // Idle float
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
@@ -209,45 +227,65 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
   const baseW = 3.2;
   const baseD = 2.25;
   const baseH = 0.16;
+  const lidH = 1.95;
+  const screenW = 2.92;
+  const screenH = 1.55; // chin reservado abaixo
+  // imagem é 3:4 (vertical). Para caber sem distorcer em tela 16:10 horizontal,
+  // usamos repeat<1 em X centralizado, deixando faixas pretas laterais.
+  const imgAspect = 3 / 4; // w/h da imagem original
+  const screenAspect = screenW / screenH;
+  const repeatX = imgAspect / screenAspect; // <1, centraliza
+  useEffect(() => {
+    if (!screenMap) return;
+    screenMap.wrapS = THREE.ClampToEdgeWrapping;
+    screenMap.wrapT = THREE.ClampToEdgeWrapping;
+    screenMap.repeat.set(1, 1);
+    screenMap.offset.set(0, 0);
+    screenMap.needsUpdate = true;
+  }, [screenMap]);
 
   return (
     <group ref={groupRef} position={[0, -0.25, 0]}>
-      {/* Chassis base with rounded corners */}
+      {/* Chassis base */}
       <RoundedBox
         args={[baseW, baseH, baseD]}
-        radius={0.04}
-        smoothness={4}
+        radius={0.06}
+        smoothness={6}
         material={bodyMat}
         castShadow
         receiveShadow
         position={[0, 0, 0]}
       />
 
-      {/* Keyboard */}
       <Keyboard tier={tier} />
 
-      {/* Trackpad - recessed */}
+      {/* Speaker grills flanking keyboard (full tier) */}
+      {tier === 'full' && (
+        <>
+          <mesh position={[-1.3, 0.082, 0.05]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.16, 1.05]} />
+            <meshStandardMaterial map={grillTex} roughness={0.9} />
+          </mesh>
+          <mesh position={[1.3, 0.082, 0.05]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.16, 1.05]} />
+            <meshStandardMaterial map={grillTex} roughness={0.9} />
+          </mesh>
+        </>
+      )}
+
+      {/* Trackpad */}
       <group position={[0, 0.082, 0.85]}>
         <mesh>
           <boxGeometry args={[1.05, 0.004, 0.6]} />
-          <meshStandardMaterial
-            color="#0f0f10"
-            metalness={0.5}
-            roughness={0.35}
-          />
+          <meshStandardMaterial color="#0f0f10" metalness={0.5} roughness={0.35} />
         </mesh>
-        {/* trackpad bezel */}
         <mesh position={[0, -0.003, 0]}>
           <boxGeometry args={[1.08, 0.008, 0.63]} />
-          <meshStandardMaterial
-            color="#050505"
-            metalness={0.4}
-            roughness={0.6}
-          />
+          <meshStandardMaterial color="#050505" metalness={0.4} roughness={0.6} />
         </mesh>
       </group>
 
-      {/* Hinge cylinder */}
+      {/* Hinge */}
       <mesh
         position={[0, 0.05, -baseD / 2 + 0.04]}
         rotation={[0, 0, Math.PI / 2]}
@@ -269,7 +307,7 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
         </mesh>
       ))}
 
-      {/* Side ports (left + right) */}
+      {/* Side ports */}
       {[-1, 1].map((side) => (
         <group key={side}>
           <mesh position={[(baseW / 2) * side, 0, -0.4]}>
@@ -283,38 +321,46 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
         </group>
       ))}
 
-      {/* Lid pivot at back edge */}
+      {/* Lid */}
       <group ref={lidRef} position={[0, baseH / 2, -baseD / 2 + 0.02]}>
-        {/* Lid back panel - rounded */}
+        {/* Lid back panel - clean, no logo card */}
         <RoundedBox
-          args={[baseW, 1.95, 0.05]}
-          radius={0.04}
-          smoothness={4}
+          args={[baseW, lidH, 0.05]}
+          radius={0.06}
+          smoothness={6}
           material={bodyMat}
           castShadow
-          position={[0, 1.0, -0.02]}
+          position={[0, lidH / 2 + 0.05, -0.02]}
         />
 
-        {/* Asus-style logo accent (emissive square) */}
-        <mesh position={[0, 1.0, -0.05]}>
-          <planeGeometry args={[0.4, 0.08]} />
+        {/* Bezel frame (rounded) */}
+        <RoundedBox
+          args={[baseW - 0.08, lidH - 0.04, 0.012]}
+          radius={0.04}
+          smoothness={4}
+          material={bezelMat}
+          position={[0, lidH / 2 + 0.05, 0.008]}
+        />
+
+        {/* Chin area (subtle highlight strip) */}
+        <mesh position={[0, 0.18, 0.015]}>
+          <planeGeometry args={[screenW, 0.18]} />
+          <meshStandardMaterial color="#050505" metalness={0.4} roughness={0.6} />
+        </mesh>
+
+        {/* Discreet brand dot on chin */}
+        <mesh position={[0, 0.18, 0.018]}>
+          <circleGeometry args={[0.018, 24]} />
           <meshStandardMaterial
-            color="#888"
-            emissive="#aaccff"
-            emissiveIntensity={0.4}
-            metalness={0.6}
-            roughness={0.4}
+            color="#5a5a5a"
+            metalness={0.8}
+            roughness={0.3}
           />
         </mesh>
 
-        {/* Front bezel frame */}
-        <mesh material={bezelMat} position={[0, 1.0, 0.005]}>
-          <boxGeometry args={[3.1, 1.88, 0.015]} />
-        </mesh>
-
-        {/* Screen image */}
-        <mesh position={[0, 1.02, 0.014]}>
-          <planeGeometry args={[2.92, 1.7]} />
+        {/* Screen poster (uses center crop letterbox via UV) */}
+        <mesh position={[0, lidH / 2 + 0.12, 0.016]}>
+          <planeGeometry args={[screenW, screenH]} />
           <meshBasicMaterial
             ref={screenMatRef}
             map={screenMap}
@@ -322,11 +368,20 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
             transparent
           />
         </mesh>
+        {/* Black side bars (letterbox to keep poster proportion) */}
+        <mesh position={[-(screenW * (1 - repeatX)) / 4 - screenW / 2 + (screenW * (1 - repeatX)) / 4, lidH / 2 + 0.12, 0.0165]}>
+          <planeGeometry args={[(screenW * (1 - repeatX)) / 2, screenH]} />
+          <meshBasicMaterial color="#000" />
+        </mesh>
+        <mesh position={[screenW / 2 - (screenW * (1 - repeatX)) / 4, lidH / 2 + 0.12, 0.0165]}>
+          <planeGeometry args={[(screenW * (1 - repeatX)) / 2, screenH]} />
+          <meshBasicMaterial color="#000" />
+        </mesh>
 
-        {/* Glass reflection layer */}
+        {/* Glass reflection */}
         {tier === 'full' && (
-          <mesh position={[0, 1.02, 0.018]}>
-            <planeGeometry args={[2.92, 1.7]} />
+          <mesh position={[0, lidH / 2 + 0.12, 0.02]}>
+            <planeGeometry args={[screenW, screenH]} />
             <meshPhysicalMaterial
               transparent
               opacity={0.08}
@@ -339,9 +394,9 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
           </mesh>
         )}
 
-        {/* Camera notch */}
-        <mesh position={[0, 1.92, 0.012]}>
-          <circleGeometry args={[0.025, 16]} />
+        {/* Camera */}
+        <mesh position={[0, lidH - 0.02, 0.014]}>
+          <circleGeometry args={[0.022, 16]} />
           <meshStandardMaterial color="#000" roughness={0.2} metalness={0.5} />
         </mesh>
       </group>
@@ -355,28 +410,21 @@ function Scene({ tier }: { tier: 'light' | 'full' }) {
     <>
       <GradientBackdrop />
 
-      <ambientLight intensity={0.45} />
-      {/* Key light */}
+      <ambientLight intensity={0.4} />
       <directionalLight
         position={[5, 7, 5]}
-        intensity={1.4}
+        intensity={1.3}
         color="#fff5e8"
         castShadow={tier === 'full'}
         shadow-mapSize={tier === 'full' ? 1024 : 256}
       />
-      {/* Fill */}
-      <directionalLight
-        position={[-5, 4, 2]}
-        intensity={0.6}
-        color="#b8d4ff"
-      />
-      {/* Rim */}
+      <directionalLight position={[-5, 4, 2]} intensity={0.55} color="#b8a4ff" />
       <spotLight
         position={[0, 4, -4]}
-        intensity={1.2}
+        intensity={1.3}
         angle={0.6}
         penumbra={1}
-        color="#ffffff"
+        color="#a78bfa"
       />
 
       <Float
@@ -387,7 +435,6 @@ function Scene({ tier }: { tier: 'light' | 'full' }) {
         <Laptop tier={tier} />
       </Float>
 
-      {/* Reflective floor (desktop only) */}
       {tier === 'full' && (
         <mesh
           rotation={[-Math.PI / 2, 0, 0]}
@@ -399,11 +446,11 @@ function Scene({ tier }: { tier: 'light' | 'full' }) {
             blur={[400, 100]}
             resolution={512}
             mixBlur={1}
-            mixStrength={0.6}
+            mixStrength={0.5}
             roughness={0.9}
             depthScale={1}
             minDepthThreshold={0.85}
-            color="#5a5a5a"
+            color="#1a0d2e"
             metalness={0.4}
             mirror={0}
           />
@@ -412,7 +459,7 @@ function Scene({ tier }: { tier: 'light' | 'full' }) {
 
       <ContactShadows
         position={[0, -0.54, 0]}
-        opacity={0.7}
+        opacity={0.75}
         scale={9}
         blur={2.6}
         far={3}
@@ -439,15 +486,14 @@ export function Notebook3DShowcase() {
           height: 'min(72vh, 560px)',
           minHeight: 380,
           background:
-            'linear-gradient(180deg, #dcdcdc 0%, #9a9a9a 45%, #2c2c2c 100%)',
+            'linear-gradient(180deg, #2a1a4a 0%, #1a0d2e 50%, #0a0512 100%)',
         }}
       >
-        {/* Vignette overlay */}
         <div
           className="pointer-events-none absolute inset-0 z-10"
           style={{
             background:
-              'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%)',
+              'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%)',
           }}
         />
 
