@@ -92,49 +92,106 @@ function Keyboard({ tier }: { tier: 'light' | 'full' }) {
     []
   );
 
+  // Deck area: atrás (z negativo) p/ teclado, frente (z positivo) p/ trackpad
+  // Base z range: -1.125 .. 1.125 (baseD=2.25). Teclado entre z=-0.95 e z=-0.05.
+  const deckZCenter = -0.5;
+  const deckW = 2.7;
+  const deckD = 0.9;
+
   if (tier === 'light') {
     return (
-      <mesh position={[0, 0.066, 0.05]}>
-        <planeGeometry args={[2.6, 1.05]} />
+      <mesh position={[0, 0.085, deckZCenter]}>
+        <planeGeometry args={[deckW, deckD]} />
         <meshStandardMaterial color="#0d0d0d" metalness={0.3} roughness={0.7} />
       </mesh>
     );
   }
 
-  const rows = 5;
   const cols = 14;
-  const keyW = 0.165;
-  const keyH = 0.165;
-  const gap = 0.025;
-  const totalW = cols * keyW + (cols - 1) * gap;
-  const totalH = rows * keyH + (rows - 1) * gap;
-  const startX = -totalW / 2 + keyW / 2;
-  const startZ = -totalH / 2 + keyH / 2 + 0.05;
+  const gap = 0.022;
+  const keyW = (deckW - (cols + 1) * gap) / cols; // ~0.17
+  const keyH = keyW * 0.95;
+  const rowGap = 0.024;
 
-  const keys = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const x = startX + c * (keyW + gap);
-      const z = startZ + r * (keyH + gap);
-      const isPower = r === 0 && c === cols - 1;
-      keys.push(
-        <RoundedBox
-          key={`${r}-${c}`}
-          args={[keyW, 0.03, keyH]}
-          radius={0.015}
-          smoothness={2}
-          position={[x, 0.078, z]}
-          material={isPower ? powerMat : keyMat}
-        />
-      );
-    }
+  const startX = -deckW / 2 + gap + keyW / 2;
+  const yKey = 0.092;
+
+  // Layout: 6 linhas
+  // r=0: função (teclas mais baixas)
+  // r=1..4: alfanuméricas (14 cols)
+  // r=5: linha inferior com spacebar
+  const rows: { z: number; type: 'fn' | 'alpha' | 'bottom' }[] = [];
+  const startZ = deckZCenter - deckD / 2 + gap + keyH / 2;
+  for (let r = 0; r < 6; r++) {
+    const z = startZ + r * (keyH + rowGap);
+    rows.push({ z, type: r === 0 ? 'fn' : r === 5 ? 'bottom' : 'alpha' });
   }
+
+  const keys: JSX.Element[] = [];
+
+  rows.forEach((row, r) => {
+    if (row.type === 'fn') {
+      // 14 teclas menores (altura reduzida)
+      const fnH = keyH * 0.55;
+      for (let c = 0; c < cols; c++) {
+        const x = startX + c * (keyW + gap);
+        const isPower = c === cols - 1;
+        keys.push(
+          <RoundedBox
+            key={`f-${c}`}
+            args={[keyW, 0.025, fnH]}
+            radius={0.012}
+            smoothness={2}
+            position={[x, yKey, row.z - (keyH - fnH) / 2]}
+            material={isPower ? powerMat : keyMat}
+          />
+        );
+      }
+    } else if (row.type === 'alpha') {
+      for (let c = 0; c < cols; c++) {
+        const x = startX + c * (keyW + gap);
+        keys.push(
+          <RoundedBox
+            key={`a-${r}-${c}`}
+            args={[keyW, 0.028, keyH]}
+            radius={0.014}
+            smoothness={2}
+            position={[x, yKey, row.z]}
+            material={keyMat}
+          />
+        );
+      }
+    } else {
+      // bottom row: Ctrl, Fn, Opt, Cmd, Space(6w), Cmd, Opt, ←↑↓→
+      const segs = [1, 1, 1, 1.2, 6, 1.2, 1, 0.7, 0.7, 0.7];
+      // arrows occupy 3 small keys; total widths must approx = 14
+      const totalUnits = segs.reduce((a, b) => a + b, 0);
+      const unitW = (deckW - (segs.length + 1) * gap) / totalUnits;
+      let cursor = -deckW / 2 + gap;
+      segs.forEach((u, i) => {
+        const w = u * unitW;
+        const x = cursor + w / 2;
+        keys.push(
+          <RoundedBox
+            key={`b-${i}`}
+            args={[w, 0.028, keyH * 0.95]}
+            radius={0.014}
+            smoothness={2}
+            position={[x, yKey, row.z]}
+            material={keyMat}
+          />
+        );
+        cursor += w + gap;
+      });
+    }
+  });
 
   return (
     <group>
-      <mesh position={[0, 0.062, 0.05]}>
-        <boxGeometry args={[totalW + 0.15, 0.005, totalH + 0.15]} />
-        <meshStandardMaterial color="#050505" metalness={0.3} roughness={0.8} />
+      {/* Deck recessed plate (sutil recesso sob o teclado) */}
+      <mesh position={[0, 0.083, deckZCenter]}>
+        <boxGeometry args={[deckW + 0.04, 0.004, deckD + 0.04]} />
+        <meshStandardMaterial color="#050505" metalness={0.3} roughness={0.85} />
       </mesh>
       {keys}
     </group>
