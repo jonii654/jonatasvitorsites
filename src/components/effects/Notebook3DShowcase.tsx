@@ -354,21 +354,7 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
           />
         </mesh>
 
-        {/* Glass reflection */}
-        {tier === 'full' && (
-          <mesh position={[0, lidH / 2 + 0.05, 0.02]}>
-            <planeGeometry args={[screenW, screenH]} />
-            <meshPhysicalMaterial
-              transparent
-              opacity={0.08}
-              roughness={0.05}
-              metalness={0}
-              clearcoat={1}
-              clearcoatRoughness={0.05}
-              color="#ffffff"
-            />
-          </mesh>
-        )}
+        {/* Glass reflection removida — causava artefato visual no centro da tela */}
 
         {/* Camera */}
         <mesh position={[0, lidH - 0.02, 0.014]}>
