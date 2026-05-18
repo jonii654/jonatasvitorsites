@@ -194,7 +194,7 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
     const tl = gsap.timeline();
     tl.to(
       lidRef.current.rotation,
-      { x: -Math.PI / 2 + 0.2, duration: 1.6, ease: 'power4.out' },
+      { x: -Math.PI / 2 - 0.05, duration: 1.6, ease: 'power4.out' },
       0.3
     );
     if (screenMatRef.current) {
