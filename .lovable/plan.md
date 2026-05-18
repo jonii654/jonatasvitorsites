@@ -1,47 +1,33 @@
-# Aprimorar Notebook 3D
+Plano para ajustar o notebook 3D:
 
-## Problemas atuais
-1. Quadradinho emissivo no meio da tampa parece "card no nada" — remover.
-2. Modelo ainda simples, sem acabamento premium (bordas, sombras internas, espessura da tela).
-3. Tela usa `view-1.png` antiga — trocar pela imagem roxa "ONE DESIGN THREE LAYOUTS" enviada agora.
-4. Fundo cinza genérico — trocar por algo mais coerente com a imagem da tela (roxo profundo).
+1. Corrigir a orientação do modelo
+- Deixar o notebook aberto em pé, com a tela vertical/frontal e a base visível em perspectiva baixa, como nas referências enviadas.
+- Ajustar o pivô da tampa para a dobradiça funcionar corretamente, evitando a sensação de notebook “deitado”.
+- Definir o ângulo final da tampa em torno de 100–105°, com a tela apontada para a câmera.
 
-## O que vou fazer
+2. Reposicionar câmera e controles
+- Travar a câmera em uma vista frontal limpa no desktop e no mobile.
+- Usar uma câmera mais baixa e centralizada, aproximando o enquadramento do exemplo `laptop-1-1536x1536-3.png`.
+- Reduzir a liberdade do OrbitControls para impedir que o notebook fique torto/deitado após interação.
+- Ajustar FOV, distância e posição responsiva para mobile, garantindo que a tela e a base apareçam inteiras.
 
-### 1. Trocar imagem da tela
-- Copiar `user-uploads://4a4024215798159b37027b5b9d6d8103.jpg` para `src/assets/notebook/screen-poster.jpg`.
-- Importar no `Notebook3DShowcase.tsx` substituindo `screenTexture`.
-- Ajustar aspect ratio da tela (a imagem é 3:4 vertical, mas tela de laptop é 16:10) — usar `repeat`/`offset` na textura para centralizar e cortar nas laterais OU usar plano com proporção ajustada e padding lateral preto (mais elegante: padding lateral preto, imagem inteira visível).
+3. Remover o traço/elemento errado no meio
+- Revisar os meshes da tela, bezel, glass overlay e possíveis sobreposições que estejam criando o “traço no meio”.
+- Remover qualquer plano, faixa ou geometria visualmente desalinhada no centro.
+- Manter a imagem atual na tela do notebook, sem trocar o fundo roxo que você aprovou.
 
-### 2. Remover "card" do meio da tampa
-- Deletar o `<mesh>` com `planeGeometry args={[0.4, 0.08]}` e emissivo `#aaccff`.
-- Substituir por logo discreto gravado (mesh fino chanfrado, mesma cor do chassis com leve emissive) OU simplesmente nada — fica mais clean. Vou por **nada** (apenas chassi liso atrás).
+4. Recriar acabamento com base nas fotos enviadas
+- Melhorar proporções: tela mais grossa, bordas arredondadas, moldura preta, dobradiça mais realista e base mais fina.
+- Adicionar detalhes inspirados nas referências: teclado mais denso, trackpad central, grelhas/sulcos discretos, portas laterais, pés inferiores e textura metálica escovada.
+- Manter o visual premium sem exagerar em elementos que pareçam “card solto”.
 
-### 3. Acabamento do notebook (libs já instaladas: three, R3F, drei, GSAP)
-- **Bordas chanfradas reais**: aumentar `smoothness` para 6 e `radius` para 0.06 no `RoundedBox` da base e tampa.
-- **Tela com profundidade**: adicionar `RoundedBox` fino como moldura da tela em vez de `boxGeometry` plano; bezel mais fino (3–4mm visuais).
-- **Borda inferior da tampa (queixo)**: faixa levemente mais escura abaixo da tela.
-- **Speakers**: 2 grelhas finas (planos com textura procedural de pontos) flanqueando o teclado.
-- **Power button**: tecla extra no canto superior direito do teclado, levemente diferenciada.
-- **Reflexo de tela**: aumentar `clearcoat` e adicionar gradiente sutil overlay (plano com `MeshPhysicalMaterial transmission`).
-- **Logo**: pequeno triângulo/círculo gravado no canto inferior da moldura da tela (chin), bem discreto.
+5. Movimento suave
+- Suavizar a animação de entrada com GSAP: abrir a tampa, leve subida e estabilização.
+- Reduzir rotação automática e flutuação para o notebook parecer firme/em pé.
+- Preservar performance no mobile usando o modo leve já existente.
 
-### 4. Fundo coerente
-- Trocar gradiente cinza por gradiente roxo profundo → preto, casando com a tela:
-  - Top `#2a1a4a` → meio `#1a0d2e` → base `#0a0512`.
-- Atualizar `GradientBackdrop` (CanvasTexture) e o `background` do wrapper div.
-- Manter `MeshReflectorMaterial` no piso com cor escura levemente arroxeada.
-- Ajustar luzes: rim light com tom roxo (`#a78bfa`) para casar.
-
-### 5. Performance
-- Manter `useDeviceTier` e mesmos cortes do tier `light` (sem teclas individuais, sem reflector floor, sem physical material).
-
-## Arquivos
-- **Copiar**: `user-uploads://...jpg` → `src/assets/notebook/screen-poster.jpg`
-- **Editar**: `src/components/effects/Notebook3DShowcase.tsx`
-
-## Bibliotecas
-Nada novo. Já temos three, @react-three/fiber, @react-three/drei, gsap.
-
-## Pergunta
-Posso seguir? Se quiser o notebook em cor diferente (ex.: prata em vez de preto-grafite atual) avise.
+Detalhes técnicos:
+- Continuar usando React Three Fiber, Drei, Three.js e GSAP, que já estão no projeto.
+- Usar referências visuais das imagens enviadas para proporção e acabamento, sem embutir essas imagens como textura do modelo.
+- Manter `screen-poster.jpg` como imagem da tela.
+- Editar principalmente `src/components/effects/Notebook3DShowcase.tsx`, com ajuste pontual em `ModelViewer3D.tsx` se o parallax externo estiver prejudicando o enquadramento.

@@ -185,16 +185,18 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
 
   useEffect(() => {
     if (!lidRef.current) return;
-    lidRef.current.rotation.x = 0.05;
+    // closed: tampa deitada sobre a base (rotação PI/2 = deitada para frente)
+    lidRef.current.rotation.x = Math.PI / 2;
     if (screenMatRef.current) {
       screenMatRef.current.opacity = 0;
       screenMatRef.current.transparent = true;
     }
 
     const tl = gsap.timeline();
+    // aberta: levemente reclinada para trás (~100°)
     tl.to(
       lidRef.current.rotation,
-      { x: -Math.PI / 2 - 0.05, duration: 1.6, ease: 'power4.out' },
+      { x: -0.18, duration: 1.8, ease: 'power4.out' },
       0.3
     );
     if (screenMatRef.current) {
@@ -352,21 +354,7 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
           />
         </mesh>
 
-        {/* Glass reflection */}
-        {tier === 'full' && (
-          <mesh position={[0, lidH / 2 + 0.05, 0.02]}>
-            <planeGeometry args={[screenW, screenH]} />
-            <meshPhysicalMaterial
-              transparent
-              opacity={0.08}
-              roughness={0.05}
-              metalness={0}
-              clearcoat={1}
-              clearcoatRoughness={0.05}
-              color="#ffffff"
-            />
-          </mesh>
-        )}
+        {/* Glass reflection removida — causava artefato visual no centro da tela */}
 
         {/* Camera */}
         <mesh position={[0, lidH - 0.02, 0.014]}>
@@ -475,7 +463,10 @@ export function Notebook3DShowcase() {
           <Canvas
             shadows={tier === 'full'}
             dpr={tier === 'light' ? [1, 1.3] : [1, 2]}
-            camera={{ position: [0, 0.5, 5.6], fov: 32 }}
+            camera={{
+              position: tier === 'light' ? [0, 0.9, 7.2] : [0, 0.9, 6.2],
+              fov: tier === 'light' ? 30 : 28,
+            }}
             gl={{
               antialias: true,
               alpha: true,
@@ -489,10 +480,11 @@ export function Notebook3DShowcase() {
               enableDamping
               dampingFactor={0.08}
               autoRotate={false}
-              minPolarAngle={Math.PI / 2.4}
-              maxPolarAngle={Math.PI / 2.05}
-              minAzimuthAngle={-Math.PI / 6}
-              maxAzimuthAngle={Math.PI / 6}
+              target={[0, 0.4, 0]}
+              minPolarAngle={Math.PI / 2.15}
+              maxPolarAngle={Math.PI / 2.02}
+              minAzimuthAngle={-Math.PI / 10}
+              maxAzimuthAngle={Math.PI / 10}
             />
           </Canvas>
         )}
