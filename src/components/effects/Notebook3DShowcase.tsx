@@ -1,554 +1,478 @@
-import { Suspense, useRef, useEffect, useState, useMemo } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import {
-  OrbitControls,
-  Environment,
-  ContactShadows,
-  Float,
-  RoundedBox,
-  MeshReflectorMaterial,
-} from '@react-three/drei';
+import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { TextureLoader } from 'three';
-import gsap from 'gsap';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { useDeviceTier } from '@/hooks/use-device-tier';
-import screenTexture from '@/assets/notebook/screen-poster.jpg';
 
 /**
- * Premium 3D laptop: chamfered chassis, individual keys, speaker grills,
- * power key, bezel + chin with discreet logo, GSAP open animation.
- * Purple studio backdrop tuned to match the on-screen poster.
+ * ASUS-style 3D notebook (vanilla three.js).
+ * Ported from the standalone HTML/JS prototype: gray chassis, full keyboard,
+ * trackpad, ports, lid with opening animation, auto-rotate until user interacts.
  */
-
-// ---------- Backdrop ----------
-function GradientBackdrop() {
-  const texture = useMemo(() => {
-    const c = document.createElement('canvas');
-    c.width = 16;
-    c.height = 512;
-    const ctx = c.getContext('2d')!;
-    const g = ctx.createLinearGradient(0, 0, 0, 512);
-    g.addColorStop(0, '#2a1a4a');
-    g.addColorStop(0.5, '#1a0d2e');
-    g.addColorStop(1, '#0a0512');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 16, 512);
-    const tex = new THREE.CanvasTexture(c);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  }, []);
-
-  return (
-    <mesh position={[0, 1.5, -6]}>
-      <planeGeometry args={[30, 16]} />
-      <meshBasicMaterial map={texture} toneMapped={false} />
-    </mesh>
-  );
-}
-
-// ---------- Speaker grill (procedural dots) ----------
-function useGrillTexture() {
-  return useMemo(() => {
-    const c = document.createElement('canvas');
-    c.width = 256;
-    c.height = 32;
-    const ctx = c.getContext('2d')!;
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fillRect(0, 0, 256, 32);
-    ctx.fillStyle = '#1c1c1e';
-    for (let y = 4; y < 32; y += 5) {
-      for (let x = 4; x < 256; x += 5) {
-        ctx.beginPath();
-        ctx.arc(x, y, 1.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-    const tex = new THREE.CanvasTexture(c);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  }, []);
-}
-
-// ---------- Keyboard ----------
-function Keyboard({ tier }: { tier: 'light' | 'full' }) {
-  const keyMat = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: '#161616',
-        metalness: 0.35,
-        roughness: 0.55,
-      }),
-    []
-  );
-  const powerMat = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: '#0a0a0a',
-        metalness: 0.6,
-        roughness: 0.3,
-        emissive: '#a78bfa',
-        emissiveIntensity: 0.25,
-      }),
-    []
-  );
-
-  // Deck area: atrás (z negativo) p/ teclado, frente (z positivo) p/ trackpad
-  // Base z range: -1.125 .. 1.125 (baseD=2.25). Teclado entre z=-0.95 e z=-0.05.
-  const deckZCenter = -0.5;
-  const deckW = 2.7;
-  const deckD = 0.9;
-
-  if (tier === 'light') {
-    return (
-      <mesh position={[0, 0.085, deckZCenter]}>
-        <planeGeometry args={[deckW, deckD]} />
-        <meshStandardMaterial color="#0d0d0d" metalness={0.3} roughness={0.7} />
-      </mesh>
-    );
-  }
-
-  const cols = 14;
-  const gap = 0.022;
-  const keyW = (deckW - (cols + 1) * gap) / cols; // ~0.17
-  const keyH = keyW * 0.95;
-  const rowGap = 0.024;
-
-  const startX = -deckW / 2 + gap + keyW / 2;
-  const yKey = 0.092;
-
-  // Layout: 6 linhas
-  // r=0: função (teclas mais baixas)
-  // r=1..4: alfanuméricas (14 cols)
-  // r=5: linha inferior com spacebar
-  const rows: { z: number; type: 'fn' | 'alpha' | 'bottom' }[] = [];
-  const startZ = deckZCenter - deckD / 2 + gap + keyH / 2;
-  for (let r = 0; r < 6; r++) {
-    const z = startZ + r * (keyH + rowGap);
-    rows.push({ z, type: r === 0 ? 'fn' : r === 5 ? 'bottom' : 'alpha' });
-  }
-
-  const keys: JSX.Element[] = [];
-
-  rows.forEach((row, r) => {
-    if (row.type === 'fn') {
-      // 14 teclas menores (altura reduzida)
-      const fnH = keyH * 0.55;
-      for (let c = 0; c < cols; c++) {
-        const x = startX + c * (keyW + gap);
-        const isPower = c === cols - 1;
-        keys.push(
-          <RoundedBox
-            key={`f-${c}`}
-            args={[keyW, 0.025, fnH]}
-            radius={0.012}
-            smoothness={2}
-            position={[x, yKey, row.z - (keyH - fnH) / 2]}
-            material={isPower ? powerMat : keyMat}
-          />
-        );
-      }
-    } else if (row.type === 'alpha') {
-      for (let c = 0; c < cols; c++) {
-        const x = startX + c * (keyW + gap);
-        keys.push(
-          <RoundedBox
-            key={`a-${r}-${c}`}
-            args={[keyW, 0.028, keyH]}
-            radius={0.014}
-            smoothness={2}
-            position={[x, yKey, row.z]}
-            material={keyMat}
-          />
-        );
-      }
-    } else {
-      // bottom row: Ctrl, Fn, Opt, Cmd, Space(6w), Cmd, Opt, ←↑↓→
-      const segs = [1, 1, 1, 1.2, 6, 1.2, 1, 0.7, 0.7, 0.7];
-      // arrows occupy 3 small keys; total widths must approx = 14
-      const totalUnits = segs.reduce((a, b) => a + b, 0);
-      const unitW = (deckW - (segs.length + 1) * gap) / totalUnits;
-      let cursor = -deckW / 2 + gap;
-      segs.forEach((u, i) => {
-        const w = u * unitW;
-        const x = cursor + w / 2;
-        keys.push(
-          <RoundedBox
-            key={`b-${i}`}
-            args={[w, 0.028, keyH * 0.95]}
-            radius={0.014}
-            smoothness={2}
-            position={[x, yKey, row.z]}
-            material={keyMat}
-          />
-        );
-        cursor += w + gap;
-      });
-    }
-  });
-
-  return (
-    <group>
-      {/* Deck recessed plate (sutil recesso sob o teclado) */}
-      <mesh position={[0, 0.083, deckZCenter]}>
-        <boxGeometry args={[deckW + 0.04, 0.004, deckD + 0.04]} />
-        <meshStandardMaterial color="#050505" metalness={0.3} roughness={0.85} />
-      </mesh>
-      {keys}
-    </group>
-  );
-}
-
-// ---------- Laptop ----------
-function Laptop({ tier }: { tier: 'light' | 'full' }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const lidRef = useRef<THREE.Group>(null);
-  const screenMatRef = useRef<THREE.MeshBasicMaterial>(null);
-  const screenMap = useLoader(TextureLoader, screenTexture);
-  const grillTex = useGrillTexture();
-
-  useEffect(() => {
-    if (screenMap) {
-      screenMap.colorSpace = THREE.SRGBColorSpace;
-      screenMap.anisotropy = 8;
-    }
-  }, [screenMap]);
-
-  const bodyMat = useMemo(() => {
-    if (tier === 'light') {
-      return new THREE.MeshStandardMaterial({
-        color: '#1c1c1e',
-        metalness: 0.8,
-        roughness: 0.4,
-      });
-    }
-    return new THREE.MeshPhysicalMaterial({
-      color: '#1c1c1e',
-      metalness: 0.9,
-      roughness: 0.3,
-      clearcoat: 1,
-      clearcoatRoughness: 0.2,
-    });
-  }, [tier]);
-
-  const bezelMat = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: '#030303',
-        metalness: 0.4,
-        roughness: 0.55,
-      }),
-    []
-  );
-
-  useEffect(() => {
-    if (!lidRef.current) return;
-    // closed: tampa deitada sobre a base (rotação PI/2 = deitada para frente)
-    lidRef.current.rotation.x = Math.PI / 2;
-    if (screenMatRef.current) {
-      screenMatRef.current.opacity = 0;
-      screenMatRef.current.transparent = true;
-    }
-
-    const tl = gsap.timeline();
-    // aberta: levemente reclinada para trás (~100°)
-    tl.to(
-      lidRef.current.rotation,
-      { x: -0.18, duration: 1.8, ease: 'power4.out' },
-      0.3
-    );
-    if (screenMatRef.current) {
-      tl.to(
-        screenMatRef.current,
-        { opacity: 1, duration: 0.6, ease: 'power2.out' },
-        1.2
-      );
-    }
-    if (groupRef.current) {
-      gsap.from(groupRef.current.position, {
-        y: -1.2,
-        duration: 1.4,
-        ease: 'power3.out',
-      });
-      gsap.from(groupRef.current.rotation, {
-        y: -Math.PI * 0.45,
-        duration: 1.8,
-        ease: 'power3.out',
-      });
-    }
-  }, []);
-
-  useFrame((state) => {
-    if (!groupRef.current) return;
-    const t = state.clock.elapsedTime;
-    groupRef.current.position.y = Math.sin(t * 0.7) * 0.04;
-  });
-
-  const baseW = 3.2;
-  const baseD = 2.25;
-  const baseH = 0.16;
-  const lidH = 1.95;
-  const screenW = 3.04;
-  const screenH = 1.84;
-  // imagem 3:4 vertical. "cover" no plano horizontal: crop vertical, preenche tudo.
-  const imgAspect = 3 / 4;
-  const screenAspect = screenW / screenH;
-  const repeatY = imgAspect / screenAspect; // <1
-  useEffect(() => {
-    if (!screenMap) return;
-    screenMap.wrapS = THREE.ClampToEdgeWrapping;
-    screenMap.wrapT = THREE.ClampToEdgeWrapping;
-    screenMap.repeat.set(1, repeatY);
-    screenMap.offset.set(0, (1 - repeatY) / 2);
-    screenMap.needsUpdate = true;
-  }, [screenMap, repeatY]);
-
-  return (
-    <group ref={groupRef} position={[0, -0.25, 0]}>
-      {/* Chassis base */}
-      <RoundedBox
-        args={[baseW, baseH, baseD]}
-        radius={0.06}
-        smoothness={6}
-        material={bodyMat}
-        castShadow
-        receiveShadow
-        position={[0, 0, 0]}
-      />
-
-      <Keyboard tier={tier} />
-
-      {/* Speaker grills along back edge, flanking the hinge */}
-      {tier === 'full' && (
-        <>
-          <mesh position={[-1.05, 0.083, -1.0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[0.9, 0.12]} />
-            <meshStandardMaterial map={grillTex} roughness={0.9} />
-          </mesh>
-          <mesh position={[1.05, 0.083, -1.0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[0.9, 0.12]} />
-            <meshStandardMaterial map={grillTex} roughness={0.9} />
-          </mesh>
-        </>
-      )}
-
-      {/* Trackpad — à frente do teclado, recessed */}
-      <group position={[0, 0.0825, 0.55]}>
-        <mesh position={[0, -0.002, 0]}>
-          <boxGeometry args={[1.22, 0.006, 0.72]} />
-          <meshStandardMaterial color="#050505" metalness={0.3} roughness={0.85} />
-        </mesh>
-        <RoundedBox args={[1.18, 0.004, 0.68]} radius={0.02} smoothness={3}>
-          <meshStandardMaterial color="#0e0e10" metalness={0.55} roughness={0.3} />
-        </RoundedBox>
-      </group>
-
-      {/* Hinge — atrás, baixa, fora do deck */}
-      <mesh
-        position={[0, 0.02, -baseD / 2 + 0.02]}
-        rotation={[0, 0, Math.PI / 2]}
-      >
-        <cylinderGeometry args={[0.04, 0.04, baseW - 0.5, 24]} />
-        <meshStandardMaterial color="#0a0a0a" metalness={0.7} roughness={0.4} />
-      </mesh>
-
-      {/* Rubber feet */}
-      {[
-        [-1.4, -0.08, -0.9],
-        [1.4, -0.08, -0.9],
-        [-1.4, -0.08, 0.9],
-        [1.4, -0.08, 0.9],
-      ].map((p, i) => (
-        <mesh key={i} position={p as [number, number, number]}>
-          <cylinderGeometry args={[0.06, 0.06, 0.02, 16]} />
-          <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
-        </mesh>
-      ))}
-
-      {/* Side ports */}
-      {[-1, 1].map((side) => (
-        <group key={side}>
-          <mesh position={[(baseW / 2) * side, 0, -0.4]}>
-            <boxGeometry args={[0.04, 0.05, 0.18]} />
-            <meshStandardMaterial color="#000" roughness={0.9} />
-          </mesh>
-          <mesh position={[(baseW / 2) * side, 0, -0.1]}>
-            <boxGeometry args={[0.04, 0.04, 0.12]} />
-            <meshStandardMaterial color="#000" roughness={0.9} />
-          </mesh>
-        </group>
-      ))}
-
-      {/* Lid */}
-      <group ref={lidRef} position={[0, baseH / 2, -baseD / 2 + 0.02]}>
-        {/* Lid back panel - clean, no logo card */}
-        <RoundedBox
-          args={[baseW, lidH, 0.05]}
-          radius={0.06}
-          smoothness={6}
-          material={bodyMat}
-          castShadow
-          position={[0, lidH / 2 + 0.05, -0.02]}
-        />
-
-        {/* Bezel frame (rounded) */}
-        <RoundedBox
-          args={[baseW - 0.08, lidH - 0.04, 0.012]}
-          radius={0.04}
-          smoothness={4}
-          material={bezelMat}
-          position={[0, lidH / 2 + 0.05, 0.008]}
-        />
-
-        {/* Screen poster (cover-fit, fills entire bezel) */}
-        <mesh position={[0, lidH / 2 + 0.05, 0.016]}>
-          <planeGeometry args={[screenW, screenH]} />
-          <meshBasicMaterial
-            ref={screenMatRef}
-            map={screenMap}
-            toneMapped={false}
-            transparent
-          />
-        </mesh>
-
-        {/* Glass reflection removida — causava artefato visual no centro da tela */}
-
-        {/* Camera */}
-        <mesh position={[0, lidH - 0.02, 0.014]}>
-          <circleGeometry args={[0.022, 16]} />
-          <meshStandardMaterial color="#000" roughness={0.2} metalness={0.5} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-// ---------- Scene ----------
-function Scene({ tier }: { tier: 'light' | 'full' }) {
-  return (
-    <>
-      <GradientBackdrop />
-
-      <ambientLight intensity={0.4} />
-      <directionalLight
-        position={[5, 7, 5]}
-        intensity={1.3}
-        color="#fff5e8"
-        castShadow={tier === 'full'}
-        shadow-mapSize={tier === 'full' ? 1024 : 256}
-      />
-      <directionalLight position={[-5, 4, 2]} intensity={0.55} color="#b8a4ff" />
-      <spotLight
-        position={[0, 4, -4]}
-        intensity={1.3}
-        angle={0.6}
-        penumbra={1}
-        color="#a78bfa"
-      />
-
-      <Float
-        speed={1.1}
-        rotationIntensity={tier === 'light' ? 0 : 0.12}
-        floatIntensity={tier === 'light' ? 0 : 0.25}
-      >
-        <Laptop tier={tier} />
-      </Float>
-
-      {tier === 'full' && (
-        <mesh
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, -0.55, 0]}
-          receiveShadow
-        >
-          <planeGeometry args={[30, 30]} />
-          <MeshReflectorMaterial
-            blur={[400, 100]}
-            resolution={512}
-            mixBlur={1}
-            mixStrength={0.5}
-            roughness={0.9}
-            depthScale={1}
-            minDepthThreshold={0.85}
-            color="#1a0d2e"
-            metalness={0.4}
-            mirror={0}
-          />
-        </mesh>
-      )}
-
-      <ContactShadows
-        position={[0, -0.54, 0]}
-        opacity={0.75}
-        scale={9}
-        blur={2.6}
-        far={3}
-      />
-
-      <Suspense fallback={null}>
-        <Environment preset="studio" />
-      </Suspense>
-    </>
-  );
-}
-
-// ---------- Wrapper ----------
 export function Notebook3DShowcase() {
   const tier = useDeviceTier();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // ============ Texturas procedurais ============
+    function createScreenTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#020205';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const cx = -100;
+      const cy = canvas.height / 2;
+      for (let i = 0; i < 300; i++) {
+        const radius = 200 + i * 2.5;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        if (i > 150 && i < 180) {
+          ctx.strokeStyle = `rgba(150, 255, 255, ${Math.random() * 0.8 + 0.2})`;
+          ctx.lineWidth = Math.random() * 3 + 1;
+        } else {
+          ctx.strokeStyle = `rgba(0, ${100 + Math.random() * 150}, 255, ${Math.random() * 0.3})`;
+          ctx.lineWidth = Math.random() * 1.5;
+        }
+        ctx.stroke();
+      }
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    function createLidTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 1024;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#8a8d91';
+      ctx.fillRect(0, 0, 1024, 1024);
+      ctx.font = '900 120px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillText('ASUS', 512, 516);
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillText('ASUS', 512, 510);
+      ctx.fillStyle = '#6a6d71';
+      ctx.fillText('ASUS', 512, 512);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    function createBezelTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 1024;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#050505';
+      ctx.fillRect(0, 0, 1024, 1024);
+      ctx.fillStyle = '#888888';
+      ctx.font = 'bold 30px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ASUS', 512, 980);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    const keyCache: Record<string, THREE.CanvasTexture> = {};
+    function getKeyTexture(label: string) {
+      if (keyCache[label]) return keyCache[label];
+      const canvas = document.createElement('canvas');
+      canvas.width = 64;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#111315';
+      ctx.fillRect(0, 0, 64, 64);
+      if (label) {
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = label.length > 2 ? '600 12px Arial' : '600 20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, 32, 32);
+      }
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      keyCache[label] = tex;
+      return tex;
+    }
+
+    function createBottomTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 1024;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#7a7d81';
+      ctx.fillRect(0, 0, 1024, 1024);
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(300, 200, 424, 250);
+      ctx.fillStyle = '#0f172a';
+      for (let y = 210; y < 440; y += 12) {
+        for (let x = 310; x < 710; x += 8) {
+          ctx.fillRect(x, y, 4, 8);
+        }
+      }
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(350, 500, 120, 60);
+      ctx.fillRect(550, 500, 150, 80);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    // ============ Setup three.js ============
+    const scene = new THREE.Scene();
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+
+    const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 200);
+    camera.position.set(0, 10, 22);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, tier === 'light' ? 1.3 : 2));
+    renderer.shadowMap.enabled = tier === 'full';
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = true;
+    controls.enablePan = false;
+    controls.minDistance = 8;
+    controls.maxDistance = 40;
+    controls.maxPolarAngle = Math.PI / 2 + 0.1;
+    controls.touches = {
+      ONE: THREE.TOUCH.ROTATE,
+      TWO: THREE.TOUCH.DOLLY_PAN,
+    };
+
+    // Environment map procedural (subtle reflections)
+    const envCanvas = document.createElement('canvas');
+    envCanvas.width = 256;
+    envCanvas.height = 256;
+    const envCtx = envCanvas.getContext('2d')!;
+    const grd = envCtx.createLinearGradient(0, 0, 0, 256);
+    grd.addColorStop(0, '#ffffff');
+    grd.addColorStop(1, '#475569');
+    envCtx.fillStyle = grd;
+    envCtx.fillRect(0, 0, 256, 256);
+    const envTex = new THREE.CanvasTexture(envCanvas);
+    envTex.mapping = THREE.EquirectangularReflectionMapping;
+    scene.environment = envTex;
+
+    // Lighting
+    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    dirLight.position.set(10, 15, 10);
+    dirLight.castShadow = tier === 'full';
+    dirLight.shadow.mapSize.width = 2048;
+    dirLight.shadow.mapSize.height = 2048;
+    scene.add(dirLight);
+
+    // ============ Notebook ============
+    const laptopGroup = new THREE.Group();
+
+    const screenTex = createScreenTexture();
+    const lidTex = createLidTexture();
+    const bezelTex = createBezelTexture();
+    const bottomTex = createBottomTexture();
+
+    const grayMat = new THREE.MeshStandardMaterial({ color: 0x8a8d91, metalness: 0.6, roughness: 0.3 });
+    const lidMat = new THREE.MeshStandardMaterial({ map: lidTex, metalness: 0.6, roughness: 0.3 });
+    const blackPlasticMat = new THREE.MeshStandardMaterial({ color: 0x111315, metalness: 0.2, roughness: 0.7 });
+    const bezelMat = new THREE.MeshStandardMaterial({ map: bezelTex, metalness: 0.1, roughness: 0.8 });
+    const screenMat = new THREE.MeshBasicMaterial({ map: screenTex });
+    const portMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.9 });
+    const bottomMat = new THREE.MeshStandardMaterial({ map: bottomTex, metalness: 0.4, roughness: 0.6 });
+
+    const disposables: Array<{ dispose: () => void }> = [
+      screenTex, lidTex, bezelTex, bottomTex, envTex,
+      grayMat, lidMat, blackPlasticMat, bezelMat, screenMat, portMat, bottomMat,
+    ];
+
+    const baseW = 13.0;
+    const baseD = 8.5;
+    const baseH = 0.25;
+
+    // Base
+    const baseGeo = new THREE.BoxGeometry(baseW, baseH, baseD);
+    disposables.push(baseGeo);
+    const base = new THREE.Mesh(baseGeo, grayMat);
+    base.position.y = baseH / 2;
+    base.castShadow = true;
+    base.receiveShadow = true;
+    laptopGroup.add(base);
+
+    // Bottom
+    const bottomGeo = new THREE.PlaneGeometry(baseW - 0.2, baseD - 0.2);
+    disposables.push(bottomGeo);
+    const bottom = new THREE.Mesh(bottomGeo, bottomMat);
+    bottom.rotation.x = Math.PI / 2;
+    bottom.position.y = -0.01;
+    laptopGroup.add(bottom);
+
+    // Feet
+    const footGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.08, 16);
+    disposables.push(footGeo);
+    [
+      [-baseW / 2 + 1, -0.04, -baseD / 2 + 1],
+      [baseW / 2 - 1, -0.04, -baseD / 2 + 1],
+      [-baseW / 2 + 1, -0.04, baseD / 2 - 1],
+      [baseW / 2 - 1, -0.04, baseD / 2 - 1],
+    ].forEach((pos) => {
+      const foot = new THREE.Mesh(footGeo, blackPlasticMat);
+      foot.position.set(pos[0], pos[1], pos[2]);
+      laptopGroup.add(foot);
+    });
+
+    // Ports
+    const leftPorts = [
+      { geo: new THREE.CylinderGeometry(0.04, 0.04, 0.2), z: -3 },
+      { geo: new THREE.BoxGeometry(0.1, 0.06, 0.4), z: -2 },
+      { geo: new THREE.BoxGeometry(0.1, 0.04, 0.2), z: -1.2 },
+      { geo: new THREE.BoxGeometry(0.1, 0.04, 0.2), z: -0.7 },
+    ];
+    leftPorts.forEach((p) => {
+      disposables.push(p.geo);
+      const port = new THREE.Mesh(p.geo, portMat);
+      if (p.geo.type === 'CylinderGeometry') port.rotation.z = Math.PI / 2;
+      port.position.set(-baseW / 2, baseH / 2, p.z);
+      laptopGroup.add(port);
+    });
+
+    const rightPorts = [
+      { geo: new THREE.BoxGeometry(0.1, 0.05, 0.3), z: -1 },
+      { geo: new THREE.BoxGeometry(0.1, 0.02, 0.5), z: 0 },
+      { geo: new THREE.CylinderGeometry(0.03, 0.03, 0.2), z: 1.5 },
+    ];
+    rightPorts.forEach((p) => {
+      disposables.push(p.geo);
+      const port = new THREE.Mesh(p.geo, portMat);
+      if (p.geo.type === 'CylinderGeometry') port.rotation.z = Math.PI / 2;
+      port.position.set(baseW / 2, baseH / 2, p.z);
+      laptopGroup.add(port);
+    });
+
+    // Keyboard indent
+    const kbIndentMat = new THREE.MeshStandardMaterial({ color: 0x6a6d71, roughness: 0.7 });
+    const kbIndentGeo = new THREE.PlaneGeometry(11.8, 4.0);
+    disposables.push(kbIndentGeo, kbIndentMat);
+    const kbIndent = new THREE.Mesh(kbIndentGeo, kbIndentMat);
+    kbIndent.rotation.x = -Math.PI / 2;
+    kbIndent.position.set(-0.1, baseH + 0.005, -1.0);
+    laptopGroup.add(kbIndent);
+
+    const keysMain = [
+      ['Esc', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12', 'Del'],
+      ["'", '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'Bksp'],
+      ['Tab', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']', '\\'],
+      ['Caps', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ç', '~', 'Enter', ''],
+      ['Shift', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', ';', '/', 'Shift', ''],
+      ['Ctrl', 'Win', 'Alt', 'Space', 'Alt', 'Fn', 'Ctrl', '<', '>'],
+    ];
+
+    const keysNum = [
+      ['Num', '/', '*', '-'],
+      ['7', '8', '9', '+'],
+      ['4', '5', '6', ''],
+      ['1', '2', '3', 'Ent'],
+      ['0', '', 'Del', ''],
+    ];
+
+    const keyW = 0.55;
+    const keyD = 0.5;
+    const keyGap = 0.08;
+    const startX = -5.5;
+    const startZ = -2.7;
+
+    const keyMaterials: THREE.Material[] = [];
+    const keyGeometries: THREE.BufferGeometry[] = [];
+
+    keysMain.forEach((row, r) => {
+      let currentX = startX;
+      row.forEach((label) => {
+        if (label === '') return;
+        let kw = keyW;
+        if (['Bksp', 'Tab', 'Caps', 'Enter', 'Shift'].includes(label)) kw = keyW * 1.6;
+        if (label === 'Space') kw = 3.7;
+        const topMat = new THREE.MeshStandardMaterial({
+          map: getKeyTexture(label === 'Space' ? '' : label),
+          roughness: 0.8,
+        });
+        keyMaterials.push(topMat);
+        const materials = [blackPlasticMat, blackPlasticMat, topMat, blackPlasticMat, blackPlasticMat, blackPlasticMat];
+        const geo = new THREE.BoxGeometry(kw, 0.03, keyD);
+        keyGeometries.push(geo);
+        const key = new THREE.Mesh(geo, materials);
+        key.position.set(currentX + kw / 2, baseH + 0.015, startZ + r * (keyD + keyGap));
+        laptopGroup.add(key);
+        currentX += kw + keyGap;
+      });
+    });
+
+    const numStartX = 3.6;
+    keysNum.forEach((row, r) => {
+      let currentX = numStartX;
+      row.forEach((label) => {
+        if (label === '') return;
+        let kw = keyW;
+        if (label === '0') kw = keyW * 2 + keyGap;
+        const topMat = new THREE.MeshStandardMaterial({ map: getKeyTexture(label), roughness: 0.8 });
+        keyMaterials.push(topMat);
+        const materials = [blackPlasticMat, blackPlasticMat, topMat, blackPlasticMat, blackPlasticMat, blackPlasticMat];
+        const geo = new THREE.BoxGeometry(kw, 0.03, keyD);
+        keyGeometries.push(geo);
+        const key = new THREE.Mesh(geo, materials);
+        key.position.set(currentX + kw / 2, baseH + 0.015, startZ + r * (keyD + keyGap));
+        laptopGroup.add(key);
+        currentX += kw + keyGap;
+      });
+    });
+
+    disposables.push(...keyMaterials, ...keyGeometries, ...Object.values(keyCache));
+
+    // Trackpad
+    const trackpadBorderMat = new THREE.MeshStandardMaterial({ color: 0x5a5d61, roughness: 1 });
+    const trackpadBorderGeo = new THREE.PlaneGeometry(3.68, 2.48);
+    disposables.push(trackpadBorderMat, trackpadBorderGeo);
+    const trackpadBorder = new THREE.Mesh(trackpadBorderGeo, trackpadBorderMat);
+    trackpadBorder.rotation.x = -Math.PI / 2;
+    trackpadBorder.position.set(-1.0, baseH + 0.008, 1.8);
+    laptopGroup.add(trackpadBorder);
+
+    const trackpadMat = new THREE.MeshStandardMaterial({ color: 0x7a7d81, metalness: 0.5, roughness: 0.3 });
+    const trackpadGeo = new THREE.PlaneGeometry(3.6, 2.4);
+    disposables.push(trackpadMat, trackpadGeo);
+    const trackpad = new THREE.Mesh(trackpadGeo, trackpadMat);
+    trackpad.rotation.x = -Math.PI / 2;
+    trackpad.position.set(-1.0, baseH + 0.01, 1.8);
+    laptopGroup.add(trackpad);
+
+    // Lid
+    const lidGroup = new THREE.Group();
+    lidGroup.position.set(0, baseH, -baseD / 2 + 0.2);
+
+    const hingeGeo = new THREE.CylinderGeometry(0.12, 0.12, 9);
+    disposables.push(hingeGeo);
+    const hinge = new THREE.Mesh(hingeGeo, blackPlasticMat);
+    hinge.rotation.z = Math.PI / 2;
+    lidGroup.add(hinge);
+
+    const lidGeometry = new THREE.BoxGeometry(baseW, baseD - 0.2, 0.1);
+    disposables.push(lidGeometry);
+    const lidMaterials = [grayMat, grayMat, grayMat, grayMat, grayMat, lidMat];
+    const lid = new THREE.Mesh(lidGeometry, lidMaterials);
+    lid.position.set(0, (baseD - 0.2) / 2, 0.05);
+    lid.castShadow = true;
+    lidGroup.add(lid);
+
+    const bezelGeo = new THREE.PlaneGeometry(baseW - 0.1, baseD - 0.3);
+    disposables.push(bezelGeo);
+    const bezel = new THREE.Mesh(bezelGeo, bezelMat);
+    bezel.position.set(0, (baseD - 0.2) / 2, 0.101);
+    lidGroup.add(bezel);
+
+    const displayGeo = new THREE.PlaneGeometry(baseW - 0.8, baseD - 1.2);
+    disposables.push(displayGeo);
+    const display = new THREE.Mesh(displayGeo, screenMat);
+    display.position.set(0, (baseD - 0.2) / 2 + 0.1, 0.102);
+    lidGroup.add(display);
+
+    laptopGroup.add(lidGroup);
+
+    // Shadow plane
+    const shadowGeo = new THREE.PlaneGeometry(40, 40);
+    const shadowMat = new THREE.ShadowMaterial({ opacity: 0.15 });
+    disposables.push(shadowGeo, shadowMat);
+    const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.y = -0.1;
+    shadowPlane.receiveShadow = true;
+    scene.add(shadowPlane);
+
+    scene.add(laptopGroup);
+
+    // ============ Animação ============
+    lidGroup.rotation.x = Math.PI / 2;
+    laptopGroup.rotation.y = -Math.PI / 5;
+
+    let autoRotate = true;
+    let opening = true;
+    let rafId = 0;
+
+    const stopAuto = () => {
+      autoRotate = false;
+    };
+    container.addEventListener('mousedown', stopAuto);
+    container.addEventListener('touchstart', stopAuto, { passive: true });
+    container.addEventListener('wheel', stopAuto, { passive: true });
+
+    const animate = () => {
+      rafId = requestAnimationFrame(animate);
+      if (opening) {
+        lidGroup.rotation.x -= 0.025;
+        if (lidGroup.rotation.x <= -0.15) opening = false;
+      }
+      if (autoRotate && !opening) {
+        laptopGroup.rotation.y += 0.002;
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    const handleResize = () => {
+      if (!container) return;
+      const nw = container.clientWidth;
+      const nh = container.clientHeight;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', handleResize);
+      container.removeEventListener('mousedown', stopAuto);
+      container.removeEventListener('touchstart', stopAuto);
+      container.removeEventListener('wheel', stopAuto);
+      controls.dispose();
+      disposables.forEach((d) => {
+        try {
+          d.dispose();
+        } catch {
+          /* noop */
+        }
+      });
+      renderer.dispose();
+      if (renderer.domElement.parentNode === container) {
+        container.removeChild(renderer.domElement);
+      }
+    };
+  }, [tier]);
 
   return (
     <div className="relative w-full max-w-[880px] mx-auto select-none">
       <div
+        ref={containerRef}
         className="relative w-full overflow-hidden rounded-3xl"
         style={{
           height: 'min(72vh, 560px)',
           minHeight: 380,
           background:
             'linear-gradient(180deg, #2a1a4a 0%, #1a0d2e 50%, #0a0512 100%)',
+          touchAction: 'none',
         }}
-      >
-        <div
-          className="pointer-events-none absolute inset-0 z-10"
-          style={{
-            background:
-              'radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%)',
-          }}
-        />
-
-        {mounted && (
-          <Canvas
-            shadows={tier === 'full'}
-            dpr={tier === 'light' ? [1, 1.3] : [1, 2]}
-            camera={{
-              position: tier === 'light' ? [0, 0.9, 7.2] : [0, 0.9, 6.2],
-              fov: tier === 'light' ? 30 : 28,
-            }}
-            gl={{
-              antialias: true,
-              alpha: true,
-              powerPreference: 'high-performance',
-            }}
-          >
-            <Scene tier={tier} />
-            <OrbitControls
-              enablePan={false}
-              enableZoom={false}
-              enableDamping
-              dampingFactor={0.08}
-              autoRotate={false}
-              target={[0, 0.4, 0]}
-              minPolarAngle={Math.PI / 2.15}
-              maxPolarAngle={Math.PI / 2.02}
-              minAzimuthAngle={-Math.PI / 10}
-              maxAzimuthAngle={Math.PI / 10}
-            />
-          </Canvas>
-        )}
-      </div>
-
-      <p className="text-xs text-muted-foreground text-center mt-3 tracking-[0.2em] uppercase">
-        Arraste para girar · 3D Real
-      </p>
+      />
     </div>
   );
 }

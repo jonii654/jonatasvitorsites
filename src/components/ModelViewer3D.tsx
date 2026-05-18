@@ -25,7 +25,7 @@ export function ModelViewer3D() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-          className="text-lg md:text-xl font-semibold text-muted-foreground mb-6 tracking-wide uppercase"
+          className="text-3xl md:text-5xl font-bold text-foreground mb-8 tracking-wide uppercase"
           style={{ letterSpacing: '0.15em' }}
         >
           Explore em 3D
