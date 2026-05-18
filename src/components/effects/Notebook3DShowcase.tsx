@@ -194,7 +194,7 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
     const tl = gsap.timeline();
     tl.to(
       lidRef.current.rotation,
-      { x: -Math.PI / 2 + 0.2, duration: 1.6, ease: 'power4.out' },
+      { x: -Math.PI / 2 - 0.05, duration: 1.6, ease: 'power4.out' },
       0.3
     );
     if (screenMatRef.current) {
@@ -228,21 +228,20 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
   const baseD = 2.25;
   const baseH = 0.16;
   const lidH = 1.95;
-  const screenW = 2.92;
-  const screenH = 1.55; // chin reservado abaixo
-  // imagem é 3:4 (vertical). Para caber sem distorcer em tela 16:10 horizontal,
-  // usamos repeat<1 em X centralizado, deixando faixas pretas laterais.
-  const imgAspect = 3 / 4; // w/h da imagem original
+  const screenW = 3.04;
+  const screenH = 1.84;
+  // imagem 3:4 vertical. "cover" no plano horizontal: crop vertical, preenche tudo.
+  const imgAspect = 3 / 4;
   const screenAspect = screenW / screenH;
-  const repeatX = imgAspect / screenAspect; // <1, centraliza
+  const repeatY = imgAspect / screenAspect; // <1
   useEffect(() => {
     if (!screenMap) return;
     screenMap.wrapS = THREE.ClampToEdgeWrapping;
     screenMap.wrapT = THREE.ClampToEdgeWrapping;
-    screenMap.repeat.set(1, 1);
-    screenMap.offset.set(0, 0);
+    screenMap.repeat.set(1, repeatY);
+    screenMap.offset.set(0, (1 - repeatY) / 2);
     screenMap.needsUpdate = true;
-  }, [screenMap]);
+  }, [screenMap, repeatY]);
 
   return (
     <group ref={groupRef} position={[0, -0.25, 0]}>
@@ -342,24 +341,8 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
           position={[0, lidH / 2 + 0.05, 0.008]}
         />
 
-        {/* Chin area (subtle highlight strip) */}
-        <mesh position={[0, 0.18, 0.015]}>
-          <planeGeometry args={[screenW, 0.18]} />
-          <meshStandardMaterial color="#050505" metalness={0.4} roughness={0.6} />
-        </mesh>
-
-        {/* Discreet brand dot on chin */}
-        <mesh position={[0, 0.18, 0.018]}>
-          <circleGeometry args={[0.018, 24]} />
-          <meshStandardMaterial
-            color="#5a5a5a"
-            metalness={0.8}
-            roughness={0.3}
-          />
-        </mesh>
-
-        {/* Screen poster (uses center crop letterbox via UV) */}
-        <mesh position={[0, lidH / 2 + 0.12, 0.016]}>
+        {/* Screen poster (cover-fit, fills entire bezel) */}
+        <mesh position={[0, lidH / 2 + 0.05, 0.016]}>
           <planeGeometry args={[screenW, screenH]} />
           <meshBasicMaterial
             ref={screenMatRef}
@@ -368,19 +351,10 @@ function Laptop({ tier }: { tier: 'light' | 'full' }) {
             transparent
           />
         </mesh>
-        {/* Black side bars (letterbox to keep poster proportion) */}
-        <mesh position={[-(screenW * (1 - repeatX)) / 4 - screenW / 2 + (screenW * (1 - repeatX)) / 4, lidH / 2 + 0.12, 0.0165]}>
-          <planeGeometry args={[(screenW * (1 - repeatX)) / 2, screenH]} />
-          <meshBasicMaterial color="#000" />
-        </mesh>
-        <mesh position={[screenW / 2 - (screenW * (1 - repeatX)) / 4, lidH / 2 + 0.12, 0.0165]}>
-          <planeGeometry args={[(screenW * (1 - repeatX)) / 2, screenH]} />
-          <meshBasicMaterial color="#000" />
-        </mesh>
 
         {/* Glass reflection */}
         {tier === 'full' && (
-          <mesh position={[0, lidH / 2 + 0.12, 0.02]}>
+          <mesh position={[0, lidH / 2 + 0.05, 0.02]}>
             <planeGeometry args={[screenW, screenH]} />
             <meshPhysicalMaterial
               transparent
@@ -501,7 +475,7 @@ export function Notebook3DShowcase() {
           <Canvas
             shadows={tier === 'full'}
             dpr={tier === 'light' ? [1, 1.3] : [1, 2]}
-            camera={{ position: [0, 1.4, 5.4], fov: 36 }}
+            camera={{ position: [0, 0.5, 5.6], fov: 32 }}
             gl={{
               antialias: true,
               alpha: true,
@@ -514,10 +488,11 @@ export function Notebook3DShowcase() {
               enableZoom={false}
               enableDamping
               dampingFactor={0.08}
-              autoRotate={tier === 'full'}
-              autoRotateSpeed={0.8}
-              minPolarAngle={Math.PI / 3.4}
+              autoRotate={false}
+              minPolarAngle={Math.PI / 2.4}
               maxPolarAngle={Math.PI / 2.05}
+              minAzimuthAngle={-Math.PI / 6}
+              maxAzimuthAngle={Math.PI / 6}
             />
           </Canvas>
         )}
