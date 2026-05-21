@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { X, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
-import { PortfolioMosaicHero } from './effects/PortfolioMosaicHero';
+
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
@@ -132,7 +132,25 @@ export function Portfolio() {
         transition={{ duration: 0.8, ease: 'easeInOut' }}
       />
 
-      <PortfolioMosaicHero />
+      <div className="container mx-auto px-4 relative z-10 text-center mb-10 md:mb-16">
+        <span className="section-label">Portfólio</span>
+        <h2
+          className="font-black leading-[0.85] tracking-tight uppercase mt-4"
+          style={{
+            fontSize: 'clamp(3rem, 13vw, 9rem)',
+            letterSpacing: '-0.05em',
+            background: 'linear-gradient(135deg, hsl(195 100% 60%), hsl(155 100% 55%))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          Trabalhos
+        </h2>
+        <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+          Exemplos do que entrego: sites institucionais, landing pages e marcas pessoais.
+        </p>
+      </div>
 
       <LayoutGroup id="portfolio-cards">
         {/* Horizontal coverflow track */}
