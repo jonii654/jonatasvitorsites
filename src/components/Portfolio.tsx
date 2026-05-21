@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { X, ExternalLink, ChevronLeft, ChevronRight, Play, Pause, ArrowLeft } from 'lucide-react';
+import { X, ExternalLink, ArrowLeft } from 'lucide-react';
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
