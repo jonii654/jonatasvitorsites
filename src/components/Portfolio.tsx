@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { X, ExternalLink, ChevronLeft, ChevronRight, Play, Pause, ArrowLeft } from 'lucide-react';
+import { X, ExternalLink, ArrowLeft } from 'lucide-react';
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
@@ -23,6 +23,12 @@ interface Project {
   thumbGradient: string; // for player thumb
 }
 
+const BRAND_DARK = '#042a73';
+const BRAND_LIGHT = '#00b4ff';
+const BRAND_THUMB = `linear-gradient(to top right, ${BRAND_DARK}, ${BRAND_LIGHT})`;
+const BRAND_ACCENT = 'text-sky-300 border-sky-400/30 bg-sky-400/10';
+const BRAND_GRADIENT = 'from-[#042a73] via-zinc-950 to-[#00b4ff]/40';
+
 const projects: Project[] = [
   {
     id: 1,
@@ -35,9 +41,9 @@ const projects: Project[] = [
     link: 'https://www.vivendopoderosamente.com.br/',
     code: '01 // SALES PAGE',
     badge: 'LANDING PAGE',
-    accent: 'text-orange-300 border-orange-400/30 bg-orange-400/10',
-    gradient: 'from-orange-900 via-zinc-950 to-rose-900',
-    thumbGradient: 'linear-gradient(to top right, #7c2d12, #fb923c)',
+    accent: BRAND_ACCENT,
+    gradient: BRAND_GRADIENT,
+    thumbGradient: BRAND_THUMB,
   },
   {
     id: 2,
@@ -50,9 +56,9 @@ const projects: Project[] = [
     link: 'https://www.vinidigtal.com.br/',
     code: '02 // INSTITUTIONAL',
     badge: 'WEB DESIGN',
-    accent: 'text-sky-300 border-sky-400/30 bg-sky-400/10',
-    gradient: 'from-sky-950 via-zinc-950 to-blue-900',
-    thumbGradient: 'linear-gradient(to top right, #0c4a6e, #38bdf8)',
+    accent: BRAND_ACCENT,
+    gradient: BRAND_GRADIENT,
+    thumbGradient: BRAND_THUMB,
   },
   {
     id: 3,
@@ -65,9 +71,9 @@ const projects: Project[] = [
     link: 'https://iphoneclinica.lovable.app',
     code: '03 // TECH BRAND',
     badge: 'UI / UX',
-    accent: 'text-zinc-200 border-white/20 bg-white/5',
-    gradient: 'from-zinc-800 via-zinc-950 to-stone-900',
-    thumbGradient: 'linear-gradient(to top right, #27272a, #a1a1aa)',
+    accent: BRAND_ACCENT,
+    gradient: BRAND_GRADIENT,
+    thumbGradient: BRAND_THUMB,
   },
   {
     id: 4,
@@ -80,9 +86,9 @@ const projects: Project[] = [
     link: 'https://marketingpessoal.lovable.app',
     code: '04 // PERSONAL',
     badge: 'CREATIVE DIR.',
-    accent: 'text-fuchsia-300 border-fuchsia-400/30 bg-fuchsia-400/10',
-    gradient: 'from-fuchsia-950 via-zinc-950 to-purple-900',
-    thumbGradient: 'linear-gradient(to top right, #581c87, #e879f9)',
+    accent: BRAND_ACCENT,
+    gradient: BRAND_GRADIENT,
+    thumbGradient: BRAND_THUMB,
   },
 ];
 
@@ -382,80 +388,6 @@ export function Portfolio() {
           </button>
         </motion.div>
 
-        {/* Player footer */}
-        <div className="container mx-auto px-4 mt-10">
-          <div className="glass-card rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            {/* Left: project info */}
-            <div className="flex items-center gap-3 w-full md:w-auto">
-              <div className="h-10 w-10 rounded-lg border border-border/40 overflow-hidden flex-shrink-0">
-                <motion.div
-                  className="h-full w-full"
-                  animate={{ background: active.thumbGradient }}
-                  transition={{ duration: 0.8 }}
-                />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-bold tracking-tight text-foreground truncate">
-                    {active.title}
-                  </h4>
-                  <span className="h-1 w-1 bg-muted-foreground/60 rounded-full flex-shrink-0" />
-                  <span className="text-[10px] text-muted-foreground font-mono flex-shrink-0">
-                    {String(activeIndex + 1).padStart(2, '0')}/{String(projects.length).padStart(2, '0')}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground truncate">{active.categoryLabel}</p>
-              </div>
-            </div>
-
-            {/* Center: controls */}
-            <div className="flex items-center gap-5">
-              <button
-                onClick={() => navigate(-1)}
-                aria-label="Anterior"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setIsPlaying((p) => !p)}
-                aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
-                className="h-11 w-11 rounded-full bg-foreground hover:bg-primary text-background flex items-center justify-center transition-all shadow-md hover:scale-105 active:scale-95"
-              >
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-              </button>
-              <button
-                onClick={() => navigate(1)}
-                aria-label="Próximo"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Right: status */}
-            <div className="hidden md:flex items-center gap-3">
-              <div className="text-right">
-                <span className="text-[9px] text-muted-foreground tracking-wider uppercase font-bold block">
-                  Interativo
-                </span>
-                <span className={`text-xs font-medium ${isPlaying ? 'text-primary' : 'text-muted-foreground'}`}>
-                  {isPlaying ? 'Auto-Play Ativo' : 'Pausado'}
-                </span>
-              </div>
-              <div
-                className={`h-10 w-10 rounded-full border-2 border-border bg-background/80 flex items-center justify-center ${
-                  isPlaying ? 'animate-spin' : ''
-                }`}
-                style={{ animationDuration: '8s' }}
-              >
-                <div className="w-3.5 h-3.5 rounded-full bg-primary flex items-center justify-center">
-                  <div className="w-1 h-1 rounded-full bg-background" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Expanded overlay */}
         <AnimatePresence>
