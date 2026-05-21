@@ -23,6 +23,12 @@ interface Project {
   thumbGradient: string; // for player thumb
 }
 
+const BRAND_DARK = '#042a73';
+const BRAND_LIGHT = '#00b4ff';
+const BRAND_THUMB = `linear-gradient(to top right, ${BRAND_DARK}, ${BRAND_LIGHT})`;
+const BRAND_ACCENT = 'text-sky-300 border-sky-400/30 bg-sky-400/10';
+const BRAND_GRADIENT = 'from-[#042a73] via-zinc-950 to-[#00b4ff]/40';
+
 const projects: Project[] = [
   {
     id: 1,
@@ -35,9 +41,9 @@ const projects: Project[] = [
     link: 'https://www.vivendopoderosamente.com.br/',
     code: '01 // SALES PAGE',
     badge: 'LANDING PAGE',
-    accent: 'text-orange-300 border-orange-400/30 bg-orange-400/10',
-    gradient: 'from-orange-900 via-zinc-950 to-rose-900',
-    thumbGradient: 'linear-gradient(to top right, #7c2d12, #fb923c)',
+    accent: BRAND_ACCENT,
+    gradient: BRAND_GRADIENT,
+    thumbGradient: BRAND_THUMB,
   },
   {
     id: 2,
@@ -50,9 +56,9 @@ const projects: Project[] = [
     link: 'https://www.vinidigtal.com.br/',
     code: '02 // INSTITUTIONAL',
     badge: 'WEB DESIGN',
-    accent: 'text-sky-300 border-sky-400/30 bg-sky-400/10',
-    gradient: 'from-sky-950 via-zinc-950 to-blue-900',
-    thumbGradient: 'linear-gradient(to top right, #0c4a6e, #38bdf8)',
+    accent: BRAND_ACCENT,
+    gradient: BRAND_GRADIENT,
+    thumbGradient: BRAND_THUMB,
   },
   {
     id: 3,
@@ -65,9 +71,9 @@ const projects: Project[] = [
     link: 'https://iphoneclinica.lovable.app',
     code: '03 // TECH BRAND',
     badge: 'UI / UX',
-    accent: 'text-zinc-200 border-white/20 bg-white/5',
-    gradient: 'from-zinc-800 via-zinc-950 to-stone-900',
-    thumbGradient: 'linear-gradient(to top right, #27272a, #a1a1aa)',
+    accent: BRAND_ACCENT,
+    gradient: BRAND_GRADIENT,
+    thumbGradient: BRAND_THUMB,
   },
   {
     id: 4,
@@ -80,9 +86,9 @@ const projects: Project[] = [
     link: 'https://marketingpessoal.lovable.app',
     code: '04 // PERSONAL',
     badge: 'CREATIVE DIR.',
-    accent: 'text-fuchsia-300 border-fuchsia-400/30 bg-fuchsia-400/10',
-    gradient: 'from-fuchsia-950 via-zinc-950 to-purple-900',
-    thumbGradient: 'linear-gradient(to top right, #581c87, #e879f9)',
+    accent: BRAND_ACCENT,
+    gradient: BRAND_GRADIENT,
+    thumbGradient: BRAND_THUMB,
   },
 ];
 
