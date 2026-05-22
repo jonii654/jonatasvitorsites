@@ -1,71 +1,49 @@
-## Plano de ajustes
+## Repaginada visual — pegada novo Lovable (paleta azul→verde mantida)
 
-### 1. Notebook 3D — destravar scroll no mobile (`Notebook3DShowcase.tsx`)
-Hoje o `touch-action: none` + OrbitControls capturam todo o gesto, prendendo a pessoa na seção.
+Mantenho **toda a paleta atual** (navy #042a73, ciano #00b4ff, verde neon #00ff9d). O que muda é **tipografia, tratamento das letras, efeitos e composição** — na vibe do novo Lovable.
 
-Novo comportamento:
-- **1 toque (single-finger swipe):** o canvas **NÃO** intercepta — o scroll da página passa normalmente sobre o notebook.
-- **2 toques (two-finger):** ativa rotação/zoom no modelo 3D (`OrbitControls.touches = { ONE: null, TWO: DOLLY_PAN }` + `touchAction: 'pan-y'` no container).
-- Mouse/desktop continua igual (drag para girar, scroll do mouse para zoom).
-- Adicionar hint visual sutil ("Use 2 dedos para girar") apenas em mobile.
+### O que peguei do vídeo (sem cor)
+- **Tipografia serif editorial gigante** ("DESIGN / COMMERCIALS / EDITORIAL") quebrada em várias linhas
+- **3D inflado tipo balão** nas letras (efeito puffy/glossy)
+- **Cards flutuantes inclinados** em mosaico 3D (NanoFiber, HONOR, headphones)
+- **Prompt-card central** arredondado com botões circulares minimalistas
+- Hierarquia: título display ENORME + corpo sans clean discreto
+- Micro-interações: hover scale suave, reveal por palavra, parallax leve
 
-### 2. "O design quem faz é você!" (`Interactive3DCard.tsx`)
-- **Card maior no desktop:** aumentar de `lg:w-[520px] h-[330px]` para `lg:w-[640px] h-[400px]` (e `xl:w-[720px] h-[450px]`). Mobile inalterado.
-- **Fade-in rápido das fotos** (pilot-card.jpg e foto do Jônatas no AboutMe):
-  - Trocar `transition: 'opacity 0.3s'` por entrada imediata (150 ms) com `opacity` controlado por `onLoad`.
-  - Pré-carregar via `<link rel="preload" as="image">` no `index.html` para ambas imagens.
-  - No `PhotoCarousel`, garantir `loading="eager"` + `fetchpriority="high"` na primeira foto e fade-in de 200 ms.
+### Como vou apresentar
+3 protótipos renderizados (Hero + 1 seção de exemplo), **todos na paleta azul→ciano→verde atual**, variando só tipografia/efeitos/composição. Você escolhe 1, eu aplico em todo o site.
 
-### 3. Adicionar projeto CSA Engenharia ao Portfólio
-- URL: `https://www.csaengenharia.org`
-- ⚠️ **Bloqueio:** ao tentar capturar a screenshot do site, ele retornou "Something went wrong" (erro de carregamento). Vou tentar novamente na implementação; se persistir, gero um mock visual com o nome "CSA Engenharia" usando o mesmo template gradient azul dos outros cards e adiciono nota para o usuário substituir depois.
-- Adicionar 5º objeto em `projects[]` no `Portfolio.tsx` com título, link, categoria "Site Institucional - Engenharia".
+**Direção A — "Serif Editorial Gigante"**
+- Título quebrado em 3 linhas em **serif display enorme** (Instrument Serif italic): "CRIO / SITES / QUE VENDEM"
+- Corpo em sans clean (Inter) bem menor abaixo
+- Cards do portfólio inclinados tipo polaroid (-6°/+4°) com sombra ciano
+- Reveal por palavra com stagger
+- Vibe: revista premium digital
 
-### 4. Bugs do carrossel Portfólio (lag ao passar de lado)
-Causas identificadas no código atual:
-- `LayoutGroup` + `layoutId` em todos os cards faz Framer recalcular layout a cada click (lag visível).
-- `animate={style}` com objetos novos a cada render causa re-trigger.
-- Swipe touch usa apenas `touchstart`/`touchend` sem cancelar autoplay no toque.
+**Direção B — "Bubble 3D + Sans Pesado"**
+- Hero com **letras infladas 3D** (balão glossy ciano→verde) ocupando a tela inteira
+- Acima/abaixo: sans display pesado (Sora Black) bem condensado
+- Prompt-card central branco/dark estilo Lovable
+- Mosaico de cards flutuantes 3D girando lento ao redor
+- Vibe: playful tech, app-like
 
-Correções:
-- Pausar autoplay durante interação (touchstart cancela o `setInterval`, retoma após 8s sem interação).
-- Memoizar `getCardStyle` com `useMemo`.
-- Substituir `transition duration: 0.8` por `0.5` com easing mais responsivo (`[0.32, 0.72, 0, 1]`).
-- Adicionar `will-change: transform, flex` apenas no card ativo + vizinhos.
-- Throttle do swipe (ignorar gestos < 100ms entre si).
+**Direção C — "Kinetic Type + Glass"**
+- Tipografia em movimento contínuo (palavras passando horizontal, marquee suave)
+- Mix sans display (Sora) + mono (JetBrains) para metadados/labels
+- Cards glass intensificados com bordas neon ciano/verde 1px
+- Layout asymmetric (título à esquerda, números/labels à direita)
+- Vibe: editorial moderno + tech, a mais sóbria
 
-### 5. Redesign visual da seção Trabalhos baseado no vídeo
-⚠️ **Bloqueio:** o arquivo enviado é um vídeo `.mp4` (binário) e não consigo extrair frames diretamente nos meus tools para ver o estilo exato que você quer replicar.
+### Itens preservados (intocados)
+- **Paleta azul navy → ciano → verde neon** (toda)
+- Notebook 3D Sketchfab + lógica de touch
+- Tracking de analytics
+- Estrutura de seções e copy
+- Carrossel do portfólio (só re-skin)
+- Backend / Lovable Cloud
 
-**Preciso que você confirme uma das opções:**
-- (a) Descrever em 2-3 frases o estilo do vídeo (ex: "cards horizontais com hover scale, fundo escuro com grão, tipografia editorial")
-- (b) Enviar 1-2 screenshots (prints) dos momentos-chave do vídeo
-- (c) Me dizer o nome do site/referência do Pinterest mostrado no vídeo
-
-Sem isso, posso fazer um redesign genérico "leve e eclético" com:
-- Layout em grid bento (1 card grande + 3 menores)
-- Hover com escala + reveal do título
-- Paleta azul existente preservada
-- Transições suaves Framer Motion
-- Tipografia maior, espaçamento mais arejado
-
-### Arquivos afetados
-- `src/components/effects/Notebook3DShowcase.tsx`
-- `src/components/Interactive3DCard.tsx`
-- `src/components/AboutMe.tsx` / `src/components/PhotoCarousel.tsx`
-- `src/components/Portfolio.tsx`
-- `index.html` (preload de imagens)
-
-### 6. Tracking de conversões (implementado)
-- Hook `useAnalytics` criado em `src/hooks/use-analytics.ts`
-- Tabela `analytics_events` criada no backend para persistir cliques
-- Tracking ativo nos CTAs:
-  - `hero` — botão "Quero meu site"
-  - `header` — botão "WhatsApp" no desktop
-  - `fullscreen_menu` — botão "Falar no WhatsApp" no menu mobile
-  - `cta_section` — botão final "Falar no WhatsApp"
-  - `footer` — ícone WhatsApp no rodapé
-- Eventos também enviados para GA4 (se `gtag` estiver disponível)
-
-### Próximo passo
-Me confirma sobre o **vídeo de referência (item 5)** e se posso seguir com mock para o CSA caso o site continue fora do ar.
+### Próximos passos
+1. Você aprova esse plano
+2. Gero os 3 protótipos visuais clicáveis
+3. Você escolhe 1
+4. Aplico em todo o site
