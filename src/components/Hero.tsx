@@ -3,19 +3,7 @@ import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRef, useMemo, useEffect } from 'react';
 import { useDeviceTier } from '@/hooks/use-device-tier';
-import { useAnalytics }<parameter name="file_path">src/components/Header.tsx</parameter>
-<parameter name="first_replaced_line">1</parameter>
-<parameter name="last_replaced_line">4</parameter>
-<parameter name="old_content">import { useState, useEffect } from 'react';
-import { Menu, MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { FullscreenMenu } from './effects/FullscreenMenu';</parameter>
-<parameter name="new_content">import { useState, useEffect } from 'react';
-import { Menu, MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { FullscreenMenu } from './effects/FullscreenMenu';
-import { useAnalytics } from '@/hooks/use-analytics';</parameter>
-</invoke>
+import { useAnalytics } from '@/hooks/use-analytics';
 import layoutTop from '@/assets/layout-mockup-top.webp';
 import layoutBottom from '@/assets/layout-mockup-bottom.webp';
 import layoutLeft from '@/assets/layout-mockup-left.webp';
