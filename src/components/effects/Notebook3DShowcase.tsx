@@ -149,9 +149,10 @@ export function Notebook3DShowcase() {
     controls.minDistance = 8;
     controls.maxDistance = 40;
     controls.maxPolarAngle = Math.PI / 2 + 0.1;
+    // Mobile: 1 dedo libera o scroll da página; 2 dedos rotacionam/dão zoom no notebook
     controls.touches = {
-      ONE: THREE.TOUCH.ROTATE,
-      TWO: THREE.TOUCH.DOLLY_PAN,
+      ONE: null as unknown as THREE.TOUCH,
+      TWO: THREE.TOUCH.DOLLY_ROTATE,
     };
 
     // Environment map procedural (subtle reflections)
@@ -470,9 +471,12 @@ export function Notebook3DShowcase() {
           minHeight: 380,
           background:
             'linear-gradient(180deg, #2a1a4a 0%, #1a0d2e 50%, #0a0512 100%)',
-          touchAction: 'none',
+          touchAction: 'pan-y',
         }}
       />
+      <p className="md:hidden mt-3 text-center text-xs text-muted-foreground/70">
+        Use 2 dedos para girar e dar zoom
+      </p>
     </div>
   );
 }
