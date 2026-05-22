@@ -119,8 +119,10 @@ export function Portfolio() {
   const touchStartX = useRef(0);
 
   const active = projects[activeIndex];
+  const lastNavRef = useRef(0);
+  const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Autoplay
+  // Autoplay (pausável por interação)
   useEffect(() => {
     if (!isPlaying) return;
     const id = setInterval(() => {
@@ -129,9 +131,19 @@ export function Portfolio() {
     return () => clearInterval(id);
   }, [isPlaying]);
 
-  const navigate = useCallback((dir: number) => {
-    setActiveIndex((i) => (i + dir + projects.length) % projects.length);
+  const pauseAutoplayTemporarily = useCallback(() => {
+    setIsPlaying(false);
+    if (interactionTimerRef.current) clearTimeout(interactionTimerRef.current);
+    interactionTimerRef.current = setTimeout(() => setIsPlaying(true), 8000);
   }, []);
+
+  const navigate = useCallback((dir: number) => {
+    const now = Date.now();
+    if (now - lastNavRef.current < 180) return; // throttle
+    lastNavRef.current = now;
+    setActiveIndex((i) => (i + dir + projects.length) % projects.length);
+    pauseAutoplayTemporarily();
+  }, [pauseAutoplayTemporarily]);
 
   // Keyboard
   useEffect(() => {
@@ -160,6 +172,7 @@ export function Portfolio() {
   // Touch swipe
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.changedTouches[0].screenX;
+    pauseAutoplayTemporarily();
   };
   const onTouchEnd = (e: React.TouchEvent) => {
     const diff = touchStartX.current - e.changedTouches[0].screenX;
@@ -167,6 +180,7 @@ export function Portfolio() {
   };
 
   const handleCardClick = (idx: number) => {
+    pauseAutoplayTemporarily();
     if (mode === 'gallery') {
       setActiveIndex(idx);
       setMode('focus');
@@ -179,7 +193,7 @@ export function Portfolio() {
   const openProject = projects.find((p) => p.id === openId);
 
   // Card layout per mode
-  const getCardStyle = (idx: number) => {
+  const getCardStyle = useCallback((idx: number) => {
     const isActive = idx === activeIndex;
     if (mode === 'gallery') {
       return {
