@@ -191,7 +191,7 @@ export function Interactive3DCard() {
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <motion.div
-              className="relative w-[280px] h-[180px] sm:w-[340px] sm:h-[220px] md:w-[440px] md:h-[280px] lg:w-[520px] lg:h-[330px] rounded-2xl overflow-hidden shadow-2xl"
+              className="relative w-[280px] h-[180px] sm:w-[340px] sm:h-[220px] md:w-[500px] md:h-[320px] lg:w-[640px] lg:h-[400px] xl:w-[720px] xl:h-[450px] rounded-2xl overflow-hidden shadow-2xl"
               style={{
                 rotateX: springRotateX,
                 rotateY: springRotateY,
@@ -209,9 +209,10 @@ export function Interactive3DCard() {
                     src={pilotImage} 
                     alt="Design Premium" 
                     className="w-full h-full object-cover"
-                    style={{ opacity: imageLoaded ? 1 : 0, transition: 'opacity 0.3s' }}
+                    style={{ opacity: imageLoaded ? 1 : 0, transition: 'opacity 0.18s ease-out' }}
                     draggable={false}
                     loading="eager"
+                    {...({ fetchpriority: 'high' } as any)}
                     onLoad={() => setImageLoaded(true)}
                   />
                 </div>

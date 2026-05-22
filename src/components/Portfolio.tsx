@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { X, ExternalLink, ArrowLeft } from 'lucide-react';
 
@@ -6,6 +6,7 @@ import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
 import portfolioClinica from '@/assets/portfolio-clinicaiphone.png';
 import portfolioBeatriz from '@/assets/portfolio-beatriz.png';
+import portfolioCsa from '@/assets/portfolio-csa.jpg';
 
 interface Project {
   id: number;
@@ -90,6 +91,21 @@ const projects: Project[] = [
     gradient: BRAND_GRADIENT,
     thumbGradient: BRAND_THUMB,
   },
+  {
+    id: 5,
+    title: 'CSA Engenharia',
+    categoryLabel: 'Site Institucional',
+    subtitle: 'Engenharia Civil',
+    description: 'Site institucional para empresa de engenharia civil, com identidade sóbria e foco em credibilidade.',
+    image: portfolioCsa,
+    type: 'Projeto Real',
+    link: 'https://www.csaengenharia.org',
+    code: '05 // ENGINEERING',
+    badge: 'INSTITUCIONAL',
+    accent: BRAND_ACCENT,
+    gradient: BRAND_GRADIENT,
+    thumbGradient: BRAND_THUMB,
+  },
 ];
 
 type Mode = 'gallery' | 'focus';
@@ -103,8 +119,10 @@ export function Portfolio() {
   const touchStartX = useRef(0);
 
   const active = projects[activeIndex];
+  const lastNavRef = useRef(0);
+  const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Autoplay
+  // Autoplay (pausável por interação)
   useEffect(() => {
     if (!isPlaying) return;
     const id = setInterval(() => {
@@ -113,9 +131,19 @@ export function Portfolio() {
     return () => clearInterval(id);
   }, [isPlaying]);
 
-  const navigate = useCallback((dir: number) => {
-    setActiveIndex((i) => (i + dir + projects.length) % projects.length);
+  const pauseAutoplayTemporarily = useCallback(() => {
+    setIsPlaying(false);
+    if (interactionTimerRef.current) clearTimeout(interactionTimerRef.current);
+    interactionTimerRef.current = setTimeout(() => setIsPlaying(true), 8000);
   }, []);
+
+  const navigate = useCallback((dir: number) => {
+    const now = Date.now();
+    if (now - lastNavRef.current < 180) return; // throttle
+    lastNavRef.current = now;
+    setActiveIndex((i) => (i + dir + projects.length) % projects.length);
+    pauseAutoplayTemporarily();
+  }, [pauseAutoplayTemporarily]);
 
   // Keyboard
   useEffect(() => {
@@ -144,6 +172,7 @@ export function Portfolio() {
   // Touch swipe
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.changedTouches[0].screenX;
+    pauseAutoplayTemporarily();
   };
   const onTouchEnd = (e: React.TouchEvent) => {
     const diff = touchStartX.current - e.changedTouches[0].screenX;
@@ -151,6 +180,7 @@ export function Portfolio() {
   };
 
   const handleCardClick = (idx: number) => {
+    pauseAutoplayTemporarily();
     if (mode === 'gallery') {
       setActiveIndex(idx);
       setMode('focus');
@@ -163,7 +193,7 @@ export function Portfolio() {
   const openProject = projects.find((p) => p.id === openId);
 
   // Card layout per mode
-  const getCardStyle = (idx: number) => {
+  const getCardStyle = useCallback((idx: number) => {
     const isActive = idx === activeIndex;
     if (mode === 'gallery') {
       return {
@@ -209,7 +239,7 @@ export function Portfolio() {
       transform: 'scale(0.75)',
       zIndex: 0,
     };
-  };
+  }, [activeIndex, mode]);
 
   const leftPercents = projects.map((_, i) => (100 / (projects.length + 1)) * (i + 1));
 
@@ -288,7 +318,7 @@ export function Portfolio() {
                 layoutId={`card-${project.id}`}
                 onClick={() => handleCardClick(idx)}
                 animate={style}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
                 className={`relative group cursor-pointer overflow-hidden h-full block ${
                   mode === 'focus' && isActive
                     ? 'rounded-3xl border border-primary/30 shadow-[0_20px_50px_rgba(0,0,0,0.9)]'
@@ -296,7 +326,7 @@ export function Portfolio() {
                     ? 'rounded-2xl border border-border/40 shadow-[0_10px_35px_rgba(0,0,0,0.5)]'
                     : 'rounded-2xl border border-transparent'
                 }`}
-                style={style}
+                style={{ ...style, willChange: 'transform, flex, opacity' }}
               >
                 {/* Background image */}
                 <motion.img
@@ -309,11 +339,12 @@ export function Portfolio() {
                   className="absolute inset-0 w-full h-full object-cover"
                 />
 
-                {/* Gradient overlay tinted by project */}
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-60 mix-blend-multiply`}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
+                {/* Subtle bottom gradient — keeps image vibrant (D.FM style) */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+                {/* Inactive cards a bit darker for hierarchy */}
+                {!isActive && (
+                  <div className="absolute inset-0 bg-black/35 transition-opacity duration-500" />
+                )}
 
                 {/* Poster top elements (focus mode active only) */}
                 <AnimatePresence>

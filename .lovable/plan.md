@@ -1,49 +1,60 @@
-## Recriar seção Portfolio no estilo D.FM Interactive
+## Plano de ajustes
 
-### Objetivo
-Substituir o carrossel atual da seção "Trabalhos" pelo efeito do HTML enviado: cards finos (fatias) na galeria → ao clicar, entra em "Modo Foco" com o card central grande tipo poster e os laterais reduzidos, com player inferior estilo música.
+### 1. Notebook 3D — destravar scroll no mobile (`Notebook3DShowcase.tsx`)
+Hoje o `touch-action: none` + OrbitControls capturam todo o gesto, prendendo a pessoa na seção.
 
-### O que vai ser construído
+Novo comportamento:
+- **1 toque (single-finger swipe):** o canvas **NÃO** intercepta — o scroll da página passa normalmente sobre o notebook.
+- **2 toques (two-finger):** ativa rotação/zoom no modelo 3D (`OrbitControls.touches = { ONE: null, TWO: DOLLY_PAN }` + `touchAction: 'pan-y'` no container).
+- Mouse/desktop continua igual (drag para girar, scroll do mouse para zoom).
+- Adicionar hint visual sutil ("Use 2 dedos para girar") apenas em mobile.
 
-**1. Reescrever `src/components/Portfolio.tsx`** com dois modos:
+### 2. "O design quem faz é você!" (`Interactive3DCard.tsx`)
+- **Card maior no desktop:** aumentar de `lg:w-[520px] h-[330px]` para `lg:w-[640px] h-[400px]` (e `xl:w-[720px] h-[450px]`). Mobile inalterado.
+- **Fade-in rápido das fotos** (pilot-card.jpg e foto do Jônatas no AboutMe):
+  - Trocar `transition: 'opacity 0.3s'` por entrada imediata (150 ms) com `opacity` controlado por `onLoad`.
+  - Pré-carregar via `<link rel="preload" as="image">` no `index.html` para ambas imagens.
+  - No `PhotoCarousel`, garantir `loading="eager"` + `fetchpriority="high"` na primeira foto e fade-in de 200 ms.
 
-- **Modo Galeria** (inicial): 4 cards lado a lado como fatias verticais finas. O ativo fica mais largo (`flex-[2.5]`), os outros estreitos (`flex-1`). Linha decorativa fina no topo com brilho que se move conforme o ativo.
-- **Modo Foco** (após clique): card central grande tipo cartaz (300-350px), laterais reduzidos e desfocados, demais escondidos. Mostra "poster elements" (tag de categoria, número, badge).
+### 3. Adicionar projeto CSA Engenharia ao Portfólio
+- URL: `https://www.csaengenharia.org`
+- ⚠️ **Bloqueio:** ao tentar capturar a screenshot do site, ele retornou "Something went wrong" (erro de carregamento). Vou tentar novamente na implementação; se persistir, gero um mock visual com o nome "CSA Engenharia" usando o mesmo template gradient azul dos outros cards e adiciono nota para o usuário substituir depois.
+- Adicionar 5º objeto em `projects[]` no `Portfolio.tsx` com título, link, categoria "Site Institucional - Engenharia".
 
-**2. Player inferior fixo dentro da seção** (não global):
-- Thumb com gradiente do projeto ativo
-- Título + tag + índice (01/04)
-- Botões prev / play-pause / next
-- Vinil girando + status "Auto-Play Ativo / Pausado"
-- Auto-play a cada 6s (pausável)
+### 4. Bugs do carrossel Portfólio (lag ao passar de lado)
+Causas identificadas no código atual:
+- `LayoutGroup` + `layoutId` em todos os cards faz Framer recalcular layout a cada click (lag visível).
+- `animate={style}` com objetos novos a cada render causa re-trigger.
+- Swipe touch usa apenas `touchstart`/`touchend` sem cancelar autoplay no toque.
 
-**3. Manter os 4 projetos reais** já existentes em `Portfolio.tsx`:
-- Vivendo Poderosamente (Landing Page)
-- ViniDigital (Site Institucional)
-- Clínica do iPhone (Site Modelo)
-- Beatriz (Marca Pessoal)
+Correções:
+- Pausar autoplay durante interação (touchstart cancela o `setInterval`, retoma após 8s sem interação).
+- Memoizar `getCardStyle` com `useMemo`.
+- Substituir `transition duration: 0.8` por `0.5` com easing mais responsivo (`[0.32, 0.72, 0, 1]`).
+- Adicionar `will-change: transform, flex` apenas no card ativo + vizinhos.
+- Throttle do swipe (ignorar gestos < 100ms entre si).
 
-Cada projeto receberá um gradiente próprio para o "poster" de fundo do card (substituindo o disco/portal/orbe/cápsula do HTML original — vamos usar a **foto real do site** dentro do card com overlay gradiente, mantendo a estética premium).
+### 5. Redesign visual da seção Trabalhos baseado no vídeo
+⚠️ **Bloqueio:** o arquivo enviado é um vídeo `.mp4` (binário) e não consigo extrair frames diretamente nos meus tools para ver o estilo exato que você quer replicar.
 
-**4. Comportamento de clique**:
-- Modo Galeria: clicar em qualquer card → vai pra Modo Foco com ele ativo
-- Modo Foco: clicar no central → abre overlay expandido (já existente, com botão "Ver projeto"); clicar nos laterais → troca o ativo
-- Botão "Voltar à Lista" volta pra Modo Galeria
-- Teclado: ← → navega, Esc volta
+**Preciso que você confirme uma das opções:**
+- (a) Descrever em 2-3 frases o estilo do vídeo (ex: "cards horizontais com hover scale, fundo escuro com grão, tipografia editorial")
+- (b) Enviar 1-2 screenshots (prints) dos momentos-chave do vídeo
+- (c) Me dizer o nome do site/referência do Pinterest mostrado no vídeo
 
-**5. Adaptações técnicas**:
-- Tudo em React + Framer Motion (substituir CSS animations brutas por `motion.div` com transitions)
-- Usar tokens semânticos do design system (`hsl(var(--brand-accent))`, `hsl(var(--muted))` etc.) em vez de cores hardcoded
-- Manter o `LayoutGroup` + `layoutId` para a transição suave para o overlay expandido (clicar no central)
-- Manter "Trabalhos" como título da seção (já está limpo, sem o mosaico)
-- Suporte a swipe touch (mobile) para navegar entre projetos
-- Lazy-load das imagens (`loading="lazy"`)
+Sem isso, posso fazer um redesign genérico "leve e eclético" com:
+- Layout em grid bento (1 card grande + 3 menores)
+- Hover com escala + reveal do título
+- Paleta azul existente preservada
+- Transições suaves Framer Motion
+- Tipografia maior, espaçamento mais arejado
 
-### Arquivos modificados
-- `src/components/Portfolio.tsx` — reescrita completa do conteúdo dos cards e do modo de exibição, mantendo dados, título e overlay de detalhes
+### Arquivos afetados
+- `src/components/effects/Notebook3DShowcase.tsx`
+- `src/components/Interactive3DCard.tsx`
+- `src/components/AboutMe.tsx` / `src/components/PhotoCarousel.tsx`
+- `src/components/Portfolio.tsx`
+- `index.html` (preload de imagens)
 
-### O que NÃO muda
-- Imagens reais dos 4 projetos
-- Overlay expandido (modal) com descrição + botão "Ver projeto"
-- Título "Trabalhos" e subtítulo
-- Posição da seção dentro do Index
+### Próximo passo
+Me confirma sobre o **vídeo de referência (item 5)** e se posso seguir com mock para o CSA caso o site continue fora do ar.

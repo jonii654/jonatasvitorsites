@@ -65,7 +65,9 @@ export function PhotoCarousel() {
             initial={{ opacity: 0, x: direction === 0 ? 0 : direction * 40 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -direction * 40 }}
-            transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+            loading="eager"
+            {...({ fetchpriority: 'high' } as any)}
             style={{
               filter: useTransform(brightness, (b) => `brightness(${b})`),
               scale,
