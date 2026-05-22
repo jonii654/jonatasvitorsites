@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageCircle } from 'lucide-react';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 interface NavItem {
   label: string;
@@ -18,6 +19,7 @@ interface Props {
  * Mobile fullscreen menu with circular clip-path reveal + giant kinetic links.
  */
 export function FullscreenMenu({ open, onClose, items, whatsappLink }: Props) {
+  const { trackCtaClick } = useAnalytics();
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -73,7 +75,10 @@ export function FullscreenMenu({ open, onClose, items, whatsappLink }: Props) {
             href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={onClose}
+            onClick={(e) => {
+              trackCtaClick({ location: 'fullscreen_menu', label: 'Falar no WhatsApp' });
+              onClose();
+            }}
             className="absolute bottom-8 left-6 right-6 flex items-center justify-center gap-2 py-4 rounded-2xl btn-cta btn-ripple font-semibold"
           >
             <MessageCircle className="w-5 h-5" />

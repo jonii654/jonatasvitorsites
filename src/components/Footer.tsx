@@ -1,4 +1,5 @@
 import { MessageCircle, Instagram } from 'lucide-react';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 const WHATSAPP_NUMBER = "551931990107";
 
@@ -16,6 +17,7 @@ const footerLinks = [
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const { trackCtaClick } = useAnalytics();
 
   return (
     <footer className="py-12 border-t border-border/50">
@@ -52,6 +54,11 @@ export function Footer() {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  if (social.label === 'WhatsApp') {
+                    trackCtaClick({ location: 'footer', label: 'WhatsApp' });
+                  }
+                }}
                 className="w-10 h-10 rounded-full glass-card flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/30 transition-all duration-300"
                 aria-label={social.label}
               >

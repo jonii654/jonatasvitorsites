@@ -56,5 +56,16 @@ Sem isso, posso fazer um redesign genérico "leve e eclético" com:
 - `src/components/Portfolio.tsx`
 - `index.html` (preload de imagens)
 
+### 6. Tracking de conversões (implementado)
+- Hook `useAnalytics` criado em `src/hooks/use-analytics.ts`
+- Tabela `analytics_events` criada no backend para persistir cliques
+- Tracking ativo nos CTAs:
+  - `hero` — botão "Quero meu site"
+  - `header` — botão "WhatsApp" no desktop
+  - `fullscreen_menu` — botão "Falar no WhatsApp" no menu mobile
+  - `cta_section` — botão final "Falar no WhatsApp"
+  - `footer` — ícone WhatsApp no rodapé
+- Eventos também enviados para GA4 (se `gtag` estiver disponível)
+
 ### Próximo passo
 Me confirma sobre o **vídeo de referência (item 5)** e se posso seguir com mock para o CSA caso o site continue fora do ar.

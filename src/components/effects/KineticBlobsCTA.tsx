@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDeviceTier } from '@/hooks/use-device-tier';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 interface KineticBlobsCTAProps {
   whatsappLink: string;
@@ -14,6 +15,7 @@ interface KineticBlobsCTAProps {
 export function KineticBlobsCTA({ whatsappLink }: KineticBlobsCTAProps) {
   const tier = useDeviceTier();
   const animate = tier === 'full';
+  const { trackCtaClick } = useAnalytics();
 
   return (
     <section
@@ -101,7 +103,12 @@ export function KineticBlobsCTA({ whatsappLink }: KineticBlobsCTAProps) {
             size="lg"
             className="btn-cta text-base md:text-lg px-10 py-7 relative btn-ripple"
           >
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackCtaClick({ location: 'cta_section', label: 'Falar no WhatsApp' })}
+            >
               <MessageCircle className="w-5 h-5 mr-2" />
               <span>Falar no WhatsApp</span>
               <ArrowRight className="w-5 h-5 ml-2" />
