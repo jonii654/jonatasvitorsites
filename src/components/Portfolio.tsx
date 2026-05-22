@@ -239,7 +239,7 @@ export function Portfolio() {
       transform: 'scale(0.75)',
       zIndex: 0,
     };
-  };
+  }, [activeIndex, mode]);
 
   const leftPercents = projects.map((_, i) => (100 / (projects.length + 1)) * (i + 1));
 
