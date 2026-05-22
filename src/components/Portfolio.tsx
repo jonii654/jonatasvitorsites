@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { X, ExternalLink, ArrowLeft } from 'lucide-react';
 
@@ -6,6 +6,7 @@ import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
 import portfolioClinica from '@/assets/portfolio-clinicaiphone.png';
 import portfolioBeatriz from '@/assets/portfolio-beatriz.png';
+import portfolioCsa from '@/assets/portfolio-csa.jpg';
 
 interface Project {
   id: number;
@@ -86,6 +87,21 @@ const projects: Project[] = [
     link: 'https://marketingpessoal.lovable.app',
     code: '04 // PERSONAL',
     badge: 'CREATIVE DIR.',
+    accent: BRAND_ACCENT,
+    gradient: BRAND_GRADIENT,
+    thumbGradient: BRAND_THUMB,
+  },
+  {
+    id: 5,
+    title: 'CSA Engenharia',
+    categoryLabel: 'Site Institucional',
+    subtitle: 'Engenharia Civil',
+    description: 'Site institucional para empresa de engenharia civil, com identidade sóbria e foco em credibilidade.',
+    image: portfolioCsa,
+    type: 'Projeto Real',
+    link: 'https://www.csaengenharia.org',
+    code: '05 // ENGINEERING',
+    badge: 'INSTITUCIONAL',
     accent: BRAND_ACCENT,
     gradient: BRAND_GRADIENT,
     thumbGradient: BRAND_THUMB,
