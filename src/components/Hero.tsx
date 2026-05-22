@@ -48,6 +48,7 @@ export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const tier = useDeviceTier();
   const isLight = tier === 'light';
+  const { trackCtaClick } = useAnalytics();
 
   // Mouse position for 3D tilt effect (desktop only)
   const mouseX = useMotionValue(0);
@@ -395,7 +396,12 @@ export function Hero() {
                         size="lg"
                         className="btn-cta w-full text-base relative z-10 btn-ripple"
                       >
-                        <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={whatsappLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => trackCtaClick({ location: 'hero', label: 'Quero meu site' })}
+                        >
                           <motion.span
                             animate={{ opacity: [1, 0.8, 1] }}
                             transition={{ duration: 1.5, repeat: Infinity }}

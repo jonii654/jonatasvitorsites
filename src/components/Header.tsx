@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Menu, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FullscreenMenu } from './effects/FullscreenMenu';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 const WHATSAPP_NUMBER = "551931990107";
 
@@ -16,6 +17,7 @@ const navItems = [
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { trackCtaClick } = useAnalytics();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,7 +72,12 @@ export function Header() {
                 asChild
                 className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-6 btn-ripple"
               >
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackCtaClick({ location: 'header', label: 'WhatsApp' })}
+                >
                   <MessageCircle className="w-4 h-4" />
                   WhatsApp
                 </a>
