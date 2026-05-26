@@ -45,8 +45,9 @@ const Index = () => {
           <Hero />
 
           <Suspense fallback={<Fallback />}>
-            <ModelViewer3D />
+            <PortalTransition />
           </Suspense>
+
 
           <Suspense fallback={<Fallback />}>
             <Interactive3DCard />
