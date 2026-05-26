@@ -32,6 +32,10 @@ export function Interactive3DCard() {
   );
   // Specular highlight that moves with rotateY
   const highlightX = useTransform(springRotateY, [-45, 0, 45], ['85%', '50%', '15%']);
+  const highlightBg = useTransform(
+    highlightX,
+    (x) => `radial-gradient(circle at ${x} 30%, hsl(0 0% 100% / 0.18), transparent 55%)`
+  );
 
   // Detect touch device
   useEffect(() => {
