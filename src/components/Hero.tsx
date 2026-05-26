@@ -1,18 +1,12 @@
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
-import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useRef, useMemo, useEffect } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import { useRef, useMemo, useState } from 'react';
 import { useDeviceTier } from '@/hooks/use-device-tier';
 import { useAnalytics } from '@/hooks/use-analytics';
-import layoutTop from '@/assets/layout-mockup-top.webp';
-import layoutBottom from '@/assets/layout-mockup-bottom.webp';
-import layoutLeft from '@/assets/layout-mockup-left.webp';
-import layoutRight from '@/assets/layout-mockup-right.webp';
 
 const WHATSAPP_NUMBER = "551931990107";
 
-// Floating dots configuration
-// More floating dots - using CSS animations for performance (no JS)
+// Ambient floating dots (kept from original — performant pure CSS)
 const floatingDots = [
   { x: '8%', y: '12%', size: 6, color: 'hsl(195 100% 50%)', duration: 6 },
   { x: '88%', y: '18%', size: 5, color: 'hsl(155 100% 50%)', duration: 7 },
@@ -28,19 +22,6 @@ const floatingDots = [
   { x: '35%', y: '55%', size: 4, color: 'hsl(155 100% 50%)', duration: 9.5 },
   { x: '72%', y: '35%', size: 5, color: 'hsl(195 100% 50%)', duration: 7.5 },
   { x: '18%', y: '88%', size: 4, color: 'hsl(155 100% 50%)', duration: 8 },
-  // Extra dots
-  { x: '3%', y: '55%', size: 5, color: 'hsl(195 100% 50%)', duration: 7.2 },
-  { x: '92%', y: '30%', size: 4, color: 'hsl(155 100% 50%)', duration: 8.3 },
-  { x: '40%', y: '92%', size: 6, color: 'hsl(195 100% 50%)', duration: 6.8 },
-  { x: '60%', y: '15%', size: 5, color: 'hsl(155 100% 50%)', duration: 9.1 },
-  { x: '12%', y: '30%', size: 4, color: 'hsl(195 100% 50%)', duration: 7.7 },
-  { x: '82%', y: '85%', size: 6, color: 'hsl(155 100% 50%)', duration: 6.3 },
-  { x: '50%', y: '45%', size: 3, color: 'hsl(195 100% 50%)', duration: 10 },
-  { x: '30%', y: '78%', size: 5, color: 'hsl(155 100% 50%)', duration: 8.6 },
-  { x: '95%', y: '10%', size: 4, color: 'hsl(195 100% 50%)', duration: 7.4 },
-  { x: '22%', y: '50%', size: 6, color: 'hsl(155 100% 50%)', duration: 6.9 },
-  { x: '65%', y: '60%', size: 3, color: 'hsl(195 100% 50%)', duration: 9.8 },
-  { x: '48%', y: '22%', size: 5, color: 'hsl(155 100% 50%)', duration: 7.1 },
 ];
 
 export function Hero() {
@@ -49,77 +30,38 @@ export function Hero() {
   const tier = useDeviceTier();
   const isLight = tier === 'light';
   const { trackCtaClick } = useAnalytics();
-
-  // Mouse position for 3D tilt effect (desktop only)
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  // Spring physics for ultra light 3D tilt
-  const springConfig = { damping: 30, stiffness: 100 };
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [5, -5]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-5, 5]), springConfig);
-  const rotateYWide = useSpring(useTransform(mouseX, [-0.5, 0.5], [-20, 20]), springConfig);
-
-  // Handle mouse move for tilt effect (desktop only)
-  useEffect(() => {
-    if (isLight) return;
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const { innerWidth, innerHeight } = window;
-      const x = (clientX / innerWidth) - 0.5;
-      const y = (clientY / innerHeight) - 0.5;
-      mouseX.set(x);
-      mouseY.set(y);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY, isLight]);
+  const [ctaHover, setCtaHover] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end start"]
+    offset: ["start start", "end start"],
   });
 
-  // Multi-layer parallax transforms (smaller range on mobile)
-  const layer1Y = useTransform(scrollYProgress, [0, 1], [0, isLight ? -40 : -150]);
+  const layer1Y = useTransform(scrollYProgress, [0, 1], [0, isLight ? -40 : -120]);
   const layer3Y = useTransform(scrollYProgress, [0, 1], [0, isLight ? -15 : -50]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const textScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
+  const textScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.85]);
 
-  // Parallax for layout images (disabled on mobile)
-  const topImageY = useTransform(scrollYProgress, [0, 1], [0, isLight ? 0 : -80]);
-  const bottomImageY = useTransform(scrollYProgress, [0, 1], [0, isLight ? 0 : -40]);
-  const leftImageY = useTransform(scrollYProgress, [0, 1], [0, isLight ? 0 : -60]);
-  const rightImageY = useTransform(scrollYProgress, [0, 1], [0, isLight ? 0 : -70]);
+  const dots = useMemo(() => (isLight ? floatingDots.slice(0, 5) : floatingDots), [isLight]);
 
-  // Far fewer dots on mobile (or none if super light)
-  const dots = useMemo(() => {
-    if (isLight) return floatingDots.slice(0, 5);
-    return floatingDots;
-  }, [isLight]);
-
+  // Reactive tilted background cards — shift on CTA hover
+  const cardStyle = (base: string) =>
+    `absolute bg-slate-800/40 border border-white/10 rounded-lg shadow-2xl backdrop-blur-sm overflow-hidden transition-all duration-700 ease-out ${base}`;
 
   return (
-    <section 
-      ref={sectionRef}
-      className="relative min-h-[150vh] overflow-hidden"
-    >
-      {/* Sticky Container */}
-      <div
-        className="sticky top-0 h-screen flex items-center justify-center overflow-hidden"
-      >
+    <section ref={sectionRef} className="relative min-h-[150vh] overflow-hidden">
+      <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
         {/* Background gradient */}
-        <motion.div 
-          style={{ y: layer1Y }}
-          className="absolute inset-0 bg-hero-gradient"
-        />
-        <motion.div 
-          style={{ y: layer1Y }}
-          className="absolute inset-0 hex-pattern opacity-5"
+        <motion.div style={{ y: layer1Y }} className="absolute inset-0 bg-hero-gradient" />
+        <motion.div style={{ y: layer1Y }} className="absolute inset-0 hex-pattern opacity-5" />
+
+        {/* Subtle radial glow */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
+          style={{ background: 'hsl(195 100% 50% / 0.05)', filter: 'blur(120px)' }}
         />
 
-        {/* Floating Dots */}
+        {/* Ambient floating dots */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {dots.map((dot, i) => (
             <div
@@ -132,306 +74,161 @@ export function Hero() {
                 height: dot.size,
                 background: dot.color,
                 boxShadow: `0 0 ${dot.size * 2}px ${dot.color}`,
-                opacity: 0.6,
+                opacity: 0.5,
                 animation: `floatDot${i % 3} ${dot.duration}s ease-in-out infinite`,
               }}
             />
           ))}
         </div>
 
-        {/* Ambient glow orbs - lighter on mobile */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Tilted decorative cards — react to CTA hover */}
+        <div className="absolute inset-0 pointer-events-none">
           <div
-            className="absolute top-1/4 left-1/4 rounded-full opacity-20"
+            className={cardStyle('top-[15%] left-[6%] md:left-[10%] w-32 md:w-48 h-44 md:h-64 -rotate-12')}
+            style={{ transform: ctaHover ? 'rotate(-6deg) translateY(-8px)' : undefined }}
+          >
+            <div className="w-full h-full bg-gradient-to-br from-[hsl(195_100%_50%/0.25)] to-transparent" />
+          </div>
+          <div
+            className={cardStyle('bottom-[8%] right-[6%] md:right-[12%] w-36 md:w-56 h-48 md:h-72 rotate-6')}
+            style={{ transform: ctaHover ? 'rotate(12deg) translateY(8px)' : undefined }}
+          >
+            <div className="w-full h-full bg-gradient-to-tr from-[hsl(155_100%_50%/0.18)] to-transparent" />
+          </div>
+          <div
+            className={cardStyle('top-[18%] right-[14%] w-28 md:w-40 h-36 md:h-52 rotate-12 hidden md:block')}
+            style={{ transform: ctaHover ? 'rotate(15deg) translateX(8px)' : undefined }}
+          >
+            <div className="w-full h-full bg-gradient-to-bl from-[hsl(195_100%_55%/0.18)] to-transparent" />
+          </div>
+
+          {/* Floating UI icons */}
+          <div
+            className="absolute top-[34%] right-[20%] text-white/20 hidden md:block transition-all duration-700 ease-out"
             style={{
-              width: isLight ? 180 : 300,
-              height: isLight ? 180 : 300,
-              filter: `blur(${isLight ? 40 : 100}px)`,
-              background: 'hsl(195 100% 50%)',
+              transform: ctaHover
+                ? 'translate(-16px,-32px) rotate(0deg)'
+                : 'rotate(-12deg)',
+              color: ctaHover ? 'hsl(0 0% 100% / 0.45)' : undefined,
             }}
-          />
-          {!isLight && (
-            <div
-              className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] rounded-full blur-[120px] opacity-15"
-              style={{ background: 'hsl(155 100% 50%)' }}
-            />
-          )}
+          >
+            <svg width="40" height="60" viewBox="0 0 32 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 0C3.58 0 0 3.58 0 8s3.58 8 8 8h8V0H8Z" fill="currentColor" />
+              <path d="M24 0c-4.42 0-8 3.58-8 8v8h8c4.42 0 8-3.58 8-8s-3.58-8-8-8Z" fill="currentColor" />
+              <path d="M8 16c-4.42 0-8 3.58-8 8s3.58 8 8 8h8V16H8Z" fill="currentColor" />
+              <path d="M8 32c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8v-8H8Z" fill="currentColor" />
+              <path d="M24 16c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8Z" fill="currentColor" />
+            </svg>
+          </div>
+
+          <div
+            className="absolute bottom-[28%] left-[16%] text-[hsl(155_100%_50%/0.35)] hidden md:block transition-all duration-700 ease-out"
+            style={{
+              transform: ctaHover
+                ? 'translate(32px,24px) rotate(0deg)'
+                : 'rotate(12deg)',
+              color: ctaHover ? 'hsl(155 100% 50% / 0.55)' : undefined,
+            }}
+          >
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg>
+          </div>
+
+          <div
+            className="absolute top-[10%] left-[28%] text-[hsl(195_100%_50%/0.22)] hidden md:block transition-all duration-1000 ease-out"
+            style={{
+              transform: ctaHover ? 'translate(-48px,16px)' : 'rotate(-6deg)',
+              color: ctaHover ? 'hsl(195 100% 50% / 0.45)' : undefined,
+            }}
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m18 16 4-4-4-4" />
+              <path d="m6 8-4 4 4 4" />
+              <path d="m14.5 4-5 16" />
+            </svg>
+          </div>
         </div>
-        
-        {/* Layout Mockup Images - Top with 3D Tilt */}
-        <motion.div
-          style={{ 
-            y: topImageY,
-            rotateX: rotateX,
-            rotateY: rotateY,
-            transformStyle: 'preserve-3d',
-            perspective: 1000
-          }}
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="absolute top-4 md:top-8 left-1/2 -translate-x-1/2 w-[60%] md:w-[75%] max-w-4xl pointer-events-none z-[1]"
-        >
-          <motion.img 
-            src={layoutTop} 
-            alt="" 
-            className="w-full opacity-40 rounded-xl shadow-2xl"
-            style={{ 
-              transformStyle: 'preserve-3d',
-              transform: 'translateZ(20px)'
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
-        </motion.div>
 
-        {/* Layout Mockup Images - Left with 3D Tilt */}
+        {/* Main content */}
         <motion.div
-          style={{ 
-            y: leftImageY,
-            rotateX: rotateX,
-            rotateY: rotateYWide,
-            transformStyle: 'preserve-3d',
-            perspective: 1000
-          }}
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, delay: 0.6 }}
-          className="absolute top-1/2 -translate-y-1/2 left-2 md:left-8 w-[18%] md:w-[20%] max-w-xs pointer-events-none z-[1]"
-        >
-          <motion.img 
-            src={layoutLeft} 
-            alt="" 
-            className="w-full opacity-35 rounded-xl shadow-2xl"
-            style={{ 
-              transformStyle: 'preserve-3d',
-              transform: 'translateZ(30px)'
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
-        </motion.div>
-
-        {/* Layout Mockup Images - Right with 3D Tilt */}
-        <motion.div
-          style={{ 
-            y: rightImageY,
-            rotateX: rotateX,
-            rotateY: rotateYWide,
-            transformStyle: 'preserve-3d',
-            perspective: 1000
-          }}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, delay: 0.8 }}
-          className="absolute top-1/2 -translate-y-1/2 right-2 md:right-8 w-[18%] md:w-[20%] max-w-xs pointer-events-none z-[1]"
-        >
-          <motion.img 
-            src={layoutRight} 
-            alt="" 
-            className="w-full opacity-35 rounded-xl shadow-2xl"
-            style={{ 
-              transformStyle: 'preserve-3d',
-              transform: 'translateZ(30px)'
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-l from-background via-transparent to-transparent" />
-        </motion.div>
-
-        {/* Layout Mockup Images - Bottom with 3D Tilt */}
-        <motion.div
-          style={{ 
-            y: bottomImageY,
-            rotateX: rotateX,
-            rotateY: rotateY,
-            transformStyle: 'preserve-3d',
-            perspective: 1000
-          }}
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.7 }}
-          className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[60%] md:w-[75%] max-w-4xl pointer-events-none z-[1]"
-        >
-          <motion.img 
-            src={layoutBottom} 
-            alt="" 
-            className="w-full opacity-40 rounded-xl shadow-2xl"
-            style={{ 
-              transformStyle: 'preserve-3d',
-              transform: 'translateZ(20px)'
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-        </motion.div>
-        
-        {/* Main Content - Layer 3 (Slowest, sticky feel) */}
-        <motion.div 
           style={{ y: layer3Y, opacity: textOpacity, scale: textScale }}
           className="container mx-auto px-4 relative z-20"
         >
-          <div className="max-w-4xl mx-auto text-center pt-16 md:pt-0">
-            
-            {/* Clean, Bold Headline */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
+          <div className="max-w-5xl mx-auto flex flex-col items-center text-center">
+            {/* Eyebrow */}
+            <motion.span
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="mb-8"
+              transition={{ duration: 0.6 }}
+              className="font-display text-[hsl(155_100%_50%)] text-[0.7rem] md:text-xs font-semibold tracking-[0.3em] uppercase mb-5"
             >
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none tracking-tight">
-                <span 
-                  className="block text-white"
-                  style={{
-                    textShadow: '0 2px 4px hsl(220 50% 5% / 0.5)'
-                  }}
-                >
-                  CRIO SITES
-                </span>
-                <span 
-                  className="block"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(195 100% 60%) 0%, hsl(155 100% 55%) 100%)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    textShadow: 'none'
-                  }}
-                >
-                  QUE VENDEM
-                </span>
-              </h1>
-            </motion.div>
+              Criador de Sites & Landing Pages
+            </motion.span>
 
-            {/* Central Hero Card - Glassmorphism */}
+            {/* Editorial headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.1 }}
+              className="font-serif italic text-white text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-[0.85] tracking-tight flex flex-col mb-10"
+            >
+              <span className="block">Crio</span>
+              <span className="block flex items-center justify-center gap-6 md:gap-16">
+                <span className="font-display not-italic font-light text-2xl md:text-4xl lg:text-5xl tracking-[0.2em] text-white/40 uppercase translate-y-1 md:translate-y-2">
+                  sites
+                </span>
+                <span className="text-[hsl(195_100%_55%)]">que</span>
+              </span>
+              <span className="block text-[hsl(155_100%_50%)]">Vendem</span>
+            </motion.h1>
+
+            {/* Subhead */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.35 }}
+              className="font-display text-slate-300 text-base md:text-xl font-light leading-relaxed max-w-xl mb-8"
+            >
+              Especialista em sites institucionais e landing pages com design moderno,
+              velocidade e foco em conversão.
+            </motion.p>
+
+            {/* CTAs */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-              className="relative max-w-lg mx-auto mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.5 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2"
             >
-              {/* Animated Glow Ring Background */}
-              <div className="absolute inset-0 rounded-3xl hero-glow-ring opacity-25" />
-              
-              {/* Glassmorphism Card Container */}
-              <div className="relative p-[1px] rounded-3xl overflow-hidden" style={{
-                background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.3), hsl(155 100% 50% / 0.2), hsl(195 100% 50% / 0.1))'
-              }}>
-                <div 
-                  className="relative rounded-[23px] p-6 md:p-8 overflow-hidden"
-                  style={{
-                    background: 'hsl(220 50% 10% / 0.7)',
-                    backdropFilter: 'blur(24px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-                    border: '1px solid hsl(195 100% 50% / 0.15)'
-                  }}
-                >
-                  
-                  {/* Inner shimmer effect */}
-                  <div className="absolute inset-0 shimmer pointer-events-none opacity-20" />
-                  
-                  {/* Inner glow effects */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-primary/8 blur-3xl rounded-full" />
-                  <div className="absolute bottom-0 right-0 w-1/2 h-24 blur-3xl rounded-full" style={{ background: 'hsl(155 100% 50% / 0.05)' }} />
-                  
-                  {/* Sparkle Icon with glow */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5, duration: 0.5, type: "spring" }}
-                    className="relative mb-4"
-                  >
-                    <motion.div 
-                      animate={{ 
-                        boxShadow: [
-                          '0 0 10px hsl(195 100% 50% / 0.15), 0 0 20px hsl(155 100% 50% / 0.08)',
-                          '0 0 15px hsl(155 100% 50% / 0.2), 0 0 30px hsl(195 100% 50% / 0.1)',
-                          '0 0 10px hsl(195 100% 50% / 0.15), 0 0 20px hsl(155 100% 50% / 0.08)'
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      className="w-14 h-14 md:w-16 md:h-16 mx-auto rounded-2xl flex items-center justify-center"
-                      style={{ 
-                        background: 'linear-gradient(135deg, hsl(195 100% 50% / 0.1), hsl(155 100% 50% / 0.05))', 
-                        border: '1px solid hsl(195 100% 50% / 0.2)',
-                        backdropFilter: 'blur(12px)'
-                      }}
-                    >
-                      <Sparkles className="w-7 h-7 md:w-8 md:h-8 text-primary" />
-                    </motion.div>
-                  </motion.div>
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onMouseEnter={() => setCtaHover(true)}
+                onMouseLeave={() => setCtaHover(false)}
+                onClick={() => trackCtaClick({ location: 'hero', label: 'Quero meu site' })}
+                className="cta-primary group/cta px-8 py-4 rounded-full font-bold text-[hsl(220_50%_8%)] font-display transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] btn-ripple"
+                style={{
+                  background:
+                    'linear-gradient(135deg, hsl(195 100% 55%) 0%, hsl(155 100% 50%) 100%)',
+                  boxShadow: ctaHover
+                    ? '0 0 32px hsl(155 100% 50% / 0.55), 0 0 64px hsl(195 100% 50% / 0.25)'
+                    : '0 0 20px hsl(195 100% 50% / 0.3)',
+                }}
+              >
+                Quero meu site
+              </a>
 
-                  {/* Subheadline - Fade in */}
-                  <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6, duration: 0.6 }}
-                    className="text-sm md:text-base text-muted-foreground mb-6"
-                  >
-                    Especialista em sites institucionais e landing pages com design moderno, velocidade e foco em conversão.
-                  </motion.p>
-
-                  {/* Pulsating CTA Button */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7, duration: 0.6 }}
-                    className="relative"
-                  >
-                    {/* Pulse glow behind button */}
-                    <motion.div
-                      className="absolute inset-0 rounded-xl"
-                      animate={{
-                        boxShadow: [
-                          '0 0 20px hsl(195 100% 50% / 0.4), 0 0 40px hsl(155 100% 50% / 0.2)',
-                          '0 0 40px hsl(195 100% 50% / 0.6), 0 0 80px hsl(155 100% 50% / 0.4)',
-                          '0 0 20px hsl(195 100% 50% / 0.4), 0 0 40px hsl(155 100% 50% / 0.2)'
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    <motion.div
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Button
-                        asChild
-                        size="lg"
-                        className="btn-cta w-full text-base relative z-10 btn-ripple"
-                      >
-                        <a
-                          href={whatsappLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() => trackCtaClick({ location: 'hero', label: 'Quero meu site' })}
-                        >
-                          <motion.span
-                            animate={{ opacity: [1, 0.8, 1] }}
-                            transition={{ duration: 1.5, repeat: Infinity }}
-                          >
-                            Quero meu site
-                          </motion.span>
-                          <ArrowRight className="w-5 h-5 ml-2" />
-                        </a>
-                      </Button>
-                    </motion.div>
-                  </motion.div>
-
-                  {/* Secondary link - Fade in */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8, duration: 0.5 }}
-                    className="mt-4"
-                  >
-                    <a 
-                      href="#portfolio" 
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      Ver portfólio →
-                    </a>
-                  </motion.div>
-                </div>
-              </div>
+              <a
+                href="#portfolio"
+                className="font-display px-6 py-4 text-white font-medium flex items-center gap-2 hover:text-[hsl(155_100%_50%)] transition-colors group/sec"
+              >
+                Ver portfólio
+                <ArrowRight className="w-4 h-4 group-hover/sec:translate-x-1 transition-transform" />
+              </a>
             </motion.div>
-
           </div>
         </motion.div>
       </div>
