@@ -317,10 +317,7 @@ export function Interactive3DCard() {
                     aria-hidden
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                      background: useTransform(
-                        highlightX,
-                        (x) => `radial-gradient(circle at ${x} 30%, hsl(0 0% 100% / 0.18), transparent 55%)`
-                      ),
+                      background: highlightBg,
                       mixBlendMode: 'overlay',
                     }}
                   />
