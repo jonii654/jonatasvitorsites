@@ -1,49 +1,37 @@
-## Repaginada visual — pegada novo Lovable (paleta azul→verde mantida)
+# Corrigir interação do card 3D (mobile)
 
-Mantenho **toda a paleta atual** (navy #042a73, ciano #00b4ff, verde neon #00ff9d). O que muda é **tipografia, tratamento das letras, efeitos e composição** — na vibe do novo Lovable.
+## Problema atual
+No `Interactive3DCard`, qualquer toque captura o pointer (`setPointerCapture` + `touch-none`), então o scroll vertical do site trava em cima do card. No mobile só dá pra "girar" usando dois dedos por acidente, o que confunde o usuário.
 
-### O que peguei do vídeo (sem cor)
-- **Tipografia serif editorial gigante** ("DESIGN / COMMERCIALS / EDITORIAL") quebrada em várias linhas
-- **3D inflado tipo balão** nas letras (efeito puffy/glossy)
-- **Cards flutuantes inclinados** em mosaico 3D (NanoFiber, HONOR, headphones)
-- **Prompt-card central** arredondado com botões circulares minimalistas
-- Hierarquia: título display ENORME + corpo sans clean discreto
-- Micro-interações: hover scale suave, reveal por palavra, parallax leve
+## Comportamento desejado
+- **1 toque / swipe simples** sobre o card → o site faz scroll normal (card não captura o gesto).
+- **Duplo toque** no card → ativa "modo girar" (badge visual aparece tipo "Modo 3D ativo — arraste pra girar").
+- Enquanto em modo girar: arrastar com 1 dedo gira o card, com inércia (mantém comportamento atual de spin).
+- Sair do modo girar automaticamente: ao tirar o dedo + 2s sem interação, OU ao tocar fora do card, OU com botão "✕ sair" no badge.
+- **Desktop (mouse)**: mantém arrastar com clique como hoje (não precisa de duplo clique, já que não há conflito com scroll).
 
-### Como vou apresentar
-3 protótipos renderizados (Hero + 1 seção de exemplo), **todos na paleta azul→ciano→verde atual**, variando só tipografia/efeitos/composição. Você escolhe 1, eu aplico em todo o site.
+## Mudanças
 
-**Direção A — "Serif Editorial Gigante"**
-- Título quebrado em 3 linhas em **serif display enorme** (Instrument Serif italic): "CRIO / SITES / QUE VENDEM"
-- Corpo em sans clean (Inter) bem menor abaixo
-- Cards do portfólio inclinados tipo polaroid (-6°/+4°) com sombra ciano
-- Reveal por palavra com stagger
-- Vibe: revista premium digital
+### `src/components/Interactive3DCard.tsx`
+1. Novo estado `isUnlocked` (boolean). Inicia `false` no mobile, `true` no desktop (detectar via `matchMedia('(hover: none) and (pointer: coarse)')` ou `useDeviceTier`).
+2. Handler de duplo-toque: detectar 2 `pointerdown` do tipo `touch` em <300ms no mesmo card → `setIsUnlocked(true)`.
+3. Em `handleDragStart`:
+   - Se `pointerType === 'touch'` e `!isUnlocked` → **não** chama `setPointerCapture`, **não** chama `preventDefault`, retorna cedo. Scroll nativo flui.
+   - Se `isUnlocked` (ou mouse) → comportamento atual (captura + drag + inércia).
+4. Trocar `touch-none` por classe condicional: `isUnlocked ? 'touch-none' : 'touch-pan-y'` (libera pan vertical quando travado).
+5. Timer de auto-lock: 2s após `pointerup` sem nova interação → `setIsUnlocked(false)`.
+6. Listener global `pointerdown` fora do card → desativa o modo.
+7. **Badge visual** sobre o card:
+   - Travado (mobile): hint sutil "Toque 2x para girar" (substitui o atual "Arraste para girar").
+   - Destravado: badge animado com `framer-motion` "🎯 Modo 3D ativo" + botão "✕" pra sair, borda do card ganha brilho ciano pulsante.
+8. Feedback tátil opcional: `navigator.vibrate?.(15)` ao destravar (se disponível).
 
-**Direção B — "Bubble 3D + Sans Pesado"**
-- Hero com **letras infladas 3D** (balão glossy ciano→verde) ocupando a tela inteira
-- Acima/abaixo: sans display pesado (Sora Black) bem condensado
-- Prompt-card central branco/dark estilo Lovable
-- Mosaico de cards flutuantes 3D girando lento ao redor
-- Vibe: playful tech, app-like
+### Melhorias no efeito 3D (bonus pedido "melhora o efeito 3D")
+- Aumentar `perspective` de `1000` → `1200` para profundidade mais natural.
+- Adicionar `transformStyle: 'preserve-3d'` e uma leve sombra dinâmica que segue a rotação (`boxShadow` reativo via `useTransform` em `springRotateY`).
+- Brilho especular sutil: gradient overlay com `mix-blend-overlay` que se move conforme `rotateY` (efeito "reflexo de luz" no card).
+- Suavizar `springConfig` apenas em modo girar; em idle deixa parado.
 
-**Direção C — "Kinetic Type + Glass"**
-- Tipografia em movimento contínuo (palavras passando horizontal, marquee suave)
-- Mix sans display (Sora) + mono (JetBrains) para metadados/labels
-- Cards glass intensificados com bordas neon ciano/verde 1px
-- Layout asymmetric (título à esquerda, números/labels à direita)
-- Vibe: editorial moderno + tech, a mais sóbria
-
-### Itens preservados (intocados)
-- **Paleta azul navy → ciano → verde neon** (toda)
-- Notebook 3D Sketchfab + lógica de touch
-- Tracking de analytics
-- Estrutura de seções e copy
-- Carrossel do portfólio (só re-skin)
-- Backend / Lovable Cloud
-
-### Próximos passos
-1. Você aprova esse plano
-2. Gero os 3 protótipos visuais clicáveis
-3. Você escolhe 1
-4. Aplico em todo o site
+## Não muda
+- Lógica de spin/inércia, imagem `pilot-card.jpg`, layout, copy do título, scroll-trigger do CTA, analytics.
+- Comportamento desktop (continua arrastar direto com mouse).
