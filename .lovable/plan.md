@@ -1,37 +1,24 @@
-# Corrigir interação do card 3D (mobile)
+# Banner de manutenção no topo + preload mais lento
 
-## Problema atual
-No `Interactive3DCard`, qualquer toque captura o pointer (`setPointerCapture` + `touch-none`), então o scroll vertical do site trava em cima do card. No mobile só dá pra "girar" usando dois dedos por acidente, o que confunde o usuário.
+## 1. Preload mais lento (`src/components/Preloader.tsx`)
+- Aumentar `DURATION` de `1600ms` → `4200ms` para dar tempo da pessoa ver as animações (rings concêntricos, badge amarelo, contador subindo devagar).
+- Aumentar o delay de fade-out final: `setTimeout(setVisible(false), 400)` e `setTimeout(onFinish, 1100)` para a transição não cortar abrupta.
+- Manter ease-out cubic e todo o restante do visual.
 
-## Comportamento desejado
-- **1 toque / swipe simples** sobre o card → o site faz scroll normal (card não captura o gesto).
-- **Duplo toque** no card → ativa "modo girar" (badge visual aparece tipo "Modo 3D ativo — arraste pra girar").
-- Enquanto em modo girar: arrastar com 1 dedo gira o card, com inércia (mantém comportamento atual de spin).
-- Sair do modo girar automaticamente: ao tirar o dedo + 2s sem interação, OU ao tocar fora do card, OU com botão "✕ sair" no badge.
-- **Desktop (mouse)**: mantém arrastar com clique como hoje (não precisa de duplo clique, já que não há conflito com scroll).
+## 2. Banner de manutenção no topo da página (após o preloader)
+Novo componente `src/components/MaintenanceBanner.tsx`:
+- Faixa fina sticky no topo (`sticky top-0 z-[100]`), full-width.
+- Fundo amarelo translúcido com borda inferior (`border-yellow-400/30 bg-yellow-400/10 backdrop-blur-md`), mesma linguagem do badge do preloader.
+- Conteúdo centralizado: dot pulsante (`animate-ping`) + texto "🛠️ Site em manutenção — pode apresentar pequenos bugs enquanto melhoramos a experiência."
+- Botão "✕" à direita para fechar; estado dismissível em memória (sem persistência — volta a aparecer no próximo carregamento, já que a mensagem é importante).
+- Altura compacta (~36–40px) para não brigar com o Header.
+- Animação de entrada: `motion.div` deslizando de cima com fade, delay leve para entrar depois do preloader sumir.
 
-## Mudanças
-
-### `src/components/Interactive3DCard.tsx`
-1. Novo estado `isUnlocked` (boolean). Inicia `false` no mobile, `true` no desktop (detectar via `matchMedia('(hover: none) and (pointer: coarse)')` ou `useDeviceTier`).
-2. Handler de duplo-toque: detectar 2 `pointerdown` do tipo `touch` em <300ms no mesmo card → `setIsUnlocked(true)`.
-3. Em `handleDragStart`:
-   - Se `pointerType === 'touch'` e `!isUnlocked` → **não** chama `setPointerCapture`, **não** chama `preventDefault`, retorna cedo. Scroll nativo flui.
-   - Se `isUnlocked` (ou mouse) → comportamento atual (captura + drag + inércia).
-4. Trocar `touch-none` por classe condicional: `isUnlocked ? 'touch-none' : 'touch-pan-y'` (libera pan vertical quando travado).
-5. Timer de auto-lock: 2s após `pointerup` sem nova interação → `setIsUnlocked(false)`.
-6. Listener global `pointerdown` fora do card → desativa o modo.
-7. **Badge visual** sobre o card:
-   - Travado (mobile): hint sutil "Toque 2x para girar" (substitui o atual "Arraste para girar").
-   - Destravado: badge animado com `framer-motion` "🎯 Modo 3D ativo" + botão "✕" pra sair, borda do card ganha brilho ciano pulsante.
-8. Feedback tátil opcional: `navigator.vibrate?.(15)` ao destravar (se disponível).
-
-### Melhorias no efeito 3D (bonus pedido "melhora o efeito 3D")
-- Aumentar `perspective` de `1000` → `1200` para profundidade mais natural.
-- Adicionar `transformStyle: 'preserve-3d'` e uma leve sombra dinâmica que segue a rotação (`boxShadow` reativo via `useTransform` em `springRotateY`).
-- Brilho especular sutil: gradient overlay com `mix-blend-overlay` que se move conforme `rotateY` (efeito "reflexo de luz" no card).
-- Suavizar `springConfig` apenas em modo girar; em idle deixa parado.
+Integração em `src/pages/Index.tsx`:
+- Importar `MaintenanceBanner` e renderizar como **primeiro** filho do wrapper principal, antes do `Header`, dentro da árvore que aparece após o preloader.
+- Como o `Header` provavelmente já é sticky/fixed, garantir que o banner fique acima dele (ou logo no topo do fluxo) sem sobrepor a navegação. Se o Header for `fixed`, ajustar o `top` dele com um pequeno offset (ex.: variável CSS `--banner-h: 40px`) — fazer essa verificação ao implementar lendo `Header.tsx` e `Index.tsx`.
 
 ## Não muda
-- Lógica de spin/inércia, imagem `pilot-card.jpg`, layout, copy do título, scroll-trigger do CTA, analytics.
-- Comportamento desktop (continua arrastar direto com mouse).
+- Visual do preloader (apenas timing).
+- Conteúdo do badge amarelo dentro do preloader (continua lá).
+- Restante das seções, animações e lógica do site.
