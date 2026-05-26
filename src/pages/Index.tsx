@@ -5,6 +5,8 @@ import { BenefitsBar } from '@/components/BenefitsBar';
 import { AboutMe } from '@/components/AboutMe';
 import { Footer } from '@/components/Footer';
 import { Preloader } from '@/components/Preloader';
+import { MaintenanceBanner } from '@/components/MaintenanceBanner';
+
 
 const ModelViewer3D = lazy(() => import('@/components/ModelViewer3D').then(m => ({ default: m.ModelViewer3D })));
 const Interactive3DCard = lazy(() => import('@/components/Interactive3DCard').then(m => ({ default: m.Interactive3DCard })));
@@ -36,8 +38,10 @@ const Index = () => {
     <>
       {loading && <Preloader onFinish={() => setLoading(false)} />}
       <div className="min-h-screen bg-background w-full" style={{ overflowX: 'clip' }}>
+        <MaintenanceBanner />
         <Header />
         <main>
+
           <Hero />
 
           <Suspense fallback={<Fallback />}>
