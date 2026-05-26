@@ -8,7 +8,7 @@ import { Preloader } from '@/components/Preloader';
 import { MaintenanceBanner } from '@/components/MaintenanceBanner';
 
 
-const ModelViewer3D = lazy(() => import('@/components/ModelViewer3D').then(m => ({ default: m.ModelViewer3D })));
+const PortalTransition = lazy(() => import('@/components/PortalTransition').then(m => ({ default: m.PortalTransition })));
 const Interactive3DCard = lazy(() => import('@/components/Interactive3DCard').then(m => ({ default: m.Interactive3DCard })));
 const HorizontalNotebookScroll = lazy(() => import('@/components/HorizontalNotebookScroll').then(m => ({ default: m.HorizontalNotebookScroll })));
 const HowItWorks = lazy(() => import('@/components/HowItWorks').then(m => ({ default: m.HowItWorks })));
