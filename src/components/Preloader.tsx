@@ -94,6 +94,20 @@ export function Preloader({ onFinish }: PreloaderProps) {
             <p className="mt-3 text-[10px] md:text-xs tracking-[0.3em] uppercase text-muted-foreground">
               Sites que vendem
             </p>
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="mt-4 flex items-center gap-2 rounded-full border border-yellow-400/30 bg-yellow-400/10 px-3 py-1.5"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-yellow-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-yellow-400" />
+              </span>
+              <p className="text-[10px] md:text-xs font-medium text-yellow-300">
+                Site em manutenção — pode apresentar pequenos bugs
+              </p>
+            </motion.div>
           </div>
 
           {/* Bottom labels */}
