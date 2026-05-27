@@ -39,60 +39,57 @@ export function Preloader({ onFinish }: PreloaderProps) {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-background"
-          style={{
-            backgroundImage:
-              'radial-gradient(ellipse 60% 50% at 50% 50%, hsla(195 100% 50% / 0.08), transparent 70%)',
-          }}
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-background overflow-hidden"
         >
+          {/* Background video */}
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            src="/preloader-bg.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden
+          />
+          {/* Dark overlay for readability */}
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse 80% 70% at 50% 50%, hsl(220 50% 4% / 0.55), hsl(220 50% 4% / 0.85) 75%)',
+            }}
+          />
+
           {/* Top-left: Loading label */}
-          <div className="absolute top-6 left-6 md:top-10 md:left-10 text-left">
-            <p className="text-xs md:text-sm font-medium text-foreground/80 leading-tight">
+          <div className="absolute top-6 left-6 md:top-10 md:left-10 text-left z-10">
+            <p className="text-xs md:text-sm font-medium text-foreground/90 leading-tight">
               Loading
             </p>
-            <p className="text-xs md:text-sm text-muted-foreground leading-tight">
+            <p className="text-xs md:text-sm text-foreground/60 leading-tight">
               your experience…
             </p>
           </div>
 
           {/* Top-right: percentage */}
-          <div className="absolute top-6 right-6 md:top-10 md:right-10">
-            <span className="text-5xl md:text-7xl font-light tabular-nums text-foreground/70">
+          <div className="absolute top-6 right-6 md:top-10 md:right-10 z-10">
+            <span className="text-5xl md:text-7xl font-light tabular-nums text-foreground/80">
               {progress}%
             </span>
           </div>
 
-          {/* Center: logo with concentric pulse */}
-          <div className="relative flex flex-col items-center justify-center">
-            {/* concentric rings */}
-            {[0, 1, 2].map((i) => (
-              <motion.span
-                key={i}
-                aria-hidden
-                className="absolute rounded-full border border-primary/30"
-                initial={{ width: 80, height: 80, opacity: 0.6 }}
-                animate={{
-                  width: [80, 260],
-                  height: [80, 260],
-                  opacity: [0.5, 0],
-                }}
-                transition={{
-                  duration: 2.4,
-                  repeat: Infinity,
-                  ease: 'easeOut',
-                  delay: i * 0.8,
-                }}
-              />
-            ))}
+          {/* Center: logo */}
+          <div className="relative flex flex-col items-center justify-center z-10">
             <div className="relative z-10 flex items-baseline gap-2">
               <span className="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Jônatas
               </span>
-              <span className="text-3xl md:text-5xl font-light text-foreground/80">
+              <span className="text-3xl md:text-5xl font-light text-foreground">
                 Vitor
               </span>
             </div>
-            <p className="mt-3 text-[10px] md:text-xs tracking-[0.3em] uppercase text-muted-foreground">
+            <p className="mt-3 text-[10px] md:text-xs tracking-[0.3em] uppercase text-foreground/70">
               Sites que vendem
             </p>
             <motion.div
