@@ -187,15 +187,46 @@ export function Hero() {
               transition={{ duration: 0.9, delay: 0.1 }}
               className="font-serif italic text-white text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-[0.85] tracking-tight flex flex-col mb-10"
             >
-              <span className="block">Crio</span>
+              <span
+                className="block"
+                style={{
+                  textShadow:
+                    '0 1px 0 hsl(220 50% 12%), 0 2px 0 hsl(220 50% 10%), 0 3px 0 hsl(220 50% 8%), 0 6px 14px hsl(220 50% 2% / 0.6), 0 0 32px hsl(195 100% 50% / 0.25)',
+                }}
+              >
+                Crio
+              </span>
               <span className="block flex items-center justify-center gap-6 md:gap-16">
-                <span className="font-display not-italic font-light text-2xl md:text-4xl lg:text-5xl tracking-[0.2em] text-white/40 uppercase translate-y-1 md:translate-y-2">
+                <span
+                  className="font-display not-italic font-light text-3xl md:text-5xl lg:text-6xl tracking-[0.2em] text-white/60 uppercase translate-y-1 md:translate-y-2"
+                  style={{
+                    textShadow:
+                      '0 2px 6px hsl(220 50% 2% / 0.7), 0 0 18px hsl(0 0% 100% / 0.15)',
+                  }}
+                >
                   sites
                 </span>
-                <span className="text-[hsl(195_100%_55%)]">que</span>
+                <span
+                  className="text-[hsl(195_100%_55%)]"
+                  style={{
+                    textShadow:
+                      '0 2px 0 hsl(195 100% 25%), 0 4px 12px hsl(220 50% 2% / 0.55), 0 0 28px hsl(195 100% 55% / 0.45)',
+                  }}
+                >
+                  que
+                </span>
               </span>
-              <span className="block text-[hsl(155_100%_50%)]">Vendem</span>
+              <span
+                className="block text-[hsl(155_100%_50%)]"
+                style={{
+                  textShadow:
+                    '0 1px 0 hsl(155 100% 20%), 0 2px 0 hsl(155 100% 16%), 0 3px 0 hsl(155 100% 12%), 0 6px 16px hsl(220 50% 2% / 0.6), 0 0 44px hsl(155 100% 50% / 0.5)',
+                }}
+              >
+                Vendem
+              </span>
             </motion.h1>
+
 
             {/* Subhead */}
             <motion.p
