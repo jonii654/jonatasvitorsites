@@ -154,10 +154,12 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
           trackCtaClick({ location: 'fullscreen_menu', label: 'WhatsApp' });
           onClose();
         }}
-        className="btn-lemon absolute bottom-8 left-6 right-6 md:right-auto md:bottom-10 md:left-20 md:w-auto"
+        className="btn-lemon absolute bottom-8 left-6 md:bottom-10 md:left-20"
       >
-        <MessageCircle className="w-5 h-5" />
-        Falar no WhatsApp
+        <span className="uppercase tracking-widest text-xs">Falar no WhatsApp</span>
+        <span className="lemon-circle">
+          <MessageCircle className="w-4 h-4" />
+        </span>
       </a>
     </div>
   );
