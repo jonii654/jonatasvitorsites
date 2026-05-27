@@ -9,35 +9,100 @@ import {
 import { useDeviceTier } from '@/hooks/use-device-tier';
 
 /**
- * Portal cósmico: duas mãos com luvas (azul + verde) entram pelas laterais,
- * batem palma no centro e a partir do "puf" nasce uma bolinha de energia
- * que cresce e revela a próxima seção.
+ * Portal dimensional: duas mãos humanas (azul + verde) entram pelas laterais,
+ * se apertam palma com palma no centro, geram um flash + onda de choque,
+ * e a partir do "puf" nasce uma esfera branca que cresce e teletransporta
+ * para a próxima seção.
  */
-function GloveHand({ color, mirror = false }: { color: string; mirror?: boolean }) {
+function HumanHand({ color, mirror = false }: { color: string; mirror?: boolean }) {
+  // ID único para o filter de aura
+  const auraId = `aura-${color.replace(/[^a-z0-9]/gi, '')}${mirror ? '-r' : '-l'}`;
+  const gradId = `skin-${color.replace(/[^a-z0-9]/gi, '')}${mirror ? '-r' : '-l'}`;
+
   return (
     <svg
-      viewBox="0 0 200 200"
-      className="w-[180px] md:w-[260px]"
-      style={{ transform: mirror ? 'scaleX(-1)' : undefined }}
+      viewBox="0 0 240 300"
+      className="w-[160px] md:w-[240px]"
+      style={{
+        transform: mirror ? 'scaleX(-1)' : undefined,
+        filter: `drop-shadow(0 0 14px ${color}) drop-shadow(0 0 38px ${color})`,
+        overflow: 'visible',
+      }}
     >
       <defs>
-        <linearGradient id={`glove-${color.replace(/\s/g, '')}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="1" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.65" />
+        <linearGradient id={gradId} x1="0" y1="0" x2="0.6" y2="1">
+          <stop offset="0%" stopColor="hsl(28 30% 78%)" />
+          <stop offset="55%" stopColor="hsl(24 28% 62%)" />
+          <stop offset="100%" stopColor="hsl(20 25% 42%)" />
         </linearGradient>
+        <radialGradient id={auraId} cx="0.5" cy="0.5" r="0.6">
+          <stop offset="0%" stopColor={color} stopOpacity="0.7" />
+          <stop offset="60%" stopColor={color} stopOpacity="0.18" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </radialGradient>
       </defs>
-      {/* Punho/luva */}
+
+      {/* Aura colorida atrás da mão */}
+      <ellipse cx="120" cy="170" rx="120" ry="135" fill={`url(#${auraId})`} />
+
+      {/* Mão humana 2D — palma + 5 dedos, lateral (palma virada pro centro) */}
+      {/* Punho */}
       <path
-        d="M40 160 Q35 120 50 95 Q55 75 75 70 L75 50 Q75 35 90 35 Q105 35 105 50 L105 70 Q120 68 122 80 L122 55 Q122 40 137 40 Q152 40 152 55 L152 82 Q165 82 165 95 L165 120 Q165 165 130 175 Q90 185 60 178 Q45 172 40 160 Z"
-        fill={`url(#glove-${color.replace(/\s/g, '')})`}
+        d="M70 295 Q70 270 80 255 L160 255 Q170 270 170 295 Z"
+        fill={`url(#${gradId})`}
         stroke={color}
-        strokeWidth="2"
+        strokeOpacity="0.5"
+        strokeWidth="1.2"
       />
-      {/* Punho cuff */}
-      <rect x="55" y="155" width="90" height="22" rx="6" fill={color} opacity="0.55" />
-      <line x1="55" y1="166" x2="145" y2="166" stroke="white" strokeOpacity="0.3" strokeWidth="1.5" />
-      {/* Detalhe brilho */}
-      <ellipse cx="95" cy="100" rx="14" ry="28" fill="white" opacity="0.15" />
+      {/* Palma + dedos */}
+      <path
+        d="
+          M80 255
+          Q70 220 72 185
+          L70 120
+          Q70 105 82 105
+          Q94 105 94 120
+          L94 165
+          L100 165
+          L100 70
+          Q100 55 113 55
+          Q126 55 126 70
+          L126 165
+          L132 165
+          L132 60
+          Q132 45 145 45
+          Q158 45 158 60
+          L158 168
+          L164 168
+          L164 80
+          Q164 66 176 66
+          Q188 66 188 80
+          L188 180
+          L194 182
+          L196 150
+          Q198 135 210 138
+          Q222 142 218 158
+          L208 210
+          Q200 245 180 258
+          L160 255
+          Z
+        "
+        fill={`url(#${gradId})`}
+        stroke={color}
+        strokeOpacity="0.4"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+      {/* Linhas da palma — sutil */}
+      <path
+        d="M95 200 Q120 210 150 200 M100 225 Q130 232 160 222"
+        stroke="hsl(20 30% 30%)"
+        strokeOpacity="0.35"
+        strokeWidth="1"
+        fill="none"
+      />
+      {/* Highlight */}
+      <ellipse cx="135" cy="170" rx="22" ry="40" fill="white" opacity="0.08" />
     </svg>
   );
 }
@@ -53,35 +118,43 @@ export function PortalTransition() {
     offset: ['start start', 'end end'],
   });
 
-  // Mãos entram das laterais e se encontram no centro em ~0.45
-  const handLeftX = useTransform(scrollYProgress, [0, 0.45], ['-50vw', '0vw']);
-  const handRightX = useTransform(scrollYProgress, [0, 0.45], ['50vw', '0vw']);
-  const handScale = useTransform(scrollYProgress, [0.4, 0.48, 0.55], [1, 1.18, 1]);
+  // Mãos entram das laterais e se encontram no centro
+  const handLeftX = useTransform(scrollYProgress, [0, 0.42], ['-55vw', '0vw']);
+  const handRightX = useTransform(scrollYProgress, [0, 0.42], ['55vw', '0vw']);
+  // Squash no impacto
+  const handScale = useTransform(scrollYProgress, [0.38, 0.45, 0.5, 0.55], [1, 1.12, 0.92, 1]);
   const handOpacity = useTransform(
     scrollYProgress,
-    [0, 0.1, 0.48, 0.56],
+    [0, 0.08, 0.5, 0.58],
     [0, 1, 1, 0],
   );
+  // Leve rotação tipo "respirando"
+  const handLeftRot = useTransform(scrollYProgress, [0, 0.4, 0.48], [-12, 0, 4]);
+  const handRightRot = useTransform(scrollYProgress, [0, 0.4, 0.48], [12, 0, -4]);
 
-  // Flash branco no impacto
+  // Flash branco intenso
   const flashOpacity = useTransform(
     scrollYProgress,
-    [0.46, 0.5, 0.58],
-    [0, 0.85, 0],
+    [0.44, 0.48, 0.56],
+    [0, 1, 0],
   );
+
+  // Onda de choque
+  const shockScale = useTransform(scrollYProgress, [0.46, 0.62], [0, 10]);
+  const shockOpacity = useTransform(scrollYProgress, [0.46, 0.5, 0.62], [0, 0.9, 0]);
 
   // Núcleo nasce no centro exatamente no "puf"
-  const finalScale = isLight ? 35 : 60;
-  const coreOpacity = useTransform(scrollYProgress, [0.45, 0.55, 0.95], [0, 1, 1]);
+  const finalScale = isLight ? 40 : 70;
+  const coreOpacity = useTransform(scrollYProgress, [0.46, 0.55, 0.92], [0, 1, 1]);
   const coreScale = useTransform(
     scrollYProgress,
-    [0.45, 0.7, 0.95],
-    [0, 2, finalScale],
+    [0.46, 0.7, 0.92],
+    [0, 3, finalScale],
   );
-  const coreRotate = useTransform(scrollYProgress, [0.45, 0.95], [0, 220]);
+  const coreRotate = useTransform(scrollYProgress, [0.46, 0.92], [0, 180]);
 
-  // Stage fade out no final — revela próxima seção
-  const stageOpacity = useTransform(scrollYProgress, [0.92, 1], [1, 0]);
+  // Stage fade out mais rápido — sensação de teletransporte
+  const stageOpacity = useTransform(scrollYProgress, [0.82, 0.95], [1, 0]);
 
   if (reduced) return null;
 
@@ -94,9 +167,9 @@ export function PortalTransition() {
   return (
     <section
       ref={sectionRef}
-      aria-label="Transição portal cósmico"
+      aria-label="Transição portal dimensional"
       className="relative w-full"
-      style={{ height: '170vh' }}
+      style={{ height: '120vh' }}
     >
       <motion.div
         className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center"
@@ -128,7 +201,7 @@ export function PortalTransition() {
           }}
         />
 
-        {/* Mão esquerda — luva AZUL */}
+        {/* Mão esquerda — humana com aura AZUL */}
         <motion.div
           className="absolute top-1/2 left-1/2 z-30 pointer-events-none"
           style={{
@@ -137,14 +210,14 @@ export function PortalTransition() {
             translateX: '-100%',
             scale: handScale,
             opacity: handOpacity,
-            filter: isLight ? 'none' : 'drop-shadow(0 0 18px hsl(195 100% 50% / 0.6))',
+            rotate: handLeftRot,
             ...gpu,
           }}
         >
-          <GloveHand color="hsl(195 100% 50%)" />
+          <HumanHand color="hsl(195 100% 55%)" />
         </motion.div>
 
-        {/* Mão direita — luva VERDE */}
+        {/* Mão direita — humana com aura VERDE */}
         <motion.div
           className="absolute top-1/2 left-1/2 z-30 pointer-events-none"
           style={{
@@ -152,12 +225,27 @@ export function PortalTransition() {
             y: '-50%',
             scale: handScale,
             opacity: handOpacity,
-            filter: isLight ? 'none' : 'drop-shadow(0 0 18px hsl(155 100% 50% / 0.6))',
+            rotate: handRightRot,
             ...gpu,
           }}
         >
-          <GloveHand color="hsl(155 100% 50%)" mirror />
+          <HumanHand color="hsl(155 100% 55%)" mirror />
         </motion.div>
+
+        {/* Onda de choque */}
+        <motion.div
+          aria-hidden
+          className="absolute top-1/2 left-1/2 z-30 w-32 h-32 rounded-full pointer-events-none"
+          style={{
+            x: '-50%',
+            y: '-50%',
+            scale: shockScale,
+            opacity: shockOpacity,
+            border: '2px solid hsl(0 0% 100% / 0.9)',
+            boxShadow: '0 0 60px hsl(195 100% 60% / 0.6), inset 0 0 40px hsl(155 100% 60% / 0.4)',
+            ...gpu,
+          }}
+        />
 
         {/* Flash branco do impacto */}
         <motion.div
@@ -166,9 +254,9 @@ export function PortalTransition() {
           style={{ opacity: flashOpacity, mixBlendMode: 'screen' }}
         />
 
-        {/* Núcleo — nasce no centro exato */}
+        {/* Núcleo — esfera branca que cresce e vira portal */}
         <motion.div
-          className="absolute top-1/2 left-1/2 z-30 w-16 h-16 rounded-full flex items-center justify-center"
+          className="absolute top-1/2 left-1/2 z-30 w-20 h-20 rounded-full flex items-center justify-center"
           style={{
             x: '-50%',
             y: '-50%',
@@ -186,15 +274,15 @@ export function PortalTransition() {
             className="absolute inset-0 rounded-full"
             style={{
               background:
-                'radial-gradient(circle, hsl(155 100% 50% / 0.6) 0%, hsl(195 100% 50% / 0.3) 50%, transparent 75%)',
+                'radial-gradient(circle, hsl(0 0% 100% / 0.9) 0%, hsl(195 100% 70% / 0.5) 40%, hsl(155 100% 60% / 0.3) 70%, transparent 90%)',
               mixBlendMode: 'screen',
             }}
           />
           <div
-            className="absolute inset-3 rounded-full bg-white"
+            className="absolute inset-4 rounded-full bg-white"
             style={{
               boxShadow:
-                '0 0 18px hsl(0 0% 100% / 0.95), 0 0 40px hsl(195 100% 60% / 0.6)',
+                '0 0 28px hsl(0 0% 100% / 0.95), 0 0 60px hsl(195 100% 60% / 0.7), 0 0 90px hsl(155 100% 60% / 0.5)',
             }}
           />
         </motion.div>
