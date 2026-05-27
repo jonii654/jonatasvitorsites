@@ -117,18 +117,10 @@ export function Preloader({ onFinish }: PreloaderProps) {
             <span>Entrega rápida</span>
           </div>
 
-          {/* Progress bar */}
-          <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-10 md:right-10 h-px bg-foreground/20 overflow-hidden z-10">
-            <motion.div
-              className="h-full"
-              style={{ background: 'var(--gradient-neon)' }}
-              animate={{ width: `${progress}%` }}
-              transition={{ ease: 'easeOut', duration: 0.1 }}
-            />
-          </div>
+          {/* Progress bar (linha única com glow neon) */}
           <div
             aria-hidden
-            className="absolute bottom-[14px] md:bottom-[22px] left-6 right-6 md:left-10 md:right-10 h-[2px] origin-left rounded-full z-10"
+            className="absolute bottom-6 md:bottom-8 left-6 right-6 md:left-10 md:right-10 h-[2px] origin-left rounded-full z-10"
             style={{
               background: 'var(--gradient-neon)',
               transform: `scaleX(${progress / 100})`,
