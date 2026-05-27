@@ -280,7 +280,7 @@ export function Portfolio() {
   const leftPercents = projects.map((_, i) => (100 / (projects.length + 1)) * (i + 1));
 
   return (
-    <section id="portfolio" className="py-20 md:py-28 relative overflow-hidden">
+    <section id="portfolio" ref={sectionRef} className="py-20 md:py-28 relative overflow-hidden">
       {/* Adaptive glow */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
@@ -290,7 +290,7 @@ export function Portfolio() {
         transition={{ duration: 0.8 }}
       />
 
-      <div className="container mx-auto px-4 relative z-10 text-center mb-6">
+      <div ref={headerRef} className="container mx-auto px-4 relative z-10 text-center mb-6">
         <span className="section-label">Portfólio</span>
         <h2
           className="font-black leading-[0.85] tracking-tight uppercase mt-4"
@@ -306,6 +306,7 @@ export function Portfolio() {
           Trabalhos
         </h2>
       </div>
+
 
       {/* Category header (gallery mode) */}
       <motion.div
