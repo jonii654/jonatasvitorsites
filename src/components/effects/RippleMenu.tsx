@@ -141,7 +141,7 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => {
-          trackCtaClick({ location: 'ripple_menu', label: 'WhatsApp' });
+          trackCtaClick({ location: 'fullscreen_menu', label: 'WhatsApp' });
           onClose();
         }}
         className="btn-lemon absolute bottom-8 left-6 right-6 md:right-auto md:bottom-10 md:left-20 md:w-auto"
