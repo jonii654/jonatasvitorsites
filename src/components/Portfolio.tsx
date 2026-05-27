@@ -126,6 +126,36 @@ export function Portfolio() {
   const active = projects[activeIndex];
   const lastNavRef = useRef(0);
   const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  // GSAP reveal: header + initial card row stagger (runs once on enter)
+  useLayoutEffect(() => {
+    if (!sectionRef.current) return;
+    const ctx = gsap.context(() => {
+      gsap.from(headerRef.current, {
+        opacity: 0,
+        y: 28,
+        duration: 0.7,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: headerRef.current, start: 'top 85%', once: true },
+      });
+
+      const cards = wrapperRef.current?.querySelectorAll<HTMLElement>('[data-portfolio-card]');
+      if (cards && cards.length) {
+        gsap.from(cards, {
+          opacity: 0,
+          y: 50,
+          duration: 0.8,
+          ease: 'power3.out',
+          stagger: 0.1,
+          force3D: true,
+          scrollTrigger: { trigger: wrapperRef.current, start: 'top 80%', once: true },
+        });
+      }
+    }, sectionRef);
+    return () => ctx.revert();
+  }, []);
 
   // Autoplay (pausável por interação)
   useEffect(() => {
@@ -135,6 +165,7 @@ export function Portfolio() {
     }, 6000);
     return () => clearInterval(id);
   }, [isPlaying]);
+
 
   const pauseAutoplayTemporarily = useCallback(() => {
     setIsPlaying(false);
