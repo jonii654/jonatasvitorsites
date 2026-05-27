@@ -119,44 +119,49 @@ export function PortalTransition() {
     offset: ['start start', 'end end'],
   });
 
-  // Mãos entram das laterais e se encontram no centro — curva monotônica, reversível
-  const handLeftX = useTransform(scrollYProgress, [0, 0.45], ['-55vw', '0vw']);
-  const handRightX = useTransform(scrollYProgress, [0, 0.45], ['55vw', '0vw']);
-  // Scale linear sem picos (evita trava ao reverter)
-  const handScale = useTransform(scrollYProgress, [0, 0.45, 0.55], [1, 1.05, 1]);
+  // Suaviza o progresso do scroll com mola — elimina jank ao reverter direção
+  const progress = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 28,
+    mass: 0.35,
+    restDelta: 0.001,
+  });
+
+  // Mãos entram das laterais e se encontram no centro — curvas monotônicas
+  const handLeftX = useTransform(progress, [0, 0.45], ['-55vw', '0vw']);
+  const handRightX = useTransform(progress, [0, 0.45], ['55vw', '0vw']);
+  const handScale = useTransform(progress, [0, 0.45], [1, 1.03]);
   const handOpacity = useTransform(
-    scrollYProgress,
+    progress,
     [0, 0.08, 0.5, 0.58],
     [0, 1, 1, 0],
   );
-  // Rotação monotônica simples
-  const handLeftRot = useTransform(scrollYProgress, [0, 0.45], [-10, 0]);
-  const handRightRot = useTransform(scrollYProgress, [0, 0.45], [10, 0]);
+  const handLeftRot = useTransform(progress, [0, 0.45], [-10, 0]);
+  const handRightRot = useTransform(progress, [0, 0.45], [10, 0]);
 
   // Flash branco — entra e sai linear
   const flashOpacity = useTransform(
-    scrollYProgress,
+    progress,
     [0.42, 0.48, 0.56],
-    [0, 1, 0],
+    [0, 0.85, 0],
   );
 
   // Onda de choque — linear
-  const shockScale = useTransform(scrollYProgress, [0.46, 0.62], [0, 10]);
-  const shockOpacity = useTransform(scrollYProgress, [0.46, 0.5, 0.62], [0, 0.9, 0]);
+  const shockScale = useTransform(progress, [0.46, 0.62], [0, 8]);
+  const shockOpacity = useTransform(progress, [0.46, 0.5, 0.62], [0, 0.8, 0]);
 
-
-  // Núcleo nasce no centro exatamente no "puf"
-  const finalScale = isLight ? 40 : 70;
-  const coreOpacity = useTransform(scrollYProgress, [0.46, 0.55, 0.92], [0, 1, 1]);
+  // Núcleo nasce no centro; tamanho final menor pra não criar "explosão" ao reverter
+  const finalScale = isLight ? 18 : 32;
+  const coreOpacity = useTransform(progress, [0.46, 0.55, 0.88, 0.95], [0, 1, 1, 0]);
   const coreScale = useTransform(
-    scrollYProgress,
+    progress,
     [0.46, 0.7, 0.92],
-    [0, 3, finalScale],
+    [0, 2.5, finalScale],
   );
-  const coreRotate = useTransform(scrollYProgress, [0.46, 0.92], [0, 180]);
+  const coreRotate = useTransform(progress, [0.46, 0.92], [0, 120]);
 
-  // Stage fade out mais rápido — sensação de teletransporte
-  const stageOpacity = useTransform(scrollYProgress, [0.82, 0.95], [1, 0]);
+  // Stage fade out suave
+  const stageOpacity = useTransform(progress, [0.82, 0.95], [1, 0]);
 
   if (reduced) return null;
 
