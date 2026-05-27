@@ -555,14 +555,14 @@
     100% { inset: -18px; opacity: 0; border-width: 1px; }
   }
 
-  /* ====== Lemon hover button (expanding gradient fill) ====== */
+  /* ====== Lemon hover button (right-side circle expands — fiel à referência) ====== */
   .btn-lemon {
     position: relative;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1rem 2rem;
+    justify-content: flex-start;
+    gap: 1.25rem;
+    padding: 0.65rem 0.65rem 0.65rem 1.5rem;
     border-radius: 9999px;
     font-weight: 700;
     color: hsl(var(--foreground));
@@ -571,28 +571,49 @@
     overflow: hidden;
     isolation: isolate;
     cursor: pointer;
-    transition: color 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.5s ease;
+    transition: color 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
     will-change: color;
   }
-  .btn-lemon > * { position: relative; z-index: 2; }
-  .btn-lemon::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    transform: scale(0);
-    transform-origin: center;
-    background: var(--gradient-neon);
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  .btn-lemon > *:not(.lemon-circle) { position: relative; z-index: 2; }
+  .btn-lemon .lemon-circle {
+    position: relative;
     z-index: 1;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--accent-lime));
+    color: hsl(220 50% 8%);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+    flex-shrink: 0;
+  }
+  .btn-lemon:hover { color: hsl(220 50% 8%); border-color: transparent; }
+  .btn-lemon:hover .lemon-circle { transform: scale(14); }
+
+  /* Marquee infinito (faixas de marcas) */
+  @keyframes marqueeLeft {
+    from { transform: translate3d(0,0,0); }
+    to { transform: translate3d(-50%,0,0); }
+  }
+  @keyframes marqueeRight {
+    from { transform: translate3d(-50%,0,0); }
+    to { transform: translate3d(0,0,0); }
+  }
+  .marquee-track-left {
+    display: flex; width: max-content;
+    animation: marqueeLeft 38s linear infinite;
     will-change: transform;
   }
-  .btn-lemon:hover {
-    color: hsl(var(--background));
-    border-color: transparent;
+  .marquee-track-right {
+    display: flex; width: max-content;
+    animation: marqueeRight 38s linear infinite;
+    will-change: transform;
   }
-  .btn-lemon:hover::before {
-    transform: scale(1.4);
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track-left, .marquee-track-right { animation-duration: 120s; }
   }
 
   /* ====== Gumroad 3D button ====== */

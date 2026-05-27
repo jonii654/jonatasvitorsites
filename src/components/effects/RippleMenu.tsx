@@ -112,7 +112,7 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
       </button>
 
       {!isMobile && (
-        <div className="hidden md:block absolute right-10 top-1/2 -translate-y-1/2 w-[28vw] max-w-[420px] aspect-[3/4] rounded-2xl overflow-hidden border border-foreground/10 shadow-[0_30px_80px_rgba(0,0,0,0.6)]">
+        <div className="hidden md:block absolute right-10 top-1/2 -translate-y-1/2 w-[28vw] max-w-[420px] aspect-[3/4] rounded-2xl overflow-hidden border border-foreground/10 shadow-[0_30px_80px_rgba(0,0,0,0.6)] -rotate-2">
           {PHOTOS.map((src, i) => (
             <div
               key={src}
@@ -123,6 +123,11 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
           ))}
+          <div className="absolute bottom-4 left-4 right-4 bg-black/40 backdrop-blur-md border border-foreground/10 p-2 rounded-xl text-center">
+            <span className="text-[9px] tracking-[0.2em] font-bold text-foreground uppercase">
+              {items[hoverIdx]?.label ?? 'Conceito Premium'}
+            </span>
+          </div>
         </div>
       )}
 
@@ -154,10 +159,12 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
           trackCtaClick({ location: 'fullscreen_menu', label: 'WhatsApp' });
           onClose();
         }}
-        className="btn-lemon absolute bottom-8 left-6 right-6 md:right-auto md:bottom-10 md:left-20 md:w-auto"
+        className="btn-lemon absolute bottom-8 left-6 md:bottom-10 md:left-20"
       >
-        <MessageCircle className="w-5 h-5" />
-        Falar no WhatsApp
+        <span className="uppercase tracking-widest text-xs">Falar no WhatsApp</span>
+        <span className="lemon-circle">
+          <MessageCircle className="w-4 h-4" />
+        </span>
       </a>
     </div>
   );
