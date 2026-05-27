@@ -126,7 +126,7 @@ export function Preloader({ onFinish }: PreloaderProps) {
           </div>
           <div
             aria-hidden
-            className="absolute bottom-[14px] md:bottom-[22px] left-6 right-6 md:left-10 md:right-10 h-[2px] origin-left rounded-full"
+            className="absolute bottom-[14px] md:bottom-[22px] left-6 right-6 md:left-10 md:right-10 h-[2px] origin-left rounded-full z-10"
             style={{
               background: 'var(--gradient-neon)',
               transform: `scaleX(${progress / 100})`,
