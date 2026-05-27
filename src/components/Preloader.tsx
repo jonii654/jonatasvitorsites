@@ -121,11 +121,22 @@ export function Preloader({ onFinish }: PreloaderProps) {
           {/* Progress bar */}
           <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-10 md:right-10 h-px bg-foreground/10 overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-r from-primary to-accent"
+              className="h-full"
+              style={{ background: 'var(--gradient-neon)' }}
               animate={{ width: `${progress}%` }}
               transition={{ ease: 'easeOut', duration: 0.1 }}
             />
           </div>
+          <div
+            aria-hidden
+            className="absolute bottom-[14px] md:bottom-[22px] left-6 right-6 md:left-10 md:right-10 h-[2px] origin-left rounded-full"
+            style={{
+              background: 'var(--gradient-neon)',
+              transform: `scaleX(${progress / 100})`,
+              transition: 'transform 0.1s ease-out',
+              filter: 'drop-shadow(0 0 8px hsl(var(--accent-lime) / 0.7))',
+            }}
+          />
         </motion.div>
       )}
     </AnimatePresence>

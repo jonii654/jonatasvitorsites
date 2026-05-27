@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Menu, MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { FullscreenMenu } from './effects/FullscreenMenu';
+import { RippleMenu } from './effects/RippleMenu';
 import { useAnalytics } from '@/hooks/use-analytics';
 
 const WHATSAPP_NUMBER = "551931990107";
@@ -66,25 +65,21 @@ export function Header() {
               ))}
             </div>
 
-            {/* CTA Button */}
+            {/* CTA Button (desktop) */}
             <div className="hidden md:block">
-              <Button
-                asChild
-                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-6 btn-ripple"
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackCtaClick({ location: 'header', label: 'WhatsApp' })}
+                className="btn-lemon !py-2.5 !px-5 text-sm"
               >
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => trackCtaClick({ location: 'header', label: 'WhatsApp' })}
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  WhatsApp
-                </a>
-              </Button>
+                <MessageCircle className="w-4 h-4" />
+                WhatsApp
+              </a>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile menu button */}
             <button
               aria-label="Abrir menu"
               className="md:hidden p-2 text-foreground z-[60]"
@@ -96,7 +91,7 @@ export function Header() {
         </div>
       </header>
 
-      <FullscreenMenu
+      <RippleMenu
         open={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         items={navItems}

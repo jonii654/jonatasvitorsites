@@ -10,6 +10,7 @@ import { MaintenanceBanner } from '@/components/MaintenanceBanner';
 
 const PortalTransition = lazy(() => import('@/components/PortalTransition').then(m => ({ default: m.PortalTransition })));
 const Interactive3DCard = lazy(() => import('@/components/Interactive3DCard').then(m => ({ default: m.Interactive3DCard })));
+const DesignStacking = lazy(() => import('@/components/DesignStacking').then(m => ({ default: m.DesignStacking })));
 const HorizontalNotebookScroll = lazy(() => import('@/components/HorizontalNotebookScroll').then(m => ({ default: m.HorizontalNotebookScroll })));
 const HowItWorks = lazy(() => import('@/components/HowItWorks').then(m => ({ default: m.HowItWorks })));
 const Portfolio = lazy(() => import('@/components/Portfolio').then(m => ({ default: m.Portfolio })));
@@ -51,6 +52,10 @@ const Index = () => {
 
           <Suspense fallback={<Fallback />}>
             <Interactive3DCard />
+          </Suspense>
+
+          <Suspense fallback={<Fallback />}>
+            <DesignStacking />
           </Suspense>
 
           <BenefitsBar />
