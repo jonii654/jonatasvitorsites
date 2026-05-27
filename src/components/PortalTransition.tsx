@@ -168,7 +168,7 @@ export function PortalTransition() {
           />
         </motion.div>
 
-      </div>
+      </motion.div>
     </section>
   );
 }
