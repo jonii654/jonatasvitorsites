@@ -116,7 +116,7 @@ export function Preloader({ onFinish }: PreloaderProps) {
           </div>
 
           {/* Progress bar */}
-          <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-10 md:right-10 h-px bg-foreground/10 overflow-hidden">
+          <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-10 md:right-10 h-px bg-foreground/20 overflow-hidden z-10">
             <motion.div
               className="h-full"
               style={{ background: 'var(--gradient-neon)' }}
