@@ -112,7 +112,7 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
       </button>
 
       {!isMobile && (
-        <div className="hidden md:block absolute right-10 top-1/2 -translate-y-1/2 w-[28vw] max-w-[420px] aspect-[3/4] rounded-2xl overflow-hidden border border-foreground/10 shadow-[0_30px_80px_rgba(0,0,0,0.6)]">
+        <div className="hidden md:block absolute right-10 top-1/2 -translate-y-1/2 w-[28vw] max-w-[420px] aspect-[3/4] rounded-2xl overflow-hidden border border-foreground/10 shadow-[0_30px_80px_rgba(0,0,0,0.6)] -rotate-2">
           {PHOTOS.map((src, i) => (
             <div
               key={src}
@@ -123,6 +123,11 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
           ))}
+          <div className="absolute bottom-4 left-4 right-4 bg-black/40 backdrop-blur-md border border-foreground/10 p-2 rounded-xl text-center">
+            <span className="text-[9px] tracking-[0.2em] font-bold text-foreground uppercase">
+              {items[hoverIdx]?.label ?? 'Conceito Premium'}
+            </span>
+          </div>
         </div>
       )}
 
