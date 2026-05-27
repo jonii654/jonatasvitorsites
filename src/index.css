@@ -50,7 +50,9 @@
     --gradient-primary: linear-gradient(135deg, hsl(220 85% 25%) 0%, hsl(195 100% 50%) 50%, hsl(155 100% 50%) 100%);
     --gradient-hero: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(220 85% 25% / 0.5) 0%, transparent 60%);
     --gradient-glow: radial-gradient(circle, hsl(195 100% 50% / 0.3) 0%, hsl(155 100% 50% / 0.2) 50%, transparent 70%);
-    --gradient-neon: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(155 100% 50%) 100%);
+    /* Neon accent: azul -> limão */
+    --accent-lime: 75 100% 60%;
+    --gradient-neon: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(var(--accent-lime)) 100%);
     
     /* Shadows - Mixed glow */
     --shadow-glow: 0 0 40px hsl(195 100% 50% / 0.3), 0 0 60px hsl(155 100% 50% / 0.2);
@@ -550,5 +552,109 @@
   @keyframes ctaBurstRing {
     0%   { inset: 0; opacity: 0.9; border-width: 2px; }
     100% { inset: -18px; opacity: 0; border-width: 1px; }
+  }
+
+  /* ====== Lemon hover button (expanding gradient circle) ====== */
+  .btn-lemon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    background: hsl(var(--foreground) / 0.06);
+    border: 1px solid hsl(var(--foreground) / 0.18);
+    overflow: hidden;
+    isolation: isolate;
+    cursor: pointer;
+    transition: color 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.5s ease;
+    will-change: color;
+  }
+  .btn-lemon > * { position: relative; z-index: 2; }
+  .btn-lemon::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 120%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%) scale(0);
+    border-radius: 9999px;
+    background: var(--gradient-neon);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
+    will-change: transform;
+  }
+  .btn-lemon:hover {
+    color: hsl(var(--background));
+    border-color: transparent;
+  }
+  .btn-lemon:hover::before {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  /* ====== Gumroad 3D button ====== */
+  .btn-gumroad {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    color: hsl(220 50% 8%);
+    background: var(--gradient-neon);
+    border: 2px solid hsl(220 50% 8%);
+    box-shadow: 4px 4px 0 hsl(220 50% 8%);
+    transform: translate(0, 0);
+    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+    cursor: pointer;
+  }
+  .btn-gumroad:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 hsl(220 50% 8%);
+  }
+  .btn-gumroad:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 hsl(220 50% 8%);
+  }
+
+  /* ====== Namma-style link with neon strike ====== */
+  .namma-link {
+    position: relative;
+    display: inline-block;
+    color: hsl(var(--foreground));
+    transition: color 0.3s ease;
+  }
+  .namma-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 6px;
+    transform: translateY(-50%) scaleX(0);
+    transform-origin: center;
+    background: var(--gradient-neon);
+    border-radius: 3px;
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .namma-link:hover::after {
+    transform: translateY(-50%) scaleX(1);
+  }
+
+  /* Neon text gradient */
+  .text-neon-gradient {
+    background: var(--gradient-neon);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 24px hsl(var(--accent-lime) / 0.45))
+            drop-shadow(0 0 60px hsl(195 100% 50% / 0.35));
   }
 }

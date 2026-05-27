@@ -307,10 +307,10 @@ export function Hero() {
                 </span>
               </span>
               <span
-                className="block text-[hsl(155_100%_50%)]"
+                className="block text-neon-gradient"
                 style={{
                   textShadow:
-                    '0 1px 0 hsl(155 100% 22%), 0 2px 0 hsl(155 100% 18%), 0 3px 0 hsl(155 100% 14%), 0 4px 0 hsl(155 100% 10%), 0 5px 0 hsl(155 100% 8%), 0 6px 0 hsl(155 100% 6%), 0 10px 26px hsl(220 50% 0% / 0.75), 0 0 60px hsl(155 100% 50% / 0.65)',
+                    '0 6px 18px hsl(220 50% 0% / 0.7), 0 10px 26px hsl(220 50% 0% / 0.55)',
                 }}
               >
                 Vendem
@@ -345,26 +345,17 @@ export function Hero() {
                   triggerBurst();
                   trackCtaClick({ location: 'hero', label: 'Quero meu site' });
                 }}
-                className={`cta-primary group/cta relative px-8 py-4 rounded-full font-bold text-[hsl(220_50%_8%)] font-display transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] btn-ripple ${ctaBurst ? 'cta-burst' : ''}`}
-                style={{
-                  background:
-                    'linear-gradient(135deg, hsl(195 100% 55%) 0%, hsl(155 100% 50%) 100%)',
-                  boxShadow: ctaBurst
-                    ? '0 0 48px hsl(155 100% 50% / 0.8), 0 0 96px hsl(195 100% 50% / 0.4)'
-                    : ctaHover
-                      ? '0 0 32px hsl(155 100% 50% / 0.55), 0 0 64px hsl(195 100% 50% / 0.25)'
-                      : '0 0 20px hsl(195 100% 50% / 0.3)',
-                }}
+                className={`btn-lemon font-display text-base md:text-lg ${ctaBurst ? 'cta-burst' : ''}`}
               >
                 Quero meu site
               </a>
 
               <a
                 href="#portfolio"
-                className="font-display px-6 py-4 text-white font-medium flex items-center gap-2 hover:text-[hsl(155_100%_50%)] transition-colors group/sec"
+                className="btn-gumroad font-display text-sm md:text-base"
               >
                 Ver portfólio
-                <ArrowRight className="w-4 h-4 group-hover/sec:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4" />
               </a>
             </motion.div>
           </div>
