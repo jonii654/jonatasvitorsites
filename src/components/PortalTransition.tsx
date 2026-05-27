@@ -42,9 +42,10 @@ export function PortalTransition() {
   );
   const coreRotate = useTransform(scrollYProgress, [0, 0.9], [0, 220]);
 
-  // Abertura do portal (clip-path) — revela transparência (próxima seção)
-  const clipPct = useTransform(scrollYProgress, [0.5, 0.95], [0, 160]);
-  const clipPath = useMotionTemplate`circle(${clipPct}% at 50% 50%)`;
+  // Fade final — a bolinha gigante "abre" e revela suavemente o que vem depois
+  const stageOpacity = useTransform(scrollYProgress, [0.85, 1], [1, 0]);
+
+
 
   if (reduced) return null;
 
