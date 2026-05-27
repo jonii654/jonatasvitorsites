@@ -100,8 +100,11 @@ export function Portfolio() {
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef(0);
+  const tier = useDeviceTier();
+  const isLight = tier === 'light';
 
   const active = projects[activeIndex];
+
 
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
