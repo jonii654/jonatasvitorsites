@@ -1,23 +1,38 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
-import { motion, useMotionValue, useSpring, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useRef, useState, useEffect, useCallback, useLayoutEffect } from 'react';
+import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useIsMobile } from '@/hooks/use-mobile';
 import pilotImage from '@/assets/pilot-card.jpg';
+import card1 from '@/assets/design-ref-1-hadi.jpg';
+import card2 from '@/assets/design-ref-2-kpr.jpg';
+import card3 from '@/assets/design-ref-3-ascend.jpg';
+import card4 from '@/assets/design-ref-4-oryzo.jpg';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const STACK_CARDS = [
+  { img: card1, label: 'Performance' },
+  { img: card2, label: 'Bold' },
+  { img: card3, label: 'Editorial' },
+  { img: card4, label: 'Artesanal' },
+];
 
 export function Interactive3DCard() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const pilotWrapRef = useRef<HTMLDivElement>(null);
+  const stackRefs = useRef<HTMLDivElement[]>([]);
+  const isMobile = useIsMobile();
   const [isDragging, setIsDragging] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  });
-  const ctaY = useTransform(scrollYProgress, [0, 0.5, 1], [30, 0, -80]);
+  const [pilotInteractive, setPilotInteractive] = useState(true);
 
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
@@ -25,17 +40,8 @@ export function Interactive3DCard() {
   const springRotateX = useSpring(rotateX, springConfig);
   const springRotateY = useSpring(rotateY, springConfig);
 
-  // Reactive shadow that follows rotation
-  const dynamicShadow = useTransform(
-    springRotateY,
-    (v) => `${-v * 0.6}px 20px 40px hsl(220 50% 5% / 0.5), ${-v * 0.3}px 10px 60px hsl(195 100% 55% / 0.18)`
-  );
-  // Specular highlight that moves with rotateY
-  const highlightX = useTransform(springRotateY, [-45, 0, 45], ['85%', '50%', '15%']);
-  const highlightBg = useTransform(
-    highlightX,
-    (x) => `radial-gradient(circle at ${x} 30%, hsl(0 0% 100% / 0.18), transparent 55%)`
-  );
+  const dynamicShadow = useMotionValue('0px 20px 40px hsl(220 50% 5% / 0.5)');
+  const highlightX = useMotionValue('50%');
 
   // Detect touch device
   useEffect(() => {
@@ -43,7 +49,7 @@ export function Interactive3DCard() {
     const mq = window.matchMedia('(hover: none) and (pointer: coarse)');
     const update = () => {
       setIsTouchDevice(mq.matches);
-      setIsUnlocked(!mq.matches); // desktop = always unlocked
+      setIsUnlocked(!mq.matches);
     };
     update();
     mq.addEventListener?.('change', update);
@@ -64,14 +70,50 @@ export function Interactive3DCard() {
     return () => observer.disconnect();
   }, []);
 
-  // Auto-lock after inactivity (touch only)
+  // GSAP stacking timeline — pilot card recedes, 4 design cards rise on top
+  useLayoutEffect(() => {
+    if (!wrapperRef.current) return;
+    const ctx = gsap.context(() => {
+      // initial: stack cards parked below
+      gsap.set(stackRefs.current, { yPercent: 100, opacity: 1, scale: 1, force3D: true });
+
+      const tl = gsap.timeline({ paused: true, defaults: { ease: 'none', force3D: true } });
+
+      // Step 1: card1 sobe; pilot recua pro fundo
+      tl.to(stackRefs.current[0], { yPercent: 0, duration: 1 }, 0);
+      if (pilotWrapRef.current) {
+        tl.to(pilotWrapRef.current, { scale: 0.88, opacity: 0.35, yPercent: -10, duration: 1 }, 0);
+      }
+      // Step 2
+      tl.to(stackRefs.current[1], { yPercent: 0, duration: 1 }, 1)
+        .to(stackRefs.current[0], { scale: 0.9, opacity: 0.4, yPercent: -8, duration: 1 }, 1);
+      // Step 3
+      tl.to(stackRefs.current[2], { yPercent: 0, duration: 1 }, 2)
+        .to(stackRefs.current[1], { scale: 0.92, opacity: 0.4, yPercent: -6, duration: 1 }, 2);
+      // Step 4
+      tl.to(stackRefs.current[3], { yPercent: 0, duration: 1 }, 3)
+        .to(stackRefs.current[2], { scale: 0.94, opacity: 0.4, yPercent: -5, duration: 1 }, 3);
+
+      ScrollTrigger.create({
+        trigger: wrapperRef.current,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: isMobile ? 0.6 : 1.1,
+        onUpdate: (self) => {
+          tl.progress(self.progress);
+          setPilotInteractive(self.progress < 0.08);
+        },
+      });
+    }, wrapperRef);
+    return () => ctx.revert();
+  }, [isMobile]);
+
+  // Auto-lock (touch)
   const idleTimer = useRef<number | null>(null);
   const scheduleAutoLock = useCallback(() => {
     if (!isTouchDevice) return;
     if (idleTimer.current) window.clearTimeout(idleTimer.current);
-    idleTimer.current = window.setTimeout(() => {
-      setIsUnlocked(false);
-    }, 2500);
+    idleTimer.current = window.setTimeout(() => setIsUnlocked(false), 2500);
   }, [isTouchDevice]);
   const cancelAutoLock = useCallback(() => {
     if (idleTimer.current) {
@@ -80,14 +122,11 @@ export function Interactive3DCard() {
     }
   }, []);
 
-  // Click-outside to lock
   useEffect(() => {
     if (!isUnlocked || !isTouchDevice) return;
     const onDocPointer = (e: PointerEvent) => {
       if (!cardRef.current) return;
-      if (!cardRef.current.contains(e.target as Node)) {
-        setIsUnlocked(false);
-      }
+      if (!cardRef.current.contains(e.target as Node)) setIsUnlocked(false);
     };
     document.addEventListener('pointerdown', onDocPointer);
     return () => document.removeEventListener('pointerdown', onDocPointer);
@@ -109,9 +148,8 @@ export function Interactive3DCard() {
   const velocityY = useRef(0);
   const initialRotateX = useRef(0);
   const initialRotateY = useRef(0);
-
-  // Double-tap detection
   const lastTapTime = useRef(0);
+
   const handleDoubleTapCheck = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType !== 'touch') return false;
     const now = Date.now();
@@ -128,20 +166,16 @@ export function Interactive3DCard() {
   }, [scheduleAutoLock]);
 
   const handleDragStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!pilotInteractive) return;
     if (isSpinning) return;
-
-    // Touch + locked: let the page scroll, just listen for double-tap
     if (e.pointerType === 'touch' && !isUnlocked) {
       handleDoubleTapCheck(e);
       return;
     }
-
-    // Touch + unlocked: refresh lastTapTime so a second tap doesn't re-trigger
     if (e.pointerType === 'touch') {
       lastTapTime.current = Date.now();
       cancelAutoLock();
     }
-
     setIsDragging(true);
     dragStartX.current = e.clientX;
     dragStartY.current = e.clientY;
@@ -152,10 +186,8 @@ export function Interactive3DCard() {
     velocityY.current = 0;
     initialRotateX.current = rotateX.get();
     initialRotateY.current = rotateY.get();
-    try {
-      cardRef.current?.setPointerCapture(e.pointerId);
-    } catch { /* ignore */ }
-  }, [isSpinning, isUnlocked, handleDoubleTapCheck, cancelAutoLock, rotateX, rotateY]);
+    try { cardRef.current?.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+  }, [pilotInteractive, isSpinning, isUnlocked, handleDoubleTapCheck, cancelAutoLock, rotateX, rotateY]);
 
   const handleDrag = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (!isDragging) return;
@@ -181,9 +213,7 @@ export function Interactive3DCard() {
       return;
     }
     setIsDragging(false);
-    try {
-      cardRef.current?.releasePointerCapture(e.pointerId);
-    } catch { /* ignore */ }
+    try { cardRef.current?.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
     const vx = velocityX.current;
     const vy = velocityY.current;
     const speed = Math.sqrt(vx * vx + vy * vy);
@@ -224,162 +254,136 @@ export function Interactive3DCard() {
   const showLockedHint = isTouchDevice && !isUnlocked;
 
   return (
-    <section ref={sectionRef} className="relative py-20 md:py-28 lg:py-36">
-      <div className="absolute inset-0 bg-background" />
+    <section
+      ref={wrapperRef}
+      className="relative w-full"
+      style={{ height: isMobile ? '320vh' : '500vh' }}
+    >
+      <div
+        ref={sectionRef}
+        className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-background"
+      >
+        {isVisible && (
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] md:w-[350px] md:h-[350px] rounded-full pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%)',
+              filter: 'blur(40px)',
+            }}
+          />
+        )}
 
-      {isVisible && (
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] md:w-[350px] md:h-[350px] rounded-full pointer-events-none"
-          style={{
-            background: 'radial-gradient(circle, hsl(var(--primary) / 0.15) 0%, transparent 70%)',
-            filter: 'blur(40px)',
-          }}
-        />
-      )}
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col items-center justify-center min-h-[45vh] md:min-h-[55vh] pt-6 md:pt-0">
-
-          <motion.div
-            className="mb-16 md:mb-24 lg:mb-32 text-center"
-            style={{ y: ctaY }}
-            initial={{ opacity: 0, scale: 0.3 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
-              <span
-                className="block text-white"
-                style={{ textShadow: '0 2px 4px hsl(220 50% 5% / 0.5)' }}
-              >
-                O DESIGN
-              </span>
-              <span
-                className="block"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(155 100% 55%) 0%, hsl(195 100% 60%) 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                QUEM FAZ É VOCÊ!
-              </span>
-            </h2>
-          </motion.div>
-
-          <motion.div
-            ref={cardRef}
-            className={`relative ${isUnlocked ? 'cursor-grab active:cursor-grabbing touch-none' : 'cursor-pointer touch-pan-y'}`}
-            style={{ perspective: 1200 }}
-            onPointerMove={handleDrag}
-            onPointerLeave={handlePointerLeave}
-            onPointerDown={handleDragStart}
-            onPointerUp={handleDragEnd}
-            onPointerCancel={handleDragEnd}
-            initial={{ opacity: 0, scale: 0.3 }}
-            animate={isVisible && imageLoaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.3 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <motion.div
-              className="relative w-[280px] h-[180px] sm:w-[340px] sm:h-[220px] md:w-[500px] md:h-[320px] lg:w-[640px] lg:h-[400px] xl:w-[720px] xl:h-[450px] rounded-2xl overflow-hidden"
+        <div className="container mx-auto px-4 relative z-10 flex flex-col items-center justify-center">
+          <h2 className="mb-10 md:mb-16 text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
+            <span className="block text-white" style={{ textShadow: '0 2px 4px hsl(220 50% 5% / 0.5)' }}>
+              O DESIGN
+            </span>
+            <span
+              className="block"
               style={{
-                rotateX: springRotateX,
-                rotateY: springRotateY,
-                transformStyle: 'preserve-3d',
-                boxShadow: dynamicShadow,
-                willChange: 'transform',
+                background: 'linear-gradient(135deg, hsl(155 100% 55%) 0%, hsl(195 100% 60%) 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
               }}
             >
-              <div
-                className="absolute inset-0 rounded-2xl p-[1px]"
+              QUEM FAZ É VOCÊ!
+            </span>
+          </h2>
+
+          {/* Stack container: pilot-card base + 4 cards subindo */}
+          <div className="relative w-[88vw] max-w-md md:max-w-2xl aspect-[16/10] md:aspect-[16/10]">
+            {/* Pilot card (camada base — recua quando o stack começa) */}
+            <motion.div
+              ref={pilotWrapRef}
+              className="absolute inset-0 z-0"
+              style={{ willChange: 'transform, opacity', perspective: 1200 }}
+            >
+              <motion.div
+                ref={cardRef}
+                className={`relative w-full h-full rounded-2xl overflow-hidden ${
+                  pilotInteractive
+                    ? (isUnlocked ? 'cursor-grab active:cursor-grabbing touch-none' : 'cursor-pointer touch-pan-y')
+                    : 'pointer-events-none'
+                }`}
                 style={{
-                  background: isUnlocked
-                    ? 'linear-gradient(135deg, hsl(195 100% 60% / 0.9), hsl(155 100% 55% / 0.6))'
-                    : 'linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.3))',
-                  transition: 'background 0.4s ease',
+                  rotateX: springRotateX,
+                  rotateY: springRotateY,
+                  transformStyle: 'preserve-3d',
+                  willChange: 'transform',
                 }}
+                onPointerMove={handleDrag}
+                onPointerLeave={handlePointerLeave}
+                onPointerDown={handleDragStart}
+                onPointerUp={handleDragEnd}
+                onPointerCancel={handleDragEnd}
               >
-                <div className="w-full h-full rounded-[15px] overflow-hidden bg-card/80 relative">
-                  <img
-                    src={pilotImage}
-                    alt="Design Premium"
-                    className="w-full h-full object-cover"
-                    style={{ opacity: imageLoaded ? 1 : 0, transition: 'opacity 0.18s ease-out' }}
-                    draggable={false}
-                    loading="eager"
-                    {...({ fetchpriority: 'high' } as any)}
-                    onLoad={() => setImageLoaded(true)}
-                  />
-                  {/* Specular highlight overlay */}
-                  <motion.div
-                    aria-hidden
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: highlightBg,
-                      mixBlendMode: 'overlay',
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Unlocked glow ring */}
-              <AnimatePresence>
-                {isUnlocked && isTouchDevice && (
-                  <motion.div
-                    aria-hidden
-                    className="absolute -inset-1 rounded-2xl pointer-events-none"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: [0.4, 0.8, 0.4] }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{
-                      boxShadow: '0 0 0 2px hsl(195 100% 55% / 0.5), 0 0 30px hsl(195 100% 55% / 0.4)',
-                    }}
-                  />
-                )}
-              </AnimatePresence>
-            </motion.div>
-
-            {/* Active mode badge */}
-            <AnimatePresence>
-              {isUnlocked && isTouchDevice && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.9 }}
-                  transition={{ duration: 0.25 }}
-                  className="absolute -top-12 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md whitespace-nowrap"
+                <div
+                  className="absolute inset-0 rounded-2xl p-[1px]"
                   style={{
-                    background: 'hsl(220 50% 8% / 0.8)',
-                    border: '1px solid hsl(195 100% 55% / 0.4)',
-                    boxShadow: '0 4px 20px hsl(195 100% 55% / 0.25)',
+                    background: isUnlocked
+                      ? 'linear-gradient(135deg, hsl(195 100% 60% / 0.9), hsl(155 100% 55% / 0.6))'
+                      : 'linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.3))',
+                    transition: 'background 0.4s ease',
                   }}
                 >
-                  <span className="w-2 h-2 rounded-full bg-[hsl(155_100%_55%)] animate-pulse" />
-                  <span className="text-xs font-medium text-white">Modo 3D ativo</span>
-                  <button
-                    type="button"
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                      setIsUnlocked(false);
-                      cancelAutoLock();
-                    }}
-                    className="ml-1 -mr-1 p-0.5 rounded-full hover:bg-white/10 transition-colors"
-                    aria-label="Sair do modo 3D"
-                  >
-                    <X size={12} className="text-white/70" />
-                  </button>
-                </motion.div>
+                  <div className="w-full h-full rounded-[15px] overflow-hidden bg-card/80 relative">
+                    <img
+                      src={pilotImage}
+                      alt="Design Premium"
+                      className="w-full h-full object-cover"
+                      style={{ opacity: imageLoaded ? 1 : 0, transition: 'opacity 0.18s ease-out' }}
+                      draggable={false}
+                      loading="eager"
+                      {...({ fetchpriority: 'high' } as any)}
+                      onLoad={() => setImageLoaded(true)}
+                    />
+                  </div>
+                </div>
+
+                <AnimatePresence>
+                  {isUnlocked && isTouchDevice && pilotInteractive && (
+                    <motion.div
+                      aria-hidden
+                      className="absolute -inset-1 rounded-2xl pointer-events-none"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [0.4, 0.8, 0.4] }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                      style={{ boxShadow: '0 0 0 2px hsl(195 100% 55% / 0.5), 0 0 30px hsl(195 100% 55% / 0.4)' }}
+                    />
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              {pilotInteractive && (
+                <p className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs md:text-sm text-muted-foreground/60 whitespace-nowrap">
+                  {showLockedHint ? 'Toque 2x para girar' : 'Arraste para girar'}
+                </p>
               )}
-            </AnimatePresence>
+            </motion.div>
 
-            <p className="absolute -bottom-10 md:-bottom-12 left-1/2 -translate-x-1/2 text-xs md:text-sm text-muted-foreground/60 whitespace-nowrap">
-              {showLockedHint ? 'Toque 2x para girar' : 'Arraste para girar'}
-            </p>
-          </motion.div>
-
+            {/* Stack de 4 cards que sobem no scroll */}
+            {STACK_CARDS.map((card, i) => (
+              <div
+                key={i}
+                ref={el => { if (el) stackRefs.current[i] = el; }}
+                className="absolute inset-0 rounded-2xl overflow-hidden border border-foreground/10 shadow-[0_30px_80px_rgba(0,0,0,0.7)]"
+                style={{ willChange: 'transform, opacity', zIndex: i + 1 }}
+              >
+                <img src={card.img} alt={card.label} className="w-full h-full object-cover" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
+                  <span className="text-foreground font-display font-bold text-xl md:text-2xl">
+                    {card.label}
+                  </span>
+                  <span className="text-foreground/60 font-mono text-xs">
+                    0{i + 1} / 0{STACK_CARDS.length}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
