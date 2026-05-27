@@ -17,6 +17,7 @@ const Portfolio = lazy(() => import('@/components/Portfolio').then(m => ({ defau
 const Testimonials = lazy(() => import('@/components/Testimonials').then(m => ({ default: m.Testimonials })));
 const FAQ = lazy(() => import('@/components/FAQ').then(m => ({ default: m.FAQ })));
 const CTASection = lazy(() => import('@/components/CTASection').then(m => ({ default: m.CTASection })));
+const BrandsMarquee = lazy(() => import('@/components/BrandsMarquee').then(m => ({ default: m.BrandsMarquee })));
 const VideoBackground = lazy(() => import('@/components/VideoBackground').then(m => ({ default: m.VideoBackground })));
 
 const Fallback = () => <div className="min-h-[200px]" aria-hidden />;
