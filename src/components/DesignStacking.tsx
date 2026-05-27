@@ -59,28 +59,34 @@ export function DesignStacking() {
           const { isMobile: mobile } = context.conditions as { isMobile: boolean };
 
           gsap.set(stackRefs.current, {
-            yPercent: 100,
-            opacity: 1,
-            scale: 1,
+            yPercent: 0,
+            opacity: 0,
+            scale: 0.82,
             force3D: true,
             transformOrigin: 'center center',
           });
 
-          const tl = gsap.timeline({ paused: true, defaults: { ease: 'none', force3D: true } });
+          const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out', force3D: true } });
 
-          tl.to(headingRef.current, { autoAlpha: 0, y: -24, duration: 0.5 }, 0)
-            .to(bgTextRef.current, { scale: 1.04, opacity: 0.18, duration: 4.5 }, 0);
+          tl.to(headingRef.current, { autoAlpha: 0, y: -24, duration: 0.5, ease: 'none' }, 0)
+            .to(bgTextRef.current, { scale: 1.04, opacity: 0.18, duration: 4.5, ease: 'none' }, 0);
 
-          tl.to(stackRefs.current[0], { yPercent: 0, duration: 1 }, 0.6);
+          // Cada card surge sozinho, fade+scale; o anterior some completamente antes do próximo.
+          // Card 1
+          tl.to(stackRefs.current[0], { opacity: 1, scale: 1, duration: 0.6 }, 0.6);
           if (pilotRef.current) {
-            tl.to(pilotRef.current, { scale: 0.88, opacity: 0.35, yPercent: -10, duration: 1 }, 0.6);
+            tl.to(pilotRef.current, { scale: 0.9, opacity: 0, duration: 0.6 }, 0.6);
           }
-          tl.to(stackRefs.current[1], { yPercent: 0, duration: 1 }, 1.6)
-            .to(stackRefs.current[0], { scale: 0.92, opacity: 0.45, yPercent: -8, duration: 1 }, 1.6);
-          tl.to(stackRefs.current[2], { yPercent: 0, duration: 1 }, 2.6)
-            .to(stackRefs.current[1], { scale: 0.93, opacity: 0.45, yPercent: -6, duration: 1 }, 2.6);
-          tl.to(stackRefs.current[3], { yPercent: 0, duration: 1 }, 3.6)
-            .to(stackRefs.current[2], { scale: 0.94, opacity: 0.45, yPercent: -5, duration: 1 }, 3.6);
+          // Card 2
+          tl.to(stackRefs.current[0], { opacity: 0, scale: 0.92, duration: 0.5 }, 1.6)
+            .to(stackRefs.current[1], { opacity: 1, scale: 1, duration: 0.6 }, 1.7);
+          // Card 3
+          tl.to(stackRefs.current[1], { opacity: 0, scale: 0.92, duration: 0.5 }, 2.6)
+            .to(stackRefs.current[2], { opacity: 1, scale: 1, duration: 0.6 }, 2.7);
+          // Card 4
+          tl.to(stackRefs.current[2], { opacity: 0, scale: 0.92, duration: 0.5 }, 3.6)
+            .to(stackRefs.current[3], { opacity: 1, scale: 1, duration: 0.6 }, 3.7);
+
 
           ScrollTrigger.create({
             trigger: wrapperRef.current,
