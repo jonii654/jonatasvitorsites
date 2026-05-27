@@ -135,42 +135,6 @@ export function DesignStacking() {
         )}
 
 
-  return (
-    <section
-      id="design"
-      ref={wrapperRef}
-      className="relative w-full"
-      style={{ height: isMobile ? '380vh' : '560vh' }}
-    >
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-background">
-        {/* Watermark DESIGN */}
-        <div
-          ref={bgTextRef}
-          aria-hidden
-          className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-          style={{ opacity: 0.08, willChange: 'transform, opacity' }}
-        >
-          <span
-            className="font-display font-black tracking-tighter leading-none text-white"
-            style={{
-              fontSize: 'clamp(12rem, 32vw, 28rem)',
-              letterSpacing: '-0.05em',
-            }}
-          >
-            DESIGN
-          </span>
-        </div>
-
-        {/* Glow */}
-        {isVisible && (
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] md:w-[420px] md:h-[420px] rounded-full pointer-events-none"
-            style={{
-              background: 'radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, transparent 70%)',
-              filter: 'blur(50px)',
-            }}
-          />
-        )}
 
         <div className="container mx-auto px-4 relative z-10 flex flex-col items-center justify-center">
           {/* Heading que some no scroll */}
