@@ -1,6 +1,11 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { X, ExternalLink, ArrowLeft } from 'lucide-react';
+
+gsap.registerPlugin(ScrollTrigger);
+
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
