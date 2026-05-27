@@ -62,7 +62,11 @@ export function PortalTransition() {
       className="relative w-full"
       style={{ height: '220vh' }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-background">
+      <motion.div
+        className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-background"
+        style={{ opacity: stageOpacity }}
+      >
+
         {/* Grid radial sutil */}
         <div
           aria-hidden
