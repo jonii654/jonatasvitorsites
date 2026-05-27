@@ -1,6 +1,11 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { X, ExternalLink, ArrowLeft } from 'lucide-react';
+
+gsap.registerPlugin(ScrollTrigger);
+
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
@@ -121,6 +126,36 @@ export function Portfolio() {
   const active = projects[activeIndex];
   const lastNavRef = useRef(0);
   const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  // GSAP reveal: header + initial card row stagger (runs once on enter)
+  useLayoutEffect(() => {
+    if (!sectionRef.current) return;
+    const ctx = gsap.context(() => {
+      gsap.from(headerRef.current, {
+        opacity: 0,
+        y: 28,
+        duration: 0.7,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: headerRef.current, start: 'top 85%', once: true },
+      });
+
+      const cards = wrapperRef.current?.querySelectorAll<HTMLElement>('[data-portfolio-card]');
+      if (cards && cards.length) {
+        gsap.from(cards, {
+          opacity: 0,
+          y: 50,
+          duration: 0.8,
+          ease: 'power3.out',
+          stagger: 0.1,
+          force3D: true,
+          scrollTrigger: { trigger: wrapperRef.current, start: 'top 80%', once: true },
+        });
+      }
+    }, sectionRef);
+    return () => ctx.revert();
+  }, []);
 
   // Autoplay (pausável por interação)
   useEffect(() => {
@@ -130,6 +165,7 @@ export function Portfolio() {
     }, 6000);
     return () => clearInterval(id);
   }, [isPlaying]);
+
 
   const pauseAutoplayTemporarily = useCallback(() => {
     setIsPlaying(false);
@@ -244,7 +280,7 @@ export function Portfolio() {
   const leftPercents = projects.map((_, i) => (100 / (projects.length + 1)) * (i + 1));
 
   return (
-    <section id="portfolio" className="py-20 md:py-28 relative overflow-hidden">
+    <section id="portfolio" ref={sectionRef} className="py-20 md:py-28 relative overflow-hidden">
       {/* Adaptive glow */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
@@ -254,7 +290,7 @@ export function Portfolio() {
         transition={{ duration: 0.8 }}
       />
 
-      <div className="container mx-auto px-4 relative z-10 text-center mb-6">
+      <div ref={headerRef} className="container mx-auto px-4 relative z-10 text-center mb-6">
         <span className="section-label">Portfólio</span>
         <h2
           className="font-black leading-[0.85] tracking-tight uppercase mt-4"
@@ -270,6 +306,7 @@ export function Portfolio() {
           Trabalhos
         </h2>
       </div>
+
 
       {/* Category header (gallery mode) */}
       <motion.div
@@ -315,10 +352,12 @@ export function Portfolio() {
             return (
               <motion.button
                 key={project.id}
+                data-portfolio-card
                 layoutId={`card-${project.id}`}
                 onClick={() => handleCardClick(idx)}
                 animate={style}
                 transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+
                 className={`relative group cursor-pointer overflow-hidden h-full block ${
                   mode === 'focus' && isActive
                     ? 'rounded-3xl border border-primary/30 shadow-[0_20px_50px_rgba(0,0,0,0.9)]'
