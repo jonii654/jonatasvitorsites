@@ -4,6 +4,7 @@ import {
   useScroll,
   useTransform,
   useReducedMotion,
+  useSpring,
 } from 'framer-motion';
 
 import { useDeviceTier } from '@/hooks/use-device-tier';
