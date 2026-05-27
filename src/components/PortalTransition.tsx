@@ -164,12 +164,6 @@ export function PortalTransition() {
           />
         </motion.div>
 
-        {/* Camada "fundo" que é rasgada pelo clip — fica transparente revelando a próxima seção */}
-        <motion.div
-          aria-hidden
-          className="absolute inset-0 z-40 bg-background"
-          style={{ clipPath, ...gpu }}
-        />
       </div>
     </section>
   );
