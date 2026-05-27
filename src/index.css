@@ -527,4 +527,28 @@
       opacity: 0;
     }
   }
+
+  /* CTA Burst — extra "pop" effect on tap/click */
+  .cta-burst {
+    animation: ctaBurst 700ms ease-out;
+  }
+  .cta-burst::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    border: 2px solid hsl(155 100% 50% / 0.7);
+    pointer-events: none;
+    animation: ctaBurstRing 700ms ease-out forwards;
+  }
+  @keyframes ctaBurst {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.08); }
+    70%  { transform: scale(0.98); }
+    100% { transform: scale(1); }
+  }
+  @keyframes ctaBurstRing {
+    0%   { inset: 0; opacity: 0.9; border-width: 2px; }
+    100% { inset: -18px; opacity: 0; border-width: 1px; }
+  }
 }
