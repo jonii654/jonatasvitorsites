@@ -3,25 +3,87 @@ import { ArrowRight } from 'lucide-react';
 import { useRef, useMemo, useState } from 'react';
 import { useDeviceTier } from '@/hooks/use-device-tier';
 import { useAnalytics } from '@/hooks/use-analytics';
+import portfolioAdvocacia from '@/assets/portfolio-advocacia.png';
+import portfolioBeatriz from '@/assets/portfolio-beatriz.png';
+import portfolioClinica from '@/assets/portfolio-clinicaiphone.png';
+import portfolioVini from '@/assets/portfolio-vinidigital.png';
 
 const WHATSAPP_NUMBER = "551931990107";
 
-// Ambient floating dots (kept from original — performant pure CSS)
+// Ambient floating dots — denser for added depth ("poeira estelar" + glow dots)
 const floatingDots = [
-  { x: '8%', y: '12%', size: 6, color: 'hsl(195 100% 50%)', duration: 6 },
-  { x: '88%', y: '18%', size: 5, color: 'hsl(155 100% 50%)', duration: 7 },
-  { x: '15%', y: '70%', size: 7, color: 'hsl(195 100% 50%)', duration: 8 },
-  { x: '78%', y: '75%', size: 5, color: 'hsl(155 100% 50%)', duration: 6.5 },
-  { x: '45%', y: '8%', size: 6, color: 'hsl(195 100% 50%)', duration: 7.5 },
-  { x: '88%', y: '50%', size: 5, color: 'hsl(195 100% 50%)', duration: 8 },
-  { x: '68%', y: '5%', size: 7, color: 'hsl(195 100% 50%)', duration: 6.5 },
-  { x: '5%', y: '40%', size: 4, color: 'hsl(155 100% 50%)', duration: 9 },
-  { x: '86%', y: '65%', size: 5, color: 'hsl(195 100% 50%)', duration: 7 },
-  { x: '25%', y: '25%', size: 4, color: 'hsl(155 100% 50%)', duration: 8.5 },
-  { x: '55%', y: '85%', size: 6, color: 'hsl(195 100% 50%)', duration: 6 },
-  { x: '35%', y: '55%', size: 4, color: 'hsl(155 100% 50%)', duration: 9.5 },
-  { x: '72%', y: '35%', size: 5, color: 'hsl(195 100% 50%)', duration: 7.5 },
-  { x: '18%', y: '88%', size: 4, color: 'hsl(155 100% 50%)', duration: 8 },
+  // Main glow layer
+  { x: '8%', y: '12%', size: 6, color: 'hsl(195 100% 50%)', duration: 6, opacity: 0.55 },
+  { x: '88%', y: '18%', size: 5, color: 'hsl(155 100% 50%)', duration: 7, opacity: 0.5 },
+  { x: '15%', y: '70%', size: 7, color: 'hsl(195 100% 50%)', duration: 8, opacity: 0.6 },
+  { x: '78%', y: '75%', size: 5, color: 'hsl(155 100% 50%)', duration: 6.5, opacity: 0.5 },
+  { x: '45%', y: '8%', size: 6, color: 'hsl(195 100% 50%)', duration: 7.5, opacity: 0.55 },
+  { x: '88%', y: '50%', size: 5, color: 'hsl(195 100% 50%)', duration: 8, opacity: 0.5 },
+  { x: '68%', y: '5%', size: 7, color: 'hsl(195 100% 50%)', duration: 6.5, opacity: 0.6 },
+  { x: '5%', y: '40%', size: 4, color: 'hsl(155 100% 50%)', duration: 9, opacity: 0.45 },
+  { x: '86%', y: '65%', size: 5, color: 'hsl(195 100% 50%)', duration: 7, opacity: 0.5 },
+  { x: '25%', y: '25%', size: 4, color: 'hsl(155 100% 50%)', duration: 8.5, opacity: 0.45 },
+  { x: '55%', y: '85%', size: 6, color: 'hsl(195 100% 50%)', duration: 6, opacity: 0.55 },
+  { x: '35%', y: '55%', size: 4, color: 'hsl(155 100% 50%)', duration: 9.5, opacity: 0.4 },
+  { x: '72%', y: '35%', size: 5, color: 'hsl(195 100% 50%)', duration: 7.5, opacity: 0.5 },
+  { x: '18%', y: '88%', size: 4, color: 'hsl(155 100% 50%)', duration: 8, opacity: 0.45 },
+  { x: '50%', y: '45%', size: 8, color: 'hsl(195 100% 55%)', duration: 7, opacity: 0.6 },
+  { x: '62%', y: '62%', size: 6, color: 'hsl(155 100% 50%)', duration: 8, opacity: 0.5 },
+  { x: '40%', y: '32%', size: 5, color: 'hsl(195 100% 50%)', duration: 9, opacity: 0.5 },
+  { x: '12%', y: '55%', size: 5, color: 'hsl(155 100% 50%)', duration: 7, opacity: 0.5 },
+  // Stellar dust (small, slow, low-opacity)
+  { x: '22%', y: '38%', size: 2, color: 'hsl(0 0% 100%)', duration: 12, opacity: 0.25 },
+  { x: '58%', y: '18%', size: 2, color: 'hsl(0 0% 100%)', duration: 14, opacity: 0.2 },
+  { x: '82%', y: '32%', size: 3, color: 'hsl(0 0% 100%)', duration: 13, opacity: 0.25 },
+  { x: '30%', y: '78%', size: 2, color: 'hsl(0 0% 100%)', duration: 15, opacity: 0.22 },
+  { x: '65%', y: '92%', size: 2, color: 'hsl(0 0% 100%)', duration: 11, opacity: 0.2 },
+  { x: '92%', y: '88%', size: 3, color: 'hsl(0 0% 100%)', duration: 14, opacity: 0.25 },
+  { x: '6%', y: '24%', size: 2, color: 'hsl(0 0% 100%)', duration: 13, opacity: 0.22 },
+  { x: '48%', y: '70%', size: 3, color: 'hsl(0 0% 100%)', duration: 12, opacity: 0.25 },
+];
+
+// 4 cards forming an X — corners of the viewport
+const cornerCards = [
+  {
+    pos: 'top-[10%] left-[4%] md:left-[8%]',
+    size: 'w-28 h-36 md:w-52 md:h-72',
+    rot: -14,
+    hoverRot: -8,
+    hoverShift: 'translateY(-10px)',
+    img: portfolioVini,
+    accent: 'hsl(195 100% 50%)',
+    alt: 'Site Vini Digital',
+  },
+  {
+    pos: 'top-[10%] right-[4%] md:right-[8%]',
+    size: 'w-28 h-36 md:w-52 md:h-72',
+    rot: 14,
+    hoverRot: 8,
+    hoverShift: 'translateY(-10px)',
+    img: portfolioAdvocacia,
+    accent: 'hsl(155 100% 50%)',
+    alt: 'Site Advocacia',
+  },
+  {
+    pos: 'bottom-[10%] left-[4%] md:left-[8%]',
+    size: 'w-28 h-36 md:w-52 md:h-72',
+    rot: 14,
+    hoverRot: 8,
+    hoverShift: 'translateY(10px)',
+    img: portfolioClinica,
+    accent: 'hsl(155 100% 50%)',
+    alt: 'Site Clínica iPhone',
+  },
+  {
+    pos: 'bottom-[10%] right-[4%] md:right-[8%]',
+    size: 'w-28 h-36 md:w-52 md:h-72',
+    rot: -14,
+    hoverRot: -8,
+    hoverShift: 'translateY(10px)',
+    img: portfolioBeatriz,
+    accent: 'hsl(195 100% 50%)',
+    alt: 'Site Beatriz',
+  },
 ];
 
 export function Hero() {
@@ -42,11 +104,10 @@ export function Hero() {
   const textOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const textScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.85]);
 
-  const dots = useMemo(() => (isLight ? floatingDots.slice(0, 5) : floatingDots), [isLight]);
-
-  // Reactive tilted background cards — shift on CTA hover
-  const cardStyle = (base: string) =>
-    `absolute bg-slate-800/40 border border-white/10 rounded-lg shadow-2xl backdrop-blur-sm overflow-hidden transition-all duration-700 ease-out ${base}`;
+  const dots = useMemo(
+    () => (isLight ? floatingDots.slice(0, 10) : floatingDots),
+    [isLight],
+  );
 
   return (
     <section ref={sectionRef} className="relative min-h-[150vh] overflow-hidden">
@@ -74,81 +135,44 @@ export function Hero() {
                 height: dot.size,
                 background: dot.color,
                 boxShadow: `0 0 ${dot.size * 2}px ${dot.color}`,
-                opacity: 0.5,
+                opacity: dot.opacity,
                 animation: `floatDot${i % 3} ${dot.duration}s ease-in-out infinite`,
               }}
             />
           ))}
         </div>
 
-        {/* Tilted decorative cards — react to CTA hover */}
+        {/* 4 corner cards forming an X — real portfolio screenshots */}
         <div className="absolute inset-0 pointer-events-none">
-          <div
-            className={cardStyle('top-[15%] left-[6%] md:left-[10%] w-32 md:w-48 h-44 md:h-64 -rotate-12')}
-            style={{ transform: ctaHover ? 'rotate(-6deg) translateY(-8px)' : undefined }}
-          >
-            <div className="w-full h-full bg-gradient-to-br from-[hsl(195_100%_50%/0.25)] to-transparent" />
-          </div>
-          <div
-            className={cardStyle('bottom-[8%] right-[6%] md:right-[12%] w-36 md:w-56 h-48 md:h-72 rotate-6')}
-            style={{ transform: ctaHover ? 'rotate(12deg) translateY(8px)' : undefined }}
-          >
-            <div className="w-full h-full bg-gradient-to-tr from-[hsl(155_100%_50%/0.18)] to-transparent" />
-          </div>
-          <div
-            className={cardStyle('top-[18%] right-[14%] w-28 md:w-40 h-36 md:h-52 rotate-12 hidden md:block')}
-            style={{ transform: ctaHover ? 'rotate(15deg) translateX(8px)' : undefined }}
-          >
-            <div className="w-full h-full bg-gradient-to-bl from-[hsl(195_100%_55%/0.18)] to-transparent" />
-          </div>
-
-          {/* Floating UI icons */}
-          <div
-            className="absolute top-[34%] right-[20%] text-white/20 hidden md:block transition-all duration-700 ease-out"
-            style={{
-              transform: ctaHover
-                ? 'translate(-16px,-32px) rotate(0deg)'
-                : 'rotate(-12deg)',
-              color: ctaHover ? 'hsl(0 0% 100% / 0.45)' : undefined,
-            }}
-          >
-            <svg width="40" height="60" viewBox="0 0 32 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 0C3.58 0 0 3.58 0 8s3.58 8 8 8h8V0H8Z" fill="currentColor" />
-              <path d="M24 0c-4.42 0-8 3.58-8 8v8h8c4.42 0 8-3.58 8-8s-3.58-8-8-8Z" fill="currentColor" />
-              <path d="M8 16c-4.42 0-8 3.58-8 8s3.58 8 8 8h8V16H8Z" fill="currentColor" />
-              <path d="M8 32c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8v-8H8Z" fill="currentColor" />
-              <path d="M24 16c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8Z" fill="currentColor" />
-            </svg>
-          </div>
-
-          <div
-            className="absolute bottom-[28%] left-[16%] text-[hsl(155_100%_50%/0.35)] hidden md:block transition-all duration-700 ease-out"
-            style={{
-              transform: ctaHover
-                ? 'translate(32px,24px) rotate(0deg)'
-                : 'rotate(12deg)',
-              color: ctaHover ? 'hsl(155 100% 50% / 0.55)' : undefined,
-            }}
-          >
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="16 18 22 12 16 6" />
-              <polyline points="8 6 2 12 8 18" />
-            </svg>
-          </div>
-
-          <div
-            className="absolute top-[10%] left-[28%] text-[hsl(195_100%_50%/0.22)] hidden md:block transition-all duration-1000 ease-out"
-            style={{
-              transform: ctaHover ? 'translate(-48px,16px)' : 'rotate(-6deg)',
-              color: ctaHover ? 'hsl(195 100% 50% / 0.45)' : undefined,
-            }}
-          >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m18 16 4-4-4-4" />
-              <path d="m6 8-4 4 4 4" />
-              <path d="m14.5 4-5 16" />
-            </svg>
-          </div>
+          {cornerCards.map((c, i) => {
+            const baseTransform = `rotate(${c.rot}deg)`;
+            const hoverTransform = `rotate(${c.hoverRot}deg) ${c.hoverShift}`;
+            return (
+              <div
+                key={i}
+                className={`absolute ${c.pos} ${c.size} rounded-lg shadow-2xl overflow-hidden border transition-all duration-700 ease-out`}
+                style={{
+                  borderColor: `${c.accent.replace(')', ' / 0.35)')}`,
+                  boxShadow: `0 12px 40px hsl(220 50% 4% / 0.55), 0 0 28px ${c.accent.replace(')', ' / 0.18)')}`,
+                  transform: ctaHover ? hoverTransform : baseTransform,
+                }}
+              >
+                <img
+                  src={c.img}
+                  alt={c.alt}
+                  loading="eager"
+                  decoding="async"
+                  className="w-full h-full object-cover object-top"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: `linear-gradient(135deg, ${c.accent.replace(')', ' / 0.15)')} 0%, hsl(220 50% 4% / 0.55) 100%)`,
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* Main content */}
