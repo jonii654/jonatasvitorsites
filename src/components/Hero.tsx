@@ -258,14 +258,19 @@ export function Hero() {
                 rel="noopener noreferrer"
                 onMouseEnter={() => setCtaHover(true)}
                 onMouseLeave={() => setCtaHover(false)}
-                onClick={() => trackCtaClick({ location: 'hero', label: 'Quero meu site' })}
-                className="cta-primary group/cta px-8 py-4 rounded-full font-bold text-[hsl(220_50%_8%)] font-display transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] btn-ripple"
+                onClick={() => {
+                  triggerBurst();
+                  trackCtaClick({ location: 'hero', label: 'Quero meu site' });
+                }}
+                className={`cta-primary group/cta relative px-8 py-4 rounded-full font-bold text-[hsl(220_50%_8%)] font-display transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] btn-ripple ${ctaBurst ? 'cta-burst' : ''}`}
                 style={{
                   background:
                     'linear-gradient(135deg, hsl(195 100% 55%) 0%, hsl(155 100% 50%) 100%)',
-                  boxShadow: ctaHover
-                    ? '0 0 32px hsl(155 100% 50% / 0.55), 0 0 64px hsl(195 100% 50% / 0.25)'
-                    : '0 0 20px hsl(195 100% 50% / 0.3)',
+                  boxShadow: ctaBurst
+                    ? '0 0 48px hsl(155 100% 50% / 0.8), 0 0 96px hsl(195 100% 50% / 0.4)'
+                    : ctaHover
+                      ? '0 0 32px hsl(155 100% 50% / 0.55), 0 0 64px hsl(195 100% 50% / 0.25)'
+                      : '0 0 20px hsl(195 100% 50% / 0.3)',
                 }}
               >
                 Quero meu site
