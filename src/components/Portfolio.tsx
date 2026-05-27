@@ -264,7 +264,7 @@ export function Portfolio() {
 
           {/* Featured card — flutuando sobre o vídeo */}
           <motion.div
-            className="relative w-[62vw] max-w-[340px] md:max-w-[380px] aspect-[3/4]"
+            className="relative w-[92vw] max-w-[560px] md:max-w-[720px] aspect-[4/3]"
             animate={{ y: [0, -12, 0] }}
             transition={{ duration: 5, ease: 'easeInOut', repeat: Infinity }}
           >

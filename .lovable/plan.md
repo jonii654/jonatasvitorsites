@@ -1,36 +1,22 @@
+## Objetivo
+Alterar o formato dos cards de projeto na seção "Trabalhos" (Portfolio) de quadrado/retrato para retangular (paisagem), conforme referência enviada pelo usuário em vídeo anterior.
 
-## 1. Seção Trabalhos — vídeo de fundo + cards flutuando
+## Situação atual
+- Os cards usam `aspect-[3/4]` (retrato — mais alto que largo)
+- Largura: `w-[62vw] max-w-[340px] md:max-w-[380px]`
 
-**Arquivos:** `src/components/Portfolio.tsx`, novo `public/portfolio-bg.mp4`
+## Mudanças propostas
+1. **Remover `aspect-[3/4]`** e aplicar proporção retangular (ex: `aspect-[16/10]` ou `aspect-[4/3]`)
+2. **Aumentar a largura máxima** para que o card ocupe mais espaço horizontal (`max-w-[520px]` ou `max-w-[600px]`)
+3. **Ajustar a altura do container** (`h-[55vh] md:h-[60vh] max-h-[560px]`) se necessário para acomodar o card mais largo
+4. **Verificar responsividade** em mobile para garantir que o card não fique cortado ou com scroll indesejado
 
-- Copiar o vídeo enviado anteriormente (`Rustic_Party_Appetizers_on_a_Budget`) para `public/portfolio-bg.mp4`.
-- Adicionar `<video>` absoluto cobrindo a seção inteira (`autoPlay`, `muted`, `playsInline`, `loop`, `preload="metadata"`).
-- Overlay escuro por cima (gradient `bg-black/60` → `bg-black/40`) para contraste com o card sem matar o vídeo.
-- No mobile (tier light): cair em gradiente CSS estático (regra de performance do projeto).
-- Remover/atenuar o glow gigante atual de fundo — o vídeo já cumpre esse papel.
+## Decisão pendente
+Qual proporção exata o usuário prefere:
+- **16:10** (mais panorâmico)
+- **4:3** (retangular médio)
+- **3:2** (retrato invertido leve)
+- Ou sem `aspect-ratio`, deixando a imagem definir o formato natural
 
-**Card flutuando (sem "base"):**
-- Tirar o fundo opaco/bg do card atual e qualquer plataforma/sombra-base de baixo.
-- Deixar a imagem do projeto com cantos arredondados, borda fina translúcida e sombra grande embaixo (`shadow-[0_40px_80px_rgba(0,0,0,0.6)]`) — sensação de flutuar sobre o vídeo.
-- Animação `y: [0, -10, 0]` com `duration: 5s, easeInOut, repeat: Infinity` para o card "respirar".
-- Manter o watermark do nome do projeto como camada acima do vídeo.
-
-**Navegação:**
-- Manter as setas laterais (desktop e mobile).
-- Manter o swipe/drag touch.
-- Manter os dots indicadores embaixo.
-
-## 2. Preloader — mais lento, sem flash, uma linha só
-
-**Arquivo:** `src/components/Preloader.tsx`
-
-- Aumentar `DURATION` de `4200ms` → `7500ms` (mais tempo pra imersão do vídeo de fundo).
-- Aumentar delays de saída: `400ms` → `700ms` e `onFinish` `1100ms` → `1500ms`.
-- Trocar `bg-background` do container por `bg-black` puro + fallback escuro inline — elimina o flash do fundo antigo enquanto o vídeo carrega.
-- Adicionar `poster` no `<video>` (frame escuro) pra zero flicker.
-- Remover a barra duplicada de progresso: hoje existem duas (linhas 119-126 e 127-136). Manter apenas a barra única com glow neon + drop-shadow.
-
-## Arquivos afetados
-- `public/portfolio-bg.mp4` (novo)
-- `src/components/Portfolio.tsx`
-- `src/components/Preloader.tsx`
+## Nota
+O vídeo de fundo da seção Portfolio já está configurado e visível. Após a mudança de proporção, o card flutuante deve continuar posicionado corretamente sobre o vídeo.
