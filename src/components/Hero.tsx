@@ -53,7 +53,7 @@ const floatingDots = [
 const cornerCards = [
   {
     pos: 'top-[3%] left-[2%] md:left-[3%]',
-    size: 'w-20 h-28 md:w-64 md:h-80',
+    size: 'w-28 h-36 sm:w-32 sm:h-44 md:w-80 md:h-[26rem]',
     floatY: [0, -10, 0],
     img: heroRef1,
     accent: 'hsl(195 100% 50%)',
@@ -61,7 +61,7 @@ const cornerCards = [
   },
   {
     pos: 'top-[3%] right-[2%] md:right-[3%]',
-    size: 'w-20 h-28 md:w-64 md:h-80',
+    size: 'w-28 h-36 sm:w-32 sm:h-44 md:w-80 md:h-[26rem]',
     floatY: [0, -8, 0],
     img: heroRef2,
     accent: 'hsl(75 100% 60%)',
@@ -69,7 +69,7 @@ const cornerCards = [
   },
   {
     pos: 'bottom-[3%] left-[2%] md:left-[3%]',
-    size: 'w-20 h-28 md:w-64 md:h-80',
+    size: 'w-28 h-36 sm:w-32 sm:h-44 md:w-80 md:h-[26rem]',
     floatY: [0, 9, 0],
     img: heroRef3,
     accent: 'hsl(155 100% 50%)',
@@ -77,7 +77,7 @@ const cornerCards = [
   },
   {
     pos: 'bottom-[3%] right-[2%] md:right-[3%]',
-    size: 'w-20 h-28 md:w-64 md:h-80',
+    size: 'w-28 h-36 sm:w-32 sm:h-44 md:w-80 md:h-[26rem]',
     floatY: [0, 11, 0],
     img: heroRef4,
     accent: 'hsl(75 100% 60%)',
