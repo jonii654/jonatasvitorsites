@@ -171,7 +171,7 @@ export function DesignStacking() {
           </div>
 
           {/* Stack container: pilot base + 4 cards subindo */}
-          <div className="relative w-[68vw] max-w-[260px] md:max-w-md aspect-[4/5]">
+          <div className="relative w-[72vw] max-w-[300px] md:max-w-[420px] aspect-square">
             {/* Pilot card (base) */}
             <div
               ref={pilotRef}
