@@ -54,10 +54,12 @@ export function Header() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackCtaClick({ location: 'header', label: 'WhatsApp' })}
-                className="hidden md:inline-flex btn-lemon !py-2.5 !px-5 text-sm"
+                className="hidden md:inline-flex btn-lemon text-xs"
               >
-                <MessageCircle className="w-4 h-4" />
-                WhatsApp
+                <span className="uppercase tracking-widest text-[10px]">WhatsApp</span>
+                <span className="lemon-circle">
+                  <MessageCircle className="w-4 h-4" />
+                </span>
               </a>
 
               {/* Menu trigger — visível em todos breakpoints; origem do ripple */}
