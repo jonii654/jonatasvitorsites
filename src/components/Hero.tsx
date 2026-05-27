@@ -49,35 +49,35 @@ const floatingDots = [
   { x: '48%', y: '70%', size: 3, color: 'hsl(0 0% 100%)', duration: 12, opacity: 0.3 },
 ];
 
-// 4 cards — 2 em cima, 2 embaixo (maiores)
+// 4 cards — cantos, pequenos no mobile, como fundo 3D intocável
 const cornerCards = [
   {
-    pos: 'top-[4%] left-[1%] md:left-[3%]',
-    size: 'w-44 h-56 md:w-80 md:h-[26rem]',
+    pos: 'top-[3%] left-[2%] md:left-[3%]',
+    size: 'w-20 h-28 md:w-64 md:h-80',
     floatY: [0, -10, 0],
     img: heroRef1,
     accent: 'hsl(195 100% 50%)',
     alt: 'Referência de design — editorial premium',
   },
   {
-    pos: 'top-[4%] right-[1%] md:right-[3%]',
-    size: 'w-44 h-56 md:w-80 md:h-[26rem]',
+    pos: 'top-[3%] right-[2%] md:right-[3%]',
+    size: 'w-20 h-28 md:w-64 md:h-80',
     floatY: [0, -8, 0],
     img: heroRef2,
     accent: 'hsl(75 100% 60%)',
     alt: 'Referência de design — mobile app',
   },
   {
-    pos: 'bottom-[4%] left-[1%] md:left-[3%]',
-    size: 'w-44 h-56 md:w-80 md:h-[26rem]',
+    pos: 'bottom-[3%] left-[2%] md:left-[3%]',
+    size: 'w-20 h-28 md:w-64 md:h-80',
     floatY: [0, 9, 0],
     img: heroRef3,
     accent: 'hsl(155 100% 50%)',
     alt: 'Referência de design — cinemático',
   },
   {
-    pos: 'bottom-[4%] right-[1%] md:right-[3%]',
-    size: 'w-44 h-56 md:w-80 md:h-[26rem]',
+    pos: 'bottom-[3%] right-[2%] md:right-[3%]',
+    size: 'w-20 h-28 md:w-64 md:h-80',
     floatY: [0, 11, 0],
     img: heroRef4,
     accent: 'hsl(75 100% 60%)',
@@ -215,7 +215,7 @@ export function Hero() {
           {cornerCards.map((c, i) => (
             <motion.div
               key={i}
-              className={`absolute ${c.pos} ${c.size} rounded-xl shadow-2xl overflow-hidden border`}
+              className={`absolute ${c.pos} ${c.size} rounded-xl shadow-2xl overflow-hidden border opacity-40 md:opacity-100`}
               style={{
                 borderColor: c.accent.replace(')', ' / 0.4)'),
                 boxShadow: `0 18px 50px hsl(220 50% 4% / 0.65), 0 0 48px ${c.accent.replace(')', ' / 0.3)')}`,
@@ -223,6 +223,7 @@ export function Hero() {
                 rotateY: isLight ? 0 : ry,
                 transformStyle: 'preserve-3d',
                 willChange: 'transform',
+                filter: 'saturate(0.9)',
               }}
               animate={{ y: c.floatY }}
               transition={{

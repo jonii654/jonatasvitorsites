@@ -1,5 +1,5 @@
-import { HorizontalCards } from './effects/HorizontalCards';
+import { Results } from './Results';
 
 export function HorizontalNotebookScroll() {
-  return <HorizontalCards />;
+  return <Results />;
 }
