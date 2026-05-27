@@ -98,22 +98,19 @@ export function KineticBlobsCTA({ whatsappLink }: KineticBlobsCTAProps) {
             />
           )}
 
-          <Button
-            asChild
-            size="lg"
-            className="btn-cta text-base md:text-lg px-10 py-7 relative btn-ripple"
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackCtaClick({ location: 'cta_section', label: 'Falar no WhatsApp' })}
+            className="btn-lemon font-display text-base md:text-lg"
           >
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackCtaClick({ location: 'cta_section', label: 'Falar no WhatsApp' })}
-            >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              <span>Falar no WhatsApp</span>
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </a>
-          </Button>
+            <span className="uppercase tracking-widest">Falar no WhatsApp</span>
+            <span className="lemon-circle">
+              <ArrowRight className="w-4 h-4" />
+            </span>
+          </a>
+
         </motion.div>
 
         <p className="text-sm text-muted-foreground mt-6">
