@@ -130,7 +130,7 @@ export function DesignStacking() {
           <span
             className="font-display font-black tracking-tighter leading-none text-white"
             style={{
-              fontSize: 'clamp(16rem, 55vw, 44rem)',
+              fontSize: 'clamp(7rem, 38vw, 56rem)',
               letterSpacing: '-0.05em',
             }}
           >
