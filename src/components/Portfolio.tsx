@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ExternalLink, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useDeviceTier } from '@/hooks/use-device-tier';
 
 gsap.registerPlugin(ScrollTrigger);
+
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
