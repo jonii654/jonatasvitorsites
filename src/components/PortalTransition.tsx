@@ -118,30 +118,31 @@ export function PortalTransition() {
     offset: ['start start', 'end end'],
   });
 
-  // Mãos entram das laterais e se encontram no centro
-  const handLeftX = useTransform(scrollYProgress, [0, 0.42], ['-55vw', '0vw']);
-  const handRightX = useTransform(scrollYProgress, [0, 0.42], ['55vw', '0vw']);
-  // Squash no impacto
-  const handScale = useTransform(scrollYProgress, [0.38, 0.45, 0.5, 0.55], [1, 1.12, 0.92, 1]);
+  // Mãos entram das laterais e se encontram no centro — curva monotônica, reversível
+  const handLeftX = useTransform(scrollYProgress, [0, 0.45], ['-55vw', '0vw']);
+  const handRightX = useTransform(scrollYProgress, [0, 0.45], ['55vw', '0vw']);
+  // Scale linear sem picos (evita trava ao reverter)
+  const handScale = useTransform(scrollYProgress, [0, 0.45, 0.55], [1, 1.05, 1]);
   const handOpacity = useTransform(
     scrollYProgress,
     [0, 0.08, 0.5, 0.58],
     [0, 1, 1, 0],
   );
-  // Leve rotação tipo "respirando"
-  const handLeftRot = useTransform(scrollYProgress, [0, 0.4, 0.48], [-12, 0, 4]);
-  const handRightRot = useTransform(scrollYProgress, [0, 0.4, 0.48], [12, 0, -4]);
+  // Rotação monotônica simples
+  const handLeftRot = useTransform(scrollYProgress, [0, 0.45], [-10, 0]);
+  const handRightRot = useTransform(scrollYProgress, [0, 0.45], [10, 0]);
 
-  // Flash branco intenso
+  // Flash branco — entra e sai linear
   const flashOpacity = useTransform(
     scrollYProgress,
-    [0.44, 0.48, 0.56],
+    [0.42, 0.48, 0.56],
     [0, 1, 0],
   );
 
-  // Onda de choque
+  // Onda de choque — linear
   const shockScale = useTransform(scrollYProgress, [0.46, 0.62], [0, 10]);
   const shockOpacity = useTransform(scrollYProgress, [0.46, 0.5, 0.62], [0, 0.9, 0]);
+
 
   // Núcleo nasce no centro exatamente no "puf"
   const finalScale = isLight ? 40 : 70;
