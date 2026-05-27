@@ -48,46 +48,61 @@ export function DesignStacking() {
   useLayoutEffect(() => {
     if (!wrapperRef.current) return;
     const ctx = gsap.context(() => {
-      gsap.set(stackRefs.current, { yPercent: 100, opacity: 1, scale: 1, force3D: true });
+      const mm = gsap.matchMedia();
 
-      const tl = gsap.timeline({ paused: true, defaults: { ease: 'none', force3D: true } });
+      mm.add(
+        {
+          isMobile: '(max-width: 767px)',
+          isDesktop: '(min-width: 768px)',
+        },
+        (context) => {
+          const { isMobile: mobile } = context.conditions as { isMobile: boolean };
 
-      // 0 → 0.12: heading & subtitle fade out, DESIGN cresce sutil
-      tl.to(headingRef.current, { opacity: 0, y: -24, duration: 0.5 }, 0)
-        .to(bgTextRef.current, { scale: 1.04, opacity: 0.16, duration: 4.5 }, 0);
+          gsap.set(stackRefs.current, {
+            yPercent: 100,
+            opacity: 1,
+            scale: 1,
+            force3D: true,
+            transformOrigin: 'center center',
+          });
 
-      // Step 1: card1 sobe; pilot recua
-      tl.to(stackRefs.current[0], { yPercent: 0, duration: 1 }, 0.6);
-      if (pilotRef.current) {
-        tl.to(pilotRef.current, { scale: 0.88, opacity: 0.35, yPercent: -10, duration: 1 }, 0.6);
-      }
-      // Step 2
-      tl.to(stackRefs.current[1], { yPercent: 0, duration: 1 }, 1.6)
-        .to(stackRefs.current[0], { scale: 0.92, opacity: 0.45, yPercent: -8, duration: 1 }, 1.6);
-      // Step 3
-      tl.to(stackRefs.current[2], { yPercent: 0, duration: 1 }, 2.6)
-        .to(stackRefs.current[1], { scale: 0.93, opacity: 0.45, yPercent: -6, duration: 1 }, 2.6);
-      // Step 4
-      tl.to(stackRefs.current[3], { yPercent: 0, duration: 1 }, 3.6)
-        .to(stackRefs.current[2], { scale: 0.94, opacity: 0.45, yPercent: -5, duration: 1 }, 3.6);
+          const tl = gsap.timeline({ paused: true, defaults: { ease: 'none', force3D: true } });
 
-      ScrollTrigger.create({
-        trigger: wrapperRef.current,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: isMobile ? 0.6 : 1.1,
-        onUpdate: (self) => tl.progress(self.progress),
-      });
+          tl.to(headingRef.current, { autoAlpha: 0, y: -24, duration: 0.5 }, 0)
+            .to(bgTextRef.current, { scale: 1.04, opacity: 0.18, duration: 4.5 }, 0);
+
+          tl.to(stackRefs.current[0], { yPercent: 0, duration: 1 }, 0.6);
+          if (pilotRef.current) {
+            tl.to(pilotRef.current, { scale: 0.88, opacity: 0.35, yPercent: -10, duration: 1 }, 0.6);
+          }
+          tl.to(stackRefs.current[1], { yPercent: 0, duration: 1 }, 1.6)
+            .to(stackRefs.current[0], { scale: 0.92, opacity: 0.45, yPercent: -8, duration: 1 }, 1.6);
+          tl.to(stackRefs.current[2], { yPercent: 0, duration: 1 }, 2.6)
+            .to(stackRefs.current[1], { scale: 0.93, opacity: 0.45, yPercent: -6, duration: 1 }, 2.6);
+          tl.to(stackRefs.current[3], { yPercent: 0, duration: 1 }, 3.6)
+            .to(stackRefs.current[2], { scale: 0.94, opacity: 0.45, yPercent: -5, duration: 1 }, 3.6);
+
+          ScrollTrigger.create({
+            trigger: wrapperRef.current,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: mobile ? 1.2 : 1.1,
+            fastScrollEnd: true,
+            preventOverlaps: true,
+            onUpdate: (self) => tl.progress(self.progress),
+          });
+        }
+      );
     }, wrapperRef);
     return () => ctx.revert();
-  }, [isMobile]);
+  }, []);
 
   return (
     <section
       id="design"
       ref={wrapperRef}
       className="relative w-full"
-      style={{ height: isMobile ? '380vh' : '560vh' }}
+      style={{ height: isMobile ? '280vh' : '560vh' }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-background">
         {/* Watermark DESIGN */}
@@ -95,12 +110,12 @@ export function DesignStacking() {
           ref={bgTextRef}
           aria-hidden
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-          style={{ opacity: 0.08, willChange: 'transform, opacity' }}
+          style={{ opacity: 0.12, willChange: 'transform, opacity' }}
         >
           <span
             className="font-display font-black tracking-tighter leading-none text-white"
             style={{
-              fontSize: 'clamp(12rem, 32vw, 28rem)',
+              fontSize: 'clamp(16rem, 55vw, 44rem)',
               letterSpacing: '-0.05em',
             }}
           >
@@ -108,16 +123,18 @@ export function DesignStacking() {
           </span>
         </div>
 
-        {/* Glow */}
-        {isVisible && (
+        {/* Glow — apenas desktop (blur é caro no mobile) */}
+        {isVisible && !isMobile && (
           <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] md:w-[420px] md:h-[420px] rounded-full pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] rounded-full pointer-events-none"
             style={{
               background: 'radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, transparent 70%)',
               filter: 'blur(50px)',
             }}
           />
         )}
+
+
 
         <div className="container mx-auto px-4 relative z-10 flex flex-col items-center justify-center">
           {/* Heading que some no scroll */}
@@ -148,7 +165,7 @@ export function DesignStacking() {
           </div>
 
           {/* Stack container: pilot base + 4 cards subindo */}
-          <div className="relative w-[88vw] max-w-md md:max-w-2xl aspect-[16/10]">
+          <div className="relative w-[68vw] max-w-[260px] md:max-w-md aspect-[4/5]">
             {/* Pilot card (base) */}
             <div
               ref={pilotRef}
