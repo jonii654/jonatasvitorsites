@@ -215,7 +215,7 @@ export function Hero() {
           {cornerCards.map((c, i) => (
             <motion.div
               key={i}
-              className={`absolute ${c.pos} ${c.size} rounded-xl shadow-2xl overflow-hidden border`}
+              className={`absolute ${c.pos} ${c.size} rounded-xl shadow-2xl overflow-hidden border opacity-40 md:opacity-100`}
               style={{
                 borderColor: c.accent.replace(')', ' / 0.4)'),
                 boxShadow: `0 18px 50px hsl(220 50% 4% / 0.65), 0 0 48px ${c.accent.replace(')', ' / 0.3)')}`,
@@ -223,6 +223,7 @@ export function Hero() {
                 rotateY: isLight ? 0 : ry,
                 transformStyle: 'preserve-3d',
                 willChange: 'transform',
+                filter: 'saturate(0.9)',
               }}
               animate={{ y: c.floatY }}
               transition={{
