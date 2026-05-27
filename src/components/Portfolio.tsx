@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { X, ExternalLink, ArrowLeft } from 'lucide-react';
+import { ExternalLink, ArrowLeft, ArrowRight } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
-
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
@@ -23,17 +22,9 @@ interface Project {
   type: string;
   link?: string;
   code: string;
-  badge: string;
-  accent: string; // tailwind color name for accents
-  gradient: string; // bg gradient classes
-  thumbGradient: string; // for player thumb
+  /** HSL trio used for the glow & accents per project */
+  glow: { from: string; to: string; accent: string };
 }
-
-const BRAND_DARK = '#042a73';
-const BRAND_LIGHT = '#00b4ff';
-const BRAND_THUMB = `linear-gradient(to top right, ${BRAND_DARK}, ${BRAND_LIGHT})`;
-const BRAND_ACCENT = 'text-sky-300 border-sky-400/30 bg-sky-400/10';
-const BRAND_GRADIENT = 'from-[#042a73] via-zinc-950 to-[#00b4ff]/40';
 
 const projects: Project[] = [
   {
@@ -45,11 +36,8 @@ const projects: Project[] = [
     image: portfolioVivendo,
     type: 'Projeto Real',
     link: 'https://www.vivendopoderosamente.com.br/',
-    code: '01 // SALES PAGE',
-    badge: 'LANDING PAGE',
-    accent: BRAND_ACCENT,
-    gradient: BRAND_GRADIENT,
-    thumbGradient: BRAND_THUMB,
+    code: '01',
+    glow: { from: '320 90% 55%', to: '280 85% 50%', accent: '320 100% 65%' },
   },
   {
     id: 2,
@@ -60,11 +48,8 @@ const projects: Project[] = [
     image: portfolioVinidigital,
     type: 'Projeto Real',
     link: 'https://www.vinidigtal.com.br/',
-    code: '02 // INSTITUTIONAL',
-    badge: 'WEB DESIGN',
-    accent: BRAND_ACCENT,
-    gradient: BRAND_GRADIENT,
-    thumbGradient: BRAND_THUMB,
+    code: '02',
+    glow: { from: '195 100% 50%', to: '220 90% 45%', accent: '195 100% 60%' },
   },
   {
     id: 3,
@@ -75,11 +60,8 @@ const projects: Project[] = [
     image: portfolioClinica,
     type: 'Site Modelo',
     link: 'https://iphoneclinica.lovable.app',
-    code: '03 // TECH BRAND',
-    badge: 'UI / UX',
-    accent: BRAND_ACCENT,
-    gradient: BRAND_GRADIENT,
-    thumbGradient: BRAND_THUMB,
+    code: '03',
+    glow: { from: '155 100% 50%', to: '180 90% 45%', accent: '155 100% 60%' },
   },
   {
     id: 4,
@@ -90,11 +72,8 @@ const projects: Project[] = [
     image: portfolioBeatriz,
     type: 'Site Modelo',
     link: 'https://marketingpessoal.lovable.app',
-    code: '04 // PERSONAL',
-    badge: 'CREATIVE DIR.',
-    accent: BRAND_ACCENT,
-    gradient: BRAND_GRADIENT,
-    thumbGradient: BRAND_THUMB,
+    code: '04',
+    glow: { from: '35 100% 60%', to: '15 95% 55%', accent: '40 100% 65%' },
   },
   {
     id: 5,
@@ -105,31 +84,23 @@ const projects: Project[] = [
     image: portfolioCsa,
     type: 'Projeto Real',
     link: 'https://www.csaengenharia.org',
-    code: '05 // ENGINEERING',
-    badge: 'INSTITUCIONAL',
-    accent: BRAND_ACCENT,
-    gradient: BRAND_GRADIENT,
-    thumbGradient: BRAND_THUMB,
+    code: '05',
+    glow: { from: '210 80% 55%', to: '230 70% 40%', accent: '210 100% 65%' },
   },
 ];
 
-type Mode = 'gallery' | 'focus';
-
 export function Portfolio() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [mode, setMode] = useState<Mode>('gallery');
-  const [openId, setOpenId] = useState<number | null>(null);
+  const [direction, setDirection] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastNavRef = useRef(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef(0);
 
   const active = projects[activeIndex];
-  const lastNavRef = useRef(0);
-  const interactionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
 
-  // GSAP reveal: header + initial card row stagger (runs once on enter)
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
     const ctx = gsap.context(() => {
@@ -140,72 +111,46 @@ export function Portfolio() {
         ease: 'power3.out',
         scrollTrigger: { trigger: headerRef.current, start: 'top 85%', once: true },
       });
-
-      const cards = wrapperRef.current?.querySelectorAll<HTMLElement>('[data-portfolio-card]');
-      if (cards && cards.length) {
-        gsap.from(cards, {
-          opacity: 0,
-          y: 50,
-          duration: 0.8,
-          ease: 'power3.out',
-          stagger: 0.1,
-          force3D: true,
-          scrollTrigger: { trigger: wrapperRef.current, start: 'top 80%', once: true },
-        });
-      }
     }, sectionRef);
     return () => ctx.revert();
   }, []);
 
-  // Autoplay (pausável por interação)
-  useEffect(() => {
-    if (!isPlaying) return;
-    const id = setInterval(() => {
-      setActiveIndex((i) => (i + 1) % projects.length);
-    }, 6000);
-    return () => clearInterval(id);
-  }, [isPlaying]);
-
-
   const pauseAutoplayTemporarily = useCallback(() => {
     setIsPlaying(false);
     if (interactionTimerRef.current) clearTimeout(interactionTimerRef.current);
-    interactionTimerRef.current = setTimeout(() => setIsPlaying(true), 8000);
+    interactionTimerRef.current = setTimeout(() => setIsPlaying(true), 9000);
   }, []);
 
-  const navigate = useCallback((dir: number) => {
-    const now = Date.now();
-    if (now - lastNavRef.current < 180) return; // throttle
-    lastNavRef.current = now;
-    setActiveIndex((i) => (i + dir + projects.length) % projects.length);
-    pauseAutoplayTemporarily();
-  }, [pauseAutoplayTemporarily]);
+  const navigate = useCallback(
+    (dir: number) => {
+      const now = Date.now();
+      if (now - lastNavRef.current < 220) return;
+      lastNavRef.current = now;
+      setDirection(dir);
+      setActiveIndex((i) => (i + dir + projects.length) % projects.length);
+      pauseAutoplayTemporarily();
+    },
+    [pauseAutoplayTemporarily],
+  );
 
-  // Keyboard
+  useEffect(() => {
+    if (!isPlaying) return;
+    const id = setInterval(() => {
+      setDirection(1);
+      setActiveIndex((i) => (i + 1) % projects.length);
+    }, 6500);
+    return () => clearInterval(id);
+  }, [isPlaying]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (openId !== null) {
-        if (e.key === 'Escape') setOpenId(null);
-        return;
-      }
       if (e.key === 'ArrowRight') navigate(1);
       if (e.key === 'ArrowLeft') navigate(-1);
-      if (e.key === 'Escape' && mode === 'focus') setMode('gallery');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [navigate, mode, openId]);
+  }, [navigate]);
 
-  // Body scroll lock on modal
-  useEffect(() => {
-    if (openId === null) return;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [openId]);
-
-  // Touch swipe
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.changedTouches[0].screenX;
     pauseAutoplayTemporarily();
@@ -215,82 +160,30 @@ export function Portfolio() {
     if (Math.abs(diff) > 50) navigate(diff > 0 ? 1 : -1);
   };
 
-  const handleCardClick = (idx: number) => {
-    pauseAutoplayTemporarily();
-    if (mode === 'gallery') {
-      setActiveIndex(idx);
-      setMode('focus');
-    } else {
-      if (idx === activeIndex) setOpenId(projects[idx].id);
-      else setActiveIndex(idx);
-    }
-  };
-
-  const openProject = projects.find((p) => p.id === openId);
-
-  // Card layout per mode
-  const getCardStyle = useCallback((idx: number) => {
-    const isActive = idx === activeIndex;
-    if (mode === 'gallery') {
-      return {
-        flex: isActive ? '2.5 1 0%' : '1 1 0%',
-        maxWidth: isActive ? 320 : 180,
-        minWidth: 50,
-        opacity: 1,
-        transform: 'translateX(0) translateY(0) scale(1)',
-        zIndex: isActive ? 10 : 0,
-      };
-    }
-    // focus
-    const isLeft = idx === (activeIndex - 1 + projects.length) % projects.length;
-    const isRight = idx === (activeIndex + 1) % projects.length;
-    if (isActive) {
-      return {
-        flex: '0 0 auto',
-        width: 'min(85vw, 340px)',
-        maxWidth: 340,
-        minWidth: 240,
-        opacity: 1,
-        transform: 'translateY(-10px) scale(1)',
-        zIndex: 30,
-      };
-    }
-    if (isLeft || isRight) {
-      return {
-        flex: '0 0 auto',
-        width: 130,
-        maxWidth: 150,
-        minWidth: 100,
-        opacity: 0.3,
-        transform: `translateX(${isLeft ? 10 : -10}px) scale(0.9)`,
-        zIndex: 20,
-      };
-    }
-    return {
-      flex: '0 0 auto',
-      width: 0,
-      maxWidth: 0,
-      minWidth: 0,
-      opacity: 0,
-      transform: 'scale(0.75)',
-      zIndex: 0,
-    };
-  }, [activeIndex, mode]);
-
-  const leftPercents = projects.map((_, i) => (100 / (projects.length + 1)) * (i + 1));
-
   return (
-    <section id="portfolio" ref={sectionRef} className="py-20 md:py-28 relative overflow-hidden">
-      {/* Adaptive glow */}
+    <section
+      id="portfolio"
+      ref={sectionRef}
+      className="relative overflow-hidden py-20 md:py-28"
+    >
+      {/* Adaptive glow that changes per project */}
       <motion.div
+        aria-hidden
         className="absolute inset-0 pointer-events-none"
         animate={{
-          background: `radial-gradient(ellipse 70% 55% at 50% 45%, ${active.thumbGradient.match(/#[a-f0-9]+/i)?.[1] ?? '#222'}22 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse 75% 60% at 50% 50%, hsl(${active.glow.from} / 0.35) 0%, hsl(${active.glow.to} / 0.18) 35%, transparent 75%)`,
         }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      />
+      <motion.div
+        aria-hidden
+        className="absolute -top-32 left-1/2 -translate-x-1/2 w-[120vw] h-[60vw] rounded-full blur-[120px] pointer-events-none"
+        animate={{ background: `hsl(${active.glow.from} / 0.18)` }}
+        transition={{ duration: 0.9 }}
       />
 
-      <div ref={headerRef} className="container mx-auto px-4 relative z-10 text-center mb-6">
+      {/* Header */}
+      <div ref={headerRef} className="container mx-auto px-4 relative z-10 text-center mb-10">
         <span className="section-label">Portfólio</span>
         <h2
           className="font-black leading-[0.85] tracking-tight uppercase mt-4"
@@ -305,228 +198,166 @@ export function Portfolio() {
         >
           Trabalhos
         </h2>
-      </div>
-
-
-      {/* Category header (gallery mode) */}
-      <motion.div
-        animate={{
-          opacity: mode === 'gallery' ? 1 : 0,
-          y: mode === 'gallery' ? 0 : -24,
-        }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-4 px-4"
-      >
-        <div className="flex justify-center items-center gap-4 text-[10px] tracking-[0.3em] uppercase text-muted-foreground font-bold mb-1">
-          <span>PORTFOLIO</span>
-          <span className="h-1 w-1 bg-muted-foreground/40 rounded-full" />
-          <span>EDITION 2026</span>
-        </div>
-        <p className="text-sm md:text-base font-light tracking-wide text-foreground/70">
-          Exemplos do que entrego: sites institucionais e landing pages
+        <p className="mt-4 text-sm md:text-base font-light tracking-wide text-foreground/70">
+          Vitrine imersiva — cada projeto pinta a sala com a própria identidade
         </p>
-      </motion.div>
-
-      {/* Decorative thin line */}
-      <div className="relative w-full max-w-4xl mx-auto h-[1px] mb-6 overflow-hidden px-4">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-border to-transparent" />
-        <motion.div
-          className="absolute h-[1px] w-1/4 bg-gradient-to-r from-transparent via-primary to-transparent"
-          animate={{ left: `${leftPercents[activeIndex] - 12.5}%` }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        />
       </div>
 
-      <LayoutGroup id="portfolio-cards">
-        <div
-          ref={wrapperRef}
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-          className="w-full max-w-6xl mx-auto flex justify-center items-center h-[380px] md:h-[460px] gap-2 md:gap-3 px-3 md:px-6"
-        >
-          {projects.map((project, idx) => {
-            const isActive = idx === activeIndex;
-            const showPoster = mode === 'focus' && isActive;
-            const style = getCardStyle(idx);
-
-            return (
-              <motion.button
-                key={project.id}
-                data-portfolio-card
-                layoutId={`card-${project.id}`}
-                onClick={() => handleCardClick(idx)}
-                animate={style}
-                transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
-
-                className={`relative group cursor-pointer overflow-hidden h-full block ${
-                  mode === 'focus' && isActive
-                    ? 'rounded-3xl border border-primary/30 shadow-[0_20px_50px_rgba(0,0,0,0.9)]'
-                    : mode === 'gallery' && isActive
-                    ? 'rounded-2xl border border-border/40 shadow-[0_10px_35px_rgba(0,0,0,0.5)]'
-                    : 'rounded-2xl border border-transparent'
-                }`}
-                style={{ ...style, willChange: 'transform, flex, opacity' }}
+      {/* Showcase */}
+      <div
+        className="relative z-10 container mx-auto px-4"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        {/* Project name (giant background type) */}
+        <div className="relative h-[60vh] md:h-[70vh] max-h-[700px] flex items-center justify-center">
+          {/* Giant brand text behind card */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`brand-${active.id}`}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 0.08, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+            >
+              <span
+                className="font-black uppercase whitespace-nowrap tracking-tighter text-foreground"
+                style={{
+                  fontSize: 'clamp(4rem, 18vw, 16rem)',
+                  letterSpacing: '-0.06em',
+                }}
               >
-                {/* Background image */}
-                <motion.img
-                  layoutId={`img-${project.id}`}
-                  src={project.image}
-                  alt={project.title}
-                  loading="lazy"
-                  decoding="async"
+                {active.title.split(' ')[0]}
+              </span>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Featured card */}
+          <div className="relative w-[88vw] max-w-[520px] aspect-[3/4] md:aspect-[4/5]">
+            <AnimatePresence mode="popLayout" custom={direction}>
+              <motion.a
+                key={active.id}
+                href={active.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                custom={direction}
+                initial={{
+                  opacity: 0,
+                  x: direction > 0 ? 80 : -80,
+                  scale: 0.95,
+                  rotateY: direction > 0 ? 8 : -8,
+                }}
+                animate={{ opacity: 1, x: 0, scale: 1, rotateY: 0 }}
+                exit={{
+                  opacity: 0,
+                  x: direction > 0 ? -80 : 80,
+                  scale: 0.95,
+                  rotateY: direction > 0 ? -8 : 8,
+                }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 rounded-3xl overflow-hidden block"
+                style={{
+                  boxShadow: `0 30px 70px hsl(220 50% 4% / 0.7), 0 0 80px hsl(${active.glow.accent} / 0.35), 0 0 0 1px hsl(${active.glow.accent} / 0.25) inset`,
+                }}
+              >
+                <img
+                  src={active.image}
+                  alt={active.title}
+                  className="w-full h-full object-cover"
                   draggable={false}
-                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: `linear-gradient(180deg, transparent 40%, hsl(220 50% 4% / 0.55) 75%, hsl(220 50% 4% / 0.92) 100%)`,
+                  }}
                 />
 
-                {/* Subtle bottom gradient — keeps image vibrant (D.FM style) */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
-                {/* Inactive cards a bit darker for hierarchy */}
-                {!isActive && (
-                  <div className="absolute inset-0 bg-black/35 transition-opacity duration-500" />
-                )}
-
-                {/* Poster top elements (focus mode active only) */}
-                <AnimatePresence>
-                  {showPoster && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ delay: 0.25, duration: 0.5 }}
-                      className="absolute top-0 inset-x-0 p-5 flex justify-between items-start z-10"
-                    >
-                      <span className={`text-[9px] tracking-widest font-mono ${project.accent.split(' ')[0]}`}>
-                        {project.code}
-                      </span>
-                      <span className={`text-[9px] px-2 py-0.5 border rounded-full ${project.accent}`}>
-                        {project.badge}
-                      </span>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Top tags */}
+                <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
+                  <span
+                    className="text-[10px] tracking-widest font-mono px-2 py-1 rounded-full border bg-background/30 backdrop-blur"
+                    style={{
+                      color: `hsl(${active.glow.accent})`,
+                      borderColor: `hsl(${active.glow.accent} / 0.4)`,
+                    }}
+                  >
+                    {active.code} / {String(projects.length).padStart(2, '0')}
+                  </span>
+                  <span className="text-[10px] tracking-widest uppercase font-bold px-2 py-1 rounded-full bg-foreground/10 backdrop-blur text-foreground/90 border border-foreground/20">
+                    {active.type}
+                  </span>
+                </div>
 
                 {/* Bottom info */}
-                <div className="absolute inset-x-0 bottom-0 p-4 md:p-5 z-10 text-left">
-                  <h3 className={`font-bold tracking-tight text-white leading-tight ${
-                    mode === 'focus' && isActive ? 'text-xl md:text-2xl' : 'text-sm md:text-base'
-                  }`}>
-                    {project.title}
-                  </h3>
-                  <p className="text-[10px] md:text-xs text-white/70 tracking-wider uppercase font-medium mt-1 truncate">
-                    {project.categoryLabel}
+                <div className="absolute inset-x-0 bottom-0 p-5 md:p-7 text-left">
+                  <p
+                    className="text-[10px] md:text-xs tracking-[0.3em] uppercase font-bold mb-2"
+                    style={{ color: `hsl(${active.glow.accent})` }}
+                  >
+                    {active.categoryLabel}
                   </p>
+                  <h3 className="text-2xl md:text-4xl font-black text-white leading-[0.95] tracking-tight mb-2">
+                    {active.title}
+                  </h3>
+                  <p className="text-sm text-white/70 mb-4">{active.subtitle}</p>
+                  <span className="inline-flex items-center gap-2 text-xs font-semibold text-white/90 uppercase tracking-wider">
+                    Ver projeto
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </span>
                 </div>
-              </motion.button>
-            );
-          })}
+              </motion.a>
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* Focus navigation */}
-        <motion.div
-          animate={{
-            opacity: mode === 'focus' ? 1 : 0,
-            y: mode === 'focus' ? 0 : 24,
-            pointerEvents: mode === 'focus' ? 'auto' : 'none',
-          }}
-          transition={{ duration: 0.6 }}
-          className="mt-8 flex flex-col items-center gap-4 px-4"
-        >
-          <span className="text-muted-foreground text-[10px] tracking-[0.4em] uppercase font-bold">
-            Projeto selecionado
-          </span>
+        {/* Controls */}
+        <div className="flex items-center justify-center gap-4 mt-6 md:mt-10">
+          <button
+            aria-label="Projeto anterior"
+            onClick={() => navigate(-1)}
+            className="w-11 h-11 rounded-full border border-foreground/25 bg-foreground/5 backdrop-blur hover:bg-foreground/10 transition flex items-center justify-center"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+
           <div className="flex items-center gap-2">
-            {projects.map((_, i) => (
+            {projects.map((p, i) => (
               <button
-                key={i}
-                onClick={(e) => {
-                  e.stopPropagation();
+                key={p.id}
+                onClick={() => {
+                  setDirection(i > activeIndex ? 1 : -1);
                   setActiveIndex(i);
+                  pauseAutoplayTemporarily();
                 }}
                 aria-label={`Projeto ${i + 1}`}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === activeIndex ? 'w-6 bg-primary' : 'w-1.5 bg-muted-foreground/40 hover:bg-muted-foreground'
+                className={`h-1.5 rounded-full transition-all duration-500 ${
+                  i === activeIndex ? 'w-8' : 'w-1.5 bg-foreground/30 hover:bg-foreground/60'
                 }`}
+                style={
+                  i === activeIndex
+                    ? { background: `hsl(${active.glow.accent})`, boxShadow: `0 0 10px hsl(${active.glow.accent} / 0.7)` }
+                    : undefined
+                }
               />
             ))}
           </div>
+
           <button
-            onClick={() => setMode('gallery')}
-            className="glass-card hover:bg-foreground hover:text-background px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all flex items-center gap-2"
+            aria-label="Próximo projeto"
+            onClick={() => navigate(1)}
+            className="w-11 h-11 rounded-full border border-foreground/25 bg-foreground/5 backdrop-blur hover:bg-foreground/10 transition flex items-center justify-center"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Voltar à Lista
+            <ArrowRight className="w-4 h-4" />
           </button>
-        </motion.div>
+        </div>
 
-
-        {/* Expanded overlay */}
-        <AnimatePresence>
-          {openProject && (
-            <motion.div
-              key="backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="fixed inset-0 z-[150] flex items-center justify-center p-4 md:p-8 bg-background/85 backdrop-blur-xl"
-              onClick={() => setOpenId(null)}
-            >
-              <motion.div
-                layoutId={`card-${openProject.id}`}
-                onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl md:rounded-3xl border border-border/40 bg-card flex flex-col md:flex-row"
-                transition={{ type: 'spring', stiffness: 240, damping: 28 }}
-              >
-                <button
-                  onClick={() => setOpenId(null)}
-                  aria-label="Fechar"
-                  className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-background/80 border border-border/50 flex items-center justify-center hover:bg-background transition"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-
-                <div className="md:w-1/2 aspect-[4/3] md:aspect-auto overflow-hidden bg-muted">
-                  <motion.img
-                    layoutId={`img-${openProject.id}`}
-                    src={openProject.image}
-                    alt={openProject.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                <div className="md:w-1/2 p-6 md:p-8 flex flex-col justify-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-primary" />
-                    <span className="text-xs font-semibold tracking-widest text-primary uppercase">
-                      {openProject.categoryLabel}
-                    </span>
-                  </div>
-                  <h3 className="text-2xl md:text-4xl font-bold text-foreground leading-tight">
-                    {openProject.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
-                    {openProject.description}
-                  </p>
-                  <span className="self-start text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-                    {openProject.type}
-                  </span>
-                  {openProject.link && (
-                    <a
-                      href={openProject.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 mt-2 px-5 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      Ver projeto
-                    </a>
-                  )}
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </LayoutGroup>
+        {/* Counter */}
+        <div className="text-center mt-4 text-[10px] tracking-[0.4em] uppercase text-foreground/50 font-bold">
+          {String(activeIndex + 1).padStart(2, '0')} — {String(projects.length).padStart(2, '0')}
+        </div>
+      </div>
     </section>
   );
 }
