@@ -1,54 +1,59 @@
-## Mudanças
+## Mudanças na Hero
 
-### 1. `src/components/Hero.tsx` — cards em X + mais partículas
+### 1. Cards — formato quadrado (não X) e maiores
 
-**Cards (formação em X com 4 no total):**
-- Hoje existem 3 cards decorativos (top-left -12°, bottom-right +6°, top-right +12° desktop-only).
-- Reorganizar para **4 cards** posicionados nas 4 pontas formando um **X**:
-  - Top-left, rotação `-14°`
-  - Top-right, rotação `+14°`
-  - Bottom-left, rotação `+14°`
-  - Bottom-right, rotação `-14°`
-- Cada card passa a exibir um **screenshot real de site** do portfólio (já no projeto: `portfolio-advocacia.png`, `portfolio-beatriz.png`, `portfolio-clinicaiphone.png`, `portfolio-vinidigital.png`). Imagem com `object-cover`, leve overlay escuro + borda ciano/verde sutil para casar com o design system.
-- Mantém o efeito de "reagir ao hover do CTA" — cada card se inclina/afasta um pouco a mais quando o usuário passa o mouse no botão "Quero meu site".
-- No mobile: mostram os 4 (menores, `w-24 h-32`), nada de `hidden md:block`.
+Atualmente os 4 cards têm rotação de ±14° formando X. Vou:
+- **Remover toda rotação** (`rot: 0`, `hoverRot: 0`) — ficam retos, formando um quadrado: 2 em cima (esquerda/direita), 2 embaixo (esquerda/direita).
+- **Aumentar tamanho** consideravelmente para ambos mobile e desktop:
+  - Mobile: `w-36 h-44` (antes `w-28 h-36`)
+  - Desktop: `w-64 h-80 md:w-72 md:h-96` (antes `w-52 h-72`)
+- **Reposicionar** levemente nos cantos pra acomodar o tamanho maior sem cobrir a headline central: `top-[6%]` / `bottom-[6%]`, `left-[2%]` / `right-[2%]` no mobile, `md:left-[4%]` / `md:right-[4%]` no desktop.
+- Manter borda colorida, sombra e overlay de gradiente existentes (mais peso visual de "vitrine de sites").
+- No hover do CTA, em vez de inclinar/girar, fazem um leve `translateY` pra dentro (efeito sutil de "vida"), mantendo o formato reto.
 
-**Partículas (mais profundidade):**
-- Aumentar o array `floatingDots` de 14 → ~26 pontos, com tamanhos variando 3–9px e mais distribuídos em z (alguns com `boxShadow` maior + `opacity 0.35–0.7` para criar parallax visual).
-- Adicionar uma **segunda camada** de pontos bem pequenos (2–3px, `opacity 0.25`) com movimento mais lento — sensação de "poeira estelar" ao fundo.
-- No mobile (`isLight`) cortar para ~10 pontos no total para preservar performance (regra do projeto).
+### 2. Trocar as fotos pelas 4 referências enviadas
 
-### 2. `src/components/PortalTransition.tsx` — portal direto, sem texto duplicado
+As 4 imagens de referência (Shopify Renaissance, Buttermax, Cleo, Igloo) que você enviou em mensagens anteriores. Como elas ainda não estão em `src/assets/`, no build mode eu vou:
+- Copiar de `user-uploads://...` para `src/assets/hero-ref-1.jpg` ... `hero-ref-4.jpg` via `code--copy`.
+- Atualizar os imports em `Hero.tsx` (remover `portfolioAdvocacia/Beatriz/Clinica/Vini`, adicionar os 4 novos).
+- Atualizar os `alt` para descrições neutras tipo "Referência de design de site 1".
 
-**Remover totalmente a Cena A** (eyebrow "PORTAL CRIATIVO" + headline "Atravesse a porta" + dica "role para baixo"). A transição começa direto.
+> ⚠️ Se as 4 imagens originais não estiverem mais acessíveis nos uploads, eu te aviso e peço pra reenviar antes de aplicar essa parte. O resto da mudança roda independente.
 
-**Núcleo nasce no meio:**
-- A bolinha branca já aparece centralizada; manter `top-1/2 left-1/2`.
-- Animação: `opacity 0→1` e `scale 0→1.8→ (35 mobile / 60 desktop)` começando **logo no início do scroll** (0→0.5→0.95) em vez de 0.3.
-- Linhas convergentes ciano/verde entram nos primeiros 0–35% e somem em 50%, dando a sensação de "se concentrando no meio".
+### 3. Headline "Crio sites que Vendem" — relevo 3D + "sites" maior
 
-**Cena D (abertura) — sem conteúdo duplicado:**
-- O `clipPath: circle(0% → 160%)` continua, mas a camada revelada fica **transparente** (sem `bg-background`, sem headline "O DESIGN QUEM FAZ É VOCÊ", sem subtítulo, sem seta).
-- Visualmente: a bolinha cresce, "rasga" o fundo da seção do portal, e o usuário enxerga direto a próxima seção (o `Interactive3DCard` já vem logo abaixo na ordem do `Index.tsx`).
-- Reduzir a altura do wrapper de `320vh` → `220vh` para a transição não arrastar demais agora que a Cena A saiu.
+Manter exatamente a tipografia atual (`font-serif italic` + `font-display`). Só dar mais peso:
 
-**Modo `prefers-reduced-motion`:**
-- Em vez do bloco textual "Atravesse o portal", renderizar `null` (componente some) — o usuário cai direto no Hero → Interactive3DCard sem transição extra.
-
-### 3. `src/pages/Index.tsx`
-- Nenhuma mudança estrutural. Ordem segue:
+- **Sombras em camadas (faux 3D)** em `Crio` e `Vendem` via `text-shadow` inline:
   ```
-  <Hero /> → <PortalTransition /> → <Interactive3DCard /> → ...
+  0 1px 0 hsl(220 50% 12%),
+  0 2px 0 hsl(220 50% 10%),
+  0 3px 0 hsl(220 50% 8%),
+  0 6px 14px hsl(220 50% 2% / 0.6),
+  0 0 32px hsl(195 100% 50% / 0.25)
   ```
+- **"Vendem"** ganha glow verde extra (`0 0 40px hsl(155 100% 50% / 0.45)`) — é a palavra-âncora.
+- **"que"** (ciano) ganha glow ciano sutil (`0 0 24px hsl(195 100% 55% / 0.4)`).
+- **"sites"** fica maior: `text-3xl md:text-5xl lg:text-6xl` (antes `text-2xl md:text-4xl lg:text-5xl`) e opacidade do branco sobe de `text-white/40` → `text-white/60`.
+
+Nada de filtros pesados — só `text-shadow`, performático no mobile.
+
+### 4. Efeito no botão "Quero meu site"
+
+O botão já tem `btn-ripple` e hover scale. Vou turbinar com um efeito mais perceptível ao tocar/clicar:
+- **Pulse + glow ring**: ao clicar, dispara uma classe temporária (`onClick` + `setTimeout` 700ms) que aplica um keyframe `cta-burst`:
+  - escala vai `1 → 1.08 → 1`
+  - ring expansivo (pseudo-elemento `::after`) cresce de `inset:0` para `inset:-12px` com `border: 2px solid hsl(155 100% 50% / 0.6)` e fade-out
+  - glow do `boxShadow` pulsa pra `0 0 48px hsl(155 100% 50% / 0.8), 0 0 96px hsl(195 100% 50% / 0.4)` e volta
+- Keyframes `@keyframes cta-burst` e `@keyframes cta-ring` adicionados em `src/index.css`.
+- No mobile, o efeito também dispara no `:active` via CSS (sem precisar de hover).
+
+## Arquivos afetados
+- `src/components/Hero.tsx` — array `cornerCards`, JSX dos cards, headline com `text-shadow`, handler de click no CTA.
+- `src/index.css` — keyframes `cta-burst` + `cta-ring` e classe `.cta-burst`.
+- `src/assets/hero-ref-{1..4}.jpg` — novos (copiados dos uploads).
 
 ## Não muda
-- Interactive3DCard (já tem o título "O DESIGN QUEM FAZ É VOCÊ" — é exatamente para onde o portal abre).
-- Preloader, MaintenanceBanner, Header, Footer, todas as outras seções.
-- Lógica do duplo-toque do card 3D.
-- Tokens visuais, fontes, gradientes.
-
-## Detalhes técnicos
-- Cards usam `<img loading="eager" decoding="async">` com `srcset` natural do bundler (imports de `@/assets/portfolio-*.png`) — sem novo asset, sem download extra.
-- Os 4 cards ficam atrás do conteúdo (`z-0`) e o texto da Hero por cima (`z-20`), igual hoje.
-- Partículas continuam puro CSS `@keyframes floatDot0/1/2` já definidos no projeto — sem JS por frame.
-- `PortalTransition` continua usando `useScroll` + `useTransform` + `useMotionTemplate` do framer-motion; nada novo de dependência.
+- Estrutura geral da Hero (eyebrow, subhead, CTAs, partículas, gradient).
+- Outros componentes da página.
+- Tipografia (família e estilo continuam iguais).

@@ -42,47 +42,39 @@ const floatingDots = [
   { x: '48%', y: '70%', size: 3, color: 'hsl(0 0% 100%)', duration: 12, opacity: 0.25 },
 ];
 
-// 4 cards forming an X — corners of the viewport
+// 4 cards no formato de quadrado — 2 em cima, 2 embaixo, sem rotação
 const cornerCards = [
   {
-    pos: 'top-[10%] left-[4%] md:left-[8%]',
-    size: 'w-28 h-36 md:w-52 md:h-72',
-    rot: -14,
-    hoverRot: -8,
-    hoverShift: 'translateY(-10px)',
+    pos: 'top-[6%] left-[2%] md:left-[4%]',
+    size: 'w-36 h-44 md:w-72 md:h-96',
+    hoverShift: 'translateY(-8px)',
     img: portfolioVini,
     accent: 'hsl(195 100% 50%)',
-    alt: 'Site Vini Digital',
+    alt: 'Referência de design de site 1',
   },
   {
-    pos: 'top-[10%] right-[4%] md:right-[8%]',
-    size: 'w-28 h-36 md:w-52 md:h-72',
-    rot: 14,
-    hoverRot: 8,
-    hoverShift: 'translateY(-10px)',
+    pos: 'top-[6%] right-[2%] md:right-[4%]',
+    size: 'w-36 h-44 md:w-72 md:h-96',
+    hoverShift: 'translateY(-8px)',
     img: portfolioAdvocacia,
     accent: 'hsl(155 100% 50%)',
-    alt: 'Site Advocacia',
+    alt: 'Referência de design de site 2',
   },
   {
-    pos: 'bottom-[10%] left-[4%] md:left-[8%]',
-    size: 'w-28 h-36 md:w-52 md:h-72',
-    rot: 14,
-    hoverRot: 8,
-    hoverShift: 'translateY(10px)',
+    pos: 'bottom-[6%] left-[2%] md:left-[4%]',
+    size: 'w-36 h-44 md:w-72 md:h-96',
+    hoverShift: 'translateY(8px)',
     img: portfolioClinica,
     accent: 'hsl(155 100% 50%)',
-    alt: 'Site Clínica iPhone',
+    alt: 'Referência de design de site 3',
   },
   {
-    pos: 'bottom-[10%] right-[4%] md:right-[8%]',
-    size: 'w-28 h-36 md:w-52 md:h-72',
-    rot: -14,
-    hoverRot: -8,
-    hoverShift: 'translateY(10px)',
+    pos: 'bottom-[6%] right-[2%] md:right-[4%]',
+    size: 'w-36 h-44 md:w-72 md:h-96',
+    hoverShift: 'translateY(8px)',
     img: portfolioBeatriz,
     accent: 'hsl(195 100% 50%)',
-    alt: 'Site Beatriz',
+    alt: 'Referência de design de site 4',
   },
 ];
 
@@ -93,6 +85,12 @@ export function Hero() {
   const isLight = tier === 'light';
   const { trackCtaClick } = useAnalytics();
   const [ctaHover, setCtaHover] = useState(false);
+  const [ctaBurst, setCtaBurst] = useState(false);
+
+  const triggerBurst = () => {
+    setCtaBurst(true);
+    window.setTimeout(() => setCtaBurst(false), 700);
+  };
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -142,38 +140,35 @@ export function Hero() {
           ))}
         </div>
 
-        {/* 4 corner cards forming an X — real portfolio screenshots */}
+        {/* 4 cards retos formando um quadrado — vitrine de sites */}
         <div className="absolute inset-0 pointer-events-none">
-          {cornerCards.map((c, i) => {
-            const baseTransform = `rotate(${c.rot}deg)`;
-            const hoverTransform = `rotate(${c.hoverRot}deg) ${c.hoverShift}`;
-            return (
+          {cornerCards.map((c, i) => (
+            <div
+              key={i}
+              className={`absolute ${c.pos} ${c.size} rounded-xl shadow-2xl overflow-hidden border transition-all duration-700 ease-out`}
+              style={{
+                borderColor: `${c.accent.replace(')', ' / 0.35)')}`,
+                boxShadow: `0 14px 44px hsl(220 50% 4% / 0.6), 0 0 32px ${c.accent.replace(')', ' / 0.2)')}`,
+                transform: ctaHover ? c.hoverShift : 'translateY(0)',
+              }}
+            >
+              <img
+                src={c.img}
+                alt={c.alt}
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-cover object-top"
+              />
               <div
-                key={i}
-                className={`absolute ${c.pos} ${c.size} rounded-lg shadow-2xl overflow-hidden border transition-all duration-700 ease-out`}
+                className="absolute inset-0"
                 style={{
-                  borderColor: `${c.accent.replace(')', ' / 0.35)')}`,
-                  boxShadow: `0 12px 40px hsl(220 50% 4% / 0.55), 0 0 28px ${c.accent.replace(')', ' / 0.18)')}`,
-                  transform: ctaHover ? hoverTransform : baseTransform,
+                  background: `linear-gradient(135deg, ${c.accent.replace(')', ' / 0.15)')} 0%, hsl(220 50% 4% / 0.55) 100%)`,
                 }}
-              >
-                <img
-                  src={c.img}
-                  alt={c.alt}
-                  loading="eager"
-                  decoding="async"
-                  className="w-full h-full object-cover object-top"
-                />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: `linear-gradient(135deg, ${c.accent.replace(')', ' / 0.15)')} 0%, hsl(220 50% 4% / 0.55) 100%)`,
-                  }}
-                />
-              </div>
-            );
-          })}
+              />
+            </div>
+          ))}
         </div>
+
 
         {/* Main content */}
         <motion.div
@@ -198,15 +193,46 @@ export function Hero() {
               transition={{ duration: 0.9, delay: 0.1 }}
               className="font-serif italic text-white text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-[0.85] tracking-tight flex flex-col mb-10"
             >
-              <span className="block">Crio</span>
+              <span
+                className="block"
+                style={{
+                  textShadow:
+                    '0 1px 0 hsl(220 50% 12%), 0 2px 0 hsl(220 50% 10%), 0 3px 0 hsl(220 50% 8%), 0 6px 14px hsl(220 50% 2% / 0.6), 0 0 32px hsl(195 100% 50% / 0.25)',
+                }}
+              >
+                Crio
+              </span>
               <span className="block flex items-center justify-center gap-6 md:gap-16">
-                <span className="font-display not-italic font-light text-2xl md:text-4xl lg:text-5xl tracking-[0.2em] text-white/40 uppercase translate-y-1 md:translate-y-2">
+                <span
+                  className="font-display not-italic font-light text-3xl md:text-5xl lg:text-6xl tracking-[0.2em] text-white/60 uppercase translate-y-1 md:translate-y-2"
+                  style={{
+                    textShadow:
+                      '0 2px 6px hsl(220 50% 2% / 0.7), 0 0 18px hsl(0 0% 100% / 0.15)',
+                  }}
+                >
                   sites
                 </span>
-                <span className="text-[hsl(195_100%_55%)]">que</span>
+                <span
+                  className="text-[hsl(195_100%_55%)]"
+                  style={{
+                    textShadow:
+                      '0 2px 0 hsl(195 100% 25%), 0 4px 12px hsl(220 50% 2% / 0.55), 0 0 28px hsl(195 100% 55% / 0.45)',
+                  }}
+                >
+                  que
+                </span>
               </span>
-              <span className="block text-[hsl(155_100%_50%)]">Vendem</span>
+              <span
+                className="block text-[hsl(155_100%_50%)]"
+                style={{
+                  textShadow:
+                    '0 1px 0 hsl(155 100% 20%), 0 2px 0 hsl(155 100% 16%), 0 3px 0 hsl(155 100% 12%), 0 6px 16px hsl(220 50% 2% / 0.6), 0 0 44px hsl(155 100% 50% / 0.5)',
+                }}
+              >
+                Vendem
+              </span>
             </motion.h1>
+
 
             {/* Subhead */}
             <motion.p
@@ -232,14 +258,19 @@ export function Hero() {
                 rel="noopener noreferrer"
                 onMouseEnter={() => setCtaHover(true)}
                 onMouseLeave={() => setCtaHover(false)}
-                onClick={() => trackCtaClick({ location: 'hero', label: 'Quero meu site' })}
-                className="cta-primary group/cta px-8 py-4 rounded-full font-bold text-[hsl(220_50%_8%)] font-display transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] btn-ripple"
+                onClick={() => {
+                  triggerBurst();
+                  trackCtaClick({ location: 'hero', label: 'Quero meu site' });
+                }}
+                className={`cta-primary group/cta relative px-8 py-4 rounded-full font-bold text-[hsl(220_50%_8%)] font-display transition-all duration-300 hover:scale-[1.04] active:scale-[0.97] btn-ripple ${ctaBurst ? 'cta-burst' : ''}`}
                 style={{
                   background:
                     'linear-gradient(135deg, hsl(195 100% 55%) 0%, hsl(155 100% 50%) 100%)',
-                  boxShadow: ctaHover
-                    ? '0 0 32px hsl(155 100% 50% / 0.55), 0 0 64px hsl(195 100% 50% / 0.25)'
-                    : '0 0 20px hsl(195 100% 50% / 0.3)',
+                  boxShadow: ctaBurst
+                    ? '0 0 48px hsl(155 100% 50% / 0.8), 0 0 96px hsl(195 100% 50% / 0.4)'
+                    : ctaHover
+                      ? '0 0 32px hsl(155 100% 50% / 0.55), 0 0 64px hsl(195 100% 50% / 0.25)'
+                      : '0 0 20px hsl(195 100% 50% / 0.3)',
                 }}
               >
                 Quero meu site
