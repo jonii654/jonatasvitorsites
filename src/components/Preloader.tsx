@@ -11,12 +11,12 @@ export function Preloader({ onFinish }: PreloaderProps) {
 
   useEffect(() => {
     const start = performance.now();
-    const DURATION = 7500;
+    const DURATION = 12000;
     let raf = 0;
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / DURATION);
-      // ease out cubic
-      const eased = 1 - Math.pow(1 - p, 3);
+      // ease in-out cubic — progresso suave, sem saltos
+      const eased = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
       setProgress(Math.round(eased * 100));
       if (p < 1) raf = requestAnimationFrame(tick);
       else {
