@@ -1,145 +1,198 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useIsMobile } from '@/hooks/use-mobile';
-import portfolioVivendo from '@/assets/portfolio-vivendo.png';
-import portfolioBeatriz from '@/assets/portfolio-beatriz.png';
-import portfolioClinica from '@/assets/portfolio-clinicaiphone.png';
+import pilotImage from '@/assets/pilot-card.jpg';
+import card1 from '@/assets/design-ref-1-hadi.jpg';
+import card2 from '@/assets/design-ref-2-kpr.jpg';
+import card3 from '@/assets/design-ref-3-ascend.jpg';
+import card4 from '@/assets/design-ref-4-oryzo.jpg';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const STACK_CARDS = [
+  { img: card1, label: 'Performance' },
+  { img: card2, label: 'Bold' },
+  { img: card3, label: 'Editorial' },
+  { img: card4, label: 'Artesanal' },
+];
+
 /**
- * WORK stacking — 3 cards compactos atravessam a palavra gigante "WORK".
- * Inspirado em moss/namma. Z-index dos cards é maior que o texto.
+ * "O design quem faz é você" — heading + subtítulo somem ao rolar,
+ * deixando a palavra gigante DESIGN como watermark. Pilot card serve de
+ * base e os 4 design-refs sobem por cima, inspirado no MOSS template.
  */
 export function DesignStacking() {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
   const bgTextRef = useRef<HTMLDivElement>(null);
-  const card1Ref = useRef<HTMLDivElement>(null);
-  const card2Ref = useRef<HTMLDivElement>(null);
-  const card3Ref = useRef<HTMLDivElement>(null);
+  const pilotRef = useRef<HTMLDivElement>(null);
+  const stackRefs = useRef<HTMLDivElement[]>([]);
   const isMobile = useIsMobile();
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.05, rootMargin: '100px' }
+    );
+    if (wrapperRef.current) obs.observe(wrapperRef.current);
+    return () => obs.disconnect();
+  }, []);
 
   useLayoutEffect(() => {
     if (!wrapperRef.current) return;
     const ctx = gsap.context(() => {
-      gsap.set(card2Ref.current, { yPercent: 130 });
-      gsap.set(card3Ref.current, { yPercent: 130 });
+      gsap.set(stackRefs.current, { yPercent: 100, opacity: 1, scale: 1, force3D: true });
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: wrapperRef.current,
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: isMobile ? 0.7 : 1.1,
-        },
+      const tl = gsap.timeline({ paused: true, defaults: { ease: 'none', force3D: true } });
+
+      // 0 → 0.12: heading & subtitle fade out, DESIGN cresce sutil
+      tl.to(headingRef.current, { opacity: 0, y: -24, duration: 0.5 }, 0)
+        .to(bgTextRef.current, { scale: 1.04, opacity: 0.16, duration: 4.5 }, 0);
+
+      // Step 1: card1 sobe; pilot recua
+      tl.to(stackRefs.current[0], { yPercent: 0, duration: 1 }, 0.6);
+      if (pilotRef.current) {
+        tl.to(pilotRef.current, { scale: 0.88, opacity: 0.35, yPercent: -10, duration: 1 }, 0.6);
+      }
+      // Step 2
+      tl.to(stackRefs.current[1], { yPercent: 0, duration: 1 }, 1.6)
+        .to(stackRefs.current[0], { scale: 0.92, opacity: 0.45, yPercent: -8, duration: 1 }, 1.6);
+      // Step 3
+      tl.to(stackRefs.current[2], { yPercent: 0, duration: 1 }, 2.6)
+        .to(stackRefs.current[1], { scale: 0.93, opacity: 0.45, yPercent: -6, duration: 1 }, 2.6);
+      // Step 4
+      tl.to(stackRefs.current[3], { yPercent: 0, duration: 1 }, 3.6)
+        .to(stackRefs.current[2], { scale: 0.94, opacity: 0.45, yPercent: -5, duration: 1 }, 3.6);
+
+      ScrollTrigger.create({
+        trigger: wrapperRef.current,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: isMobile ? 0.6 : 1.1,
+        onUpdate: (self) => tl.progress(self.progress),
       });
-
-      tl.to(bgTextRef.current, { scale: 1.05, opacity: 0.18, duration: 1 }, 0)
-        .to(card1Ref.current, { scale: 0.88, opacity: 0.35, yPercent: -10, duration: 1.5, force3D: true }, 0.5)
-        .to(card2Ref.current, { yPercent: 0, duration: 2, ease: 'power2.out', force3D: true }, 0.6)
-        .to(card2Ref.current, { scale: 0.9, opacity: 0.35, yPercent: -8, duration: 1.5, force3D: true }, 2.2)
-        .to(card3Ref.current, { yPercent: 0, duration: 2, ease: 'power2.out', force3D: true }, 2.3);
     }, wrapperRef);
     return () => ctx.revert();
   }, [isMobile]);
 
-  const cards = [
-    {
-      ref: card1Ref,
-      img: portfolioVivendo,
-      tag: 'SaaS & Startups',
-      title: 'VIVENDO PODEROSAMENTE',
-      desc: 'Landing pages de alta conversão com design limpo e moderno.',
-      bg: 'hsl(220 50% 8%)',
-      tagColor: 'text-muted-foreground',
-      titleColor: 'text-foreground',
-    },
-    {
-      ref: card2Ref,
-      img: portfolioBeatriz,
-      tag: 'Luxury Brand',
-      title: 'BEATRIZ',
-      desc: 'Experiência visual impecável estruturada para marcas premium.',
-      bg: '#18211a',
-      tagColor: 'text-[#a3bfa0]',
-      titleColor: 'text-[#e8e0d5]',
-    },
-    {
-      ref: card3Ref,
-      img: portfolioClinica,
-      tag: 'Tech & Service',
-      title: 'CLÍNICA DO iPHONE',
-      desc: 'Sistemas com conexões inteligentes e interfaces otimizadas.',
-      bg: '#231d18',
-      tagColor: 'text-[#d5bba0]',
-      titleColor: 'text-[#e8e0d5]',
-    },
-  ];
-
   return (
     <section
-      id="design"
       ref={wrapperRef}
-      className="relative w-full overflow-hidden"
-      style={{ height: isMobile ? '280vh' : '350vh', background: 'hsl(220 50% 6%)' }}
+      className="relative w-full"
+      style={{ height: isMobile ? '380vh' : '560vh' }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
-        {/* WORK texto gigante atrás */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-background">
+        {/* Watermark DESIGN */}
         <div
           ref={bgTextRef}
           aria-hidden
-          className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none select-none"
-          style={{ opacity: 0.1, willChange: 'transform, opacity' }}
+          className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+          style={{ opacity: 0.08, willChange: 'transform, opacity' }}
         >
           <span
-            className="font-display font-black text-foreground leading-none tracking-tighter"
-            style={{ fontSize: '30vw', letterSpacing: '-0.06em' }}
+            className="font-display font-black tracking-tighter leading-none text-white"
+            style={{
+              fontSize: 'clamp(12rem, 32vw, 28rem)',
+              letterSpacing: '-0.05em',
+            }}
           >
-            WORK
+            DESIGN
           </span>
         </div>
 
-        {/* Header overlay */}
-        <div className="absolute top-8 md:top-12 left-0 right-0 z-30 text-center px-4 pointer-events-none">
-          <span className="section-label">Trabalhos</span>
-          <h2 className="font-serif italic text-2xl md:text-4xl text-foreground mt-2">
-            O design quem faz é{' '}
-            <span className="text-neon-gradient not-italic font-bold">você</span>
-          </h2>
-        </div>
+        {/* Glow */}
+        {isVisible && (
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] md:w-[420px] md:h-[420px] rounded-full pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, transparent 70%)',
+              filter: 'blur(50px)',
+            }}
+          />
+        )}
 
-        {/* Cards compactos passando POR CIMA do texto */}
-        <div className="relative w-full max-w-2xl h-[70vh] flex items-center justify-center z-10 px-4">
-          {cards.map((c, i) => (
+        <div className="container mx-auto px-4 relative z-10 flex flex-col items-center justify-center">
+          {/* Heading que some no scroll */}
+          <div
+            ref={headingRef}
+            className="mb-10 md:mb-14 text-center"
+            style={{ willChange: 'transform, opacity' }}
+          >
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight">
+              <span className="block text-white" style={{ textShadow: '0 2px 4px hsl(220 50% 5% / 0.5)' }}>
+                O DESIGN
+              </span>
+              <span
+                className="block"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(155 100% 55%) 0%, hsl(195 100% 60%) 100%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                QUEM FAZ É VOCÊ!
+              </span>
+            </h2>
+            <p className="mt-4 text-sm md:text-base text-muted-foreground max-w-lg mx-auto">
+              Role para revelar as direções de design — cada card é uma linguagem visual possível.
+            </p>
+          </div>
+
+          {/* Stack container: pilot base + 4 cards subindo */}
+          <div className="relative w-[88vw] max-w-md md:max-w-2xl aspect-[16/10]">
+            {/* Pilot card (base) */}
             <div
-              key={i}
-              ref={c.ref}
-              className="absolute w-full max-w-xs md:max-w-sm rounded-3xl p-5 flex flex-col gap-4 shadow-2xl border border-foreground/5"
-              style={{ background: c.bg, willChange: 'transform, opacity' }}
+              ref={pilotRef}
+              className="absolute inset-0 z-0 rounded-2xl overflow-hidden border border-foreground/10 shadow-[0_30px_80px_rgba(0,0,0,0.7)]"
+              style={{ willChange: 'transform, opacity' }}
             >
-              <div className="w-full h-36 md:h-48 rounded-2xl overflow-hidden border border-foreground/5 bg-background">
-                <img
-                  src={c.img}
-                  alt={c.title}
-                  className="w-full h-full object-cover opacity-90"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <div>
-                <span className={`text-[9px] uppercase tracking-widest font-bold border border-foreground/10 px-2 py-0.5 rounded-full ${c.tagColor}`}>
-                  {c.tag}
-                </span>
-                <h3 className={`font-display text-base font-black mt-2 mb-1 ${c.titleColor}`}>
-                  {c.title}
-                </h3>
-                <p className="text-muted-foreground text-[11px] font-light leading-relaxed">
-                  {c.desc}
-                </p>
+              <div
+                className="absolute inset-0 rounded-2xl p-[1px]"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.3))',
+                }}
+              >
+                <div className="w-full h-full rounded-[15px] overflow-hidden bg-card/80">
+                  <img
+                    src={pilotImage}
+                    alt="Design Premium"
+                    className="w-full h-full object-cover"
+                    draggable={false}
+                    loading="eager"
+                  />
+                </div>
               </div>
             </div>
-          ))}
+
+            {/* Stack de 4 cards */}
+            {STACK_CARDS.map((card, i) => (
+              <div
+                key={i}
+                ref={el => { if (el) stackRefs.current[i] = el; }}
+                className="absolute inset-0 rounded-2xl overflow-hidden border border-foreground/10 shadow-[0_30px_80px_rgba(0,0,0,0.7)]"
+                style={{ willChange: 'transform, opacity', zIndex: i + 1 }}
+              >
+                <img src={card.img} alt={card.label} className="w-full h-full object-cover" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
+                  <span className="text-foreground font-display font-bold text-xl md:text-2xl">
+                    {card.label}
+                  </span>
+                  <span className="text-foreground/60 font-mono text-xs">
+                    0{i + 1} / 0{STACK_CARDS.length}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
