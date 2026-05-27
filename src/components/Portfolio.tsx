@@ -265,8 +265,13 @@ export function Portfolio() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Featured card */}
-          <div className="relative w-[88vw] max-w-[520px] aspect-[3/4] md:aspect-[4/5]">
+          {/* Featured card — flutuando sobre o vídeo */}
+          <motion.div
+            className="relative w-[88vw] max-w-[520px] aspect-[3/4] md:aspect-[4/5]"
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 5, ease: 'easeInOut', repeat: Infinity }}
+          >
+
             <AnimatePresence mode="popLayout" custom={direction}>
               <motion.a
                 key={active.id}
