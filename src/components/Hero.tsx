@@ -134,38 +134,35 @@ export function Hero() {
           ))}
         </div>
 
-        {/* 4 corner cards forming an X — real portfolio screenshots */}
+        {/* 4 cards retos formando um quadrado — vitrine de sites */}
         <div className="absolute inset-0 pointer-events-none">
-          {cornerCards.map((c, i) => {
-            const baseTransform = `rotate(${c.rot}deg)`;
-            const hoverTransform = `rotate(${c.hoverRot}deg) ${c.hoverShift}`;
-            return (
+          {cornerCards.map((c, i) => (
+            <div
+              key={i}
+              className={`absolute ${c.pos} ${c.size} rounded-xl shadow-2xl overflow-hidden border transition-all duration-700 ease-out`}
+              style={{
+                borderColor: `${c.accent.replace(')', ' / 0.35)')}`,
+                boxShadow: `0 14px 44px hsl(220 50% 4% / 0.6), 0 0 32px ${c.accent.replace(')', ' / 0.2)')}`,
+                transform: ctaHover ? c.hoverShift : 'translateY(0)',
+              }}
+            >
+              <img
+                src={c.img}
+                alt={c.alt}
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-cover object-top"
+              />
               <div
-                key={i}
-                className={`absolute ${c.pos} ${c.size} rounded-lg shadow-2xl overflow-hidden border transition-all duration-700 ease-out`}
+                className="absolute inset-0"
                 style={{
-                  borderColor: `${c.accent.replace(')', ' / 0.35)')}`,
-                  boxShadow: `0 12px 40px hsl(220 50% 4% / 0.55), 0 0 28px ${c.accent.replace(')', ' / 0.18)')}`,
-                  transform: ctaHover ? hoverTransform : baseTransform,
+                  background: `linear-gradient(135deg, ${c.accent.replace(')', ' / 0.15)')} 0%, hsl(220 50% 4% / 0.55) 100%)`,
                 }}
-              >
-                <img
-                  src={c.img}
-                  alt={c.alt}
-                  loading="eager"
-                  decoding="async"
-                  className="w-full h-full object-cover object-top"
-                />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: `linear-gradient(135deg, ${c.accent.replace(')', ' / 0.15)')} 0%, hsl(220 50% 4% / 0.55) 100%)`,
-                  }}
-                />
-              </div>
-            );
-          })}
+              />
+            </div>
+          ))}
         </div>
+
 
         {/* Main content */}
         <motion.div
