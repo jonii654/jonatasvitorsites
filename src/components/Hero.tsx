@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useRef, useMemo, useState } from 'react';
 import { useDeviceTier } from '@/hooks/use-device-tier';
@@ -10,68 +10,75 @@ import portfolioVini from '@/assets/portfolio-vinidigital.png';
 
 const WHATSAPP_NUMBER = "551931990107";
 
-// Ambient floating dots — denser for added depth ("poeira estelar" + glow dots)
+// Ambient floating dots — denser ("poeira estelar" + glow dots)
 const floatingDots = [
-  // Main glow layer
-  { x: '8%', y: '12%', size: 6, color: 'hsl(195 100% 50%)', duration: 6, opacity: 0.55 },
-  { x: '88%', y: '18%', size: 5, color: 'hsl(155 100% 50%)', duration: 7, opacity: 0.5 },
-  { x: '15%', y: '70%', size: 7, color: 'hsl(195 100% 50%)', duration: 8, opacity: 0.6 },
-  { x: '78%', y: '75%', size: 5, color: 'hsl(155 100% 50%)', duration: 6.5, opacity: 0.5 },
-  { x: '45%', y: '8%', size: 6, color: 'hsl(195 100% 50%)', duration: 7.5, opacity: 0.55 },
-  { x: '88%', y: '50%', size: 5, color: 'hsl(195 100% 50%)', duration: 8, opacity: 0.5 },
-  { x: '68%', y: '5%', size: 7, color: 'hsl(195 100% 50%)', duration: 6.5, opacity: 0.6 },
-  { x: '5%', y: '40%', size: 4, color: 'hsl(155 100% 50%)', duration: 9, opacity: 0.45 },
-  { x: '86%', y: '65%', size: 5, color: 'hsl(195 100% 50%)', duration: 7, opacity: 0.5 },
-  { x: '25%', y: '25%', size: 4, color: 'hsl(155 100% 50%)', duration: 8.5, opacity: 0.45 },
-  { x: '55%', y: '85%', size: 6, color: 'hsl(195 100% 50%)', duration: 6, opacity: 0.55 },
-  { x: '35%', y: '55%', size: 4, color: 'hsl(155 100% 50%)', duration: 9.5, opacity: 0.4 },
-  { x: '72%', y: '35%', size: 5, color: 'hsl(195 100% 50%)', duration: 7.5, opacity: 0.5 },
-  { x: '18%', y: '88%', size: 4, color: 'hsl(155 100% 50%)', duration: 8, opacity: 0.45 },
-  { x: '50%', y: '45%', size: 8, color: 'hsl(195 100% 55%)', duration: 7, opacity: 0.6 },
-  { x: '62%', y: '62%', size: 6, color: 'hsl(155 100% 50%)', duration: 8, opacity: 0.5 },
-  { x: '40%', y: '32%', size: 5, color: 'hsl(195 100% 50%)', duration: 9, opacity: 0.5 },
-  { x: '12%', y: '55%', size: 5, color: 'hsl(155 100% 50%)', duration: 7, opacity: 0.5 },
-  // Stellar dust (small, slow, low-opacity)
-  { x: '22%', y: '38%', size: 2, color: 'hsl(0 0% 100%)', duration: 12, opacity: 0.25 },
-  { x: '58%', y: '18%', size: 2, color: 'hsl(0 0% 100%)', duration: 14, opacity: 0.2 },
-  { x: '82%', y: '32%', size: 3, color: 'hsl(0 0% 100%)', duration: 13, opacity: 0.25 },
-  { x: '30%', y: '78%', size: 2, color: 'hsl(0 0% 100%)', duration: 15, opacity: 0.22 },
-  { x: '65%', y: '92%', size: 2, color: 'hsl(0 0% 100%)', duration: 11, opacity: 0.2 },
-  { x: '92%', y: '88%', size: 3, color: 'hsl(0 0% 100%)', duration: 14, opacity: 0.25 },
-  { x: '6%', y: '24%', size: 2, color: 'hsl(0 0% 100%)', duration: 13, opacity: 0.22 },
-  { x: '48%', y: '70%', size: 3, color: 'hsl(0 0% 100%)', duration: 12, opacity: 0.25 },
+  { x: '8%', y: '12%', size: 6, color: 'hsl(195 100% 50%)', duration: 6, opacity: 0.65 },
+  { x: '88%', y: '18%', size: 5, color: 'hsl(155 100% 50%)', duration: 7, opacity: 0.6 },
+  { x: '15%', y: '70%', size: 7, color: 'hsl(195 100% 50%)', duration: 8, opacity: 0.7 },
+  { x: '78%', y: '75%', size: 5, color: 'hsl(155 100% 50%)', duration: 6.5, opacity: 0.6 },
+  { x: '45%', y: '8%', size: 6, color: 'hsl(195 100% 50%)', duration: 7.5, opacity: 0.65 },
+  { x: '88%', y: '50%', size: 5, color: 'hsl(195 100% 50%)', duration: 8, opacity: 0.6 },
+  { x: '68%', y: '5%', size: 7, color: 'hsl(195 100% 50%)', duration: 6.5, opacity: 0.7 },
+  { x: '5%', y: '40%', size: 4, color: 'hsl(155 100% 50%)', duration: 9, opacity: 0.55 },
+  { x: '86%', y: '65%', size: 5, color: 'hsl(195 100% 50%)', duration: 7, opacity: 0.6 },
+  { x: '25%', y: '25%', size: 4, color: 'hsl(155 100% 50%)', duration: 8.5, opacity: 0.55 },
+  { x: '55%', y: '85%', size: 6, color: 'hsl(195 100% 50%)', duration: 6, opacity: 0.65 },
+  { x: '35%', y: '55%', size: 4, color: 'hsl(155 100% 50%)', duration: 9.5, opacity: 0.5 },
+  { x: '72%', y: '35%', size: 5, color: 'hsl(195 100% 50%)', duration: 7.5, opacity: 0.6 },
+  { x: '18%', y: '88%', size: 4, color: 'hsl(155 100% 50%)', duration: 8, opacity: 0.55 },
+  { x: '50%', y: '45%', size: 8, color: 'hsl(195 100% 55%)', duration: 7, opacity: 0.7 },
+  { x: '62%', y: '62%', size: 6, color: 'hsl(155 100% 50%)', duration: 8, opacity: 0.6 },
+  { x: '40%', y: '32%', size: 5, color: 'hsl(195 100% 50%)', duration: 9, opacity: 0.6 },
+  { x: '12%', y: '55%', size: 5, color: 'hsl(155 100% 50%)', duration: 7, opacity: 0.6 },
+  // Extras
+  { x: '28%', y: '15%', size: 6, color: 'hsl(155 100% 55%)', duration: 6.8, opacity: 0.6 },
+  { x: '74%', y: '22%', size: 5, color: 'hsl(195 100% 55%)', duration: 7.3, opacity: 0.55 },
+  { x: '10%', y: '82%', size: 6, color: 'hsl(155 100% 50%)', duration: 8.2, opacity: 0.6 },
+  { x: '92%', y: '40%', size: 5, color: 'hsl(195 100% 50%)', duration: 6.7, opacity: 0.55 },
+  { x: '38%', y: '92%', size: 6, color: 'hsl(195 100% 55%)', duration: 7.6, opacity: 0.6 },
+  { x: '60%', y: '28%', size: 5, color: 'hsl(155 100% 50%)', duration: 8.4, opacity: 0.55 },
+  { x: '80%', y: '88%', size: 6, color: 'hsl(155 100% 55%)', duration: 6.4, opacity: 0.6 },
+  // Stellar dust
+  { x: '22%', y: '38%', size: 2, color: 'hsl(0 0% 100%)', duration: 12, opacity: 0.3 },
+  { x: '58%', y: '18%', size: 2, color: 'hsl(0 0% 100%)', duration: 14, opacity: 0.25 },
+  { x: '82%', y: '32%', size: 3, color: 'hsl(0 0% 100%)', duration: 13, opacity: 0.3 },
+  { x: '30%', y: '78%', size: 2, color: 'hsl(0 0% 100%)', duration: 15, opacity: 0.27 },
+  { x: '65%', y: '92%', size: 2, color: 'hsl(0 0% 100%)', duration: 11, opacity: 0.25 },
+  { x: '92%', y: '88%', size: 3, color: 'hsl(0 0% 100%)', duration: 14, opacity: 0.3 },
+  { x: '6%', y: '24%', size: 2, color: 'hsl(0 0% 100%)', duration: 13, opacity: 0.27 },
+  { x: '48%', y: '70%', size: 3, color: 'hsl(0 0% 100%)', duration: 12, opacity: 0.3 },
 ];
 
-// 4 cards no formato de quadrado — 2 em cima, 2 embaixo, sem rotação
+// 4 cards — 2 em cima, 2 embaixo (maiores)
 const cornerCards = [
   {
-    pos: 'top-[6%] left-[2%] md:left-[4%]',
-    size: 'w-36 h-44 md:w-72 md:h-96',
-    hoverShift: 'translateY(-8px)',
+    pos: 'top-[4%] left-[1%] md:left-[3%]',
+    size: 'w-44 h-56 md:w-80 md:h-[26rem]',
+    floatY: [0, -10, 0],
     img: portfolioVini,
     accent: 'hsl(195 100% 50%)',
     alt: 'Referência de design de site 1',
   },
   {
-    pos: 'top-[6%] right-[2%] md:right-[4%]',
-    size: 'w-36 h-44 md:w-72 md:h-96',
-    hoverShift: 'translateY(-8px)',
+    pos: 'top-[4%] right-[1%] md:right-[3%]',
+    size: 'w-44 h-56 md:w-80 md:h-[26rem]',
+    floatY: [0, -8, 0],
     img: portfolioAdvocacia,
     accent: 'hsl(155 100% 50%)',
     alt: 'Referência de design de site 2',
   },
   {
-    pos: 'bottom-[6%] left-[2%] md:left-[4%]',
-    size: 'w-36 h-44 md:w-72 md:h-96',
-    hoverShift: 'translateY(8px)',
+    pos: 'bottom-[4%] left-[1%] md:left-[3%]',
+    size: 'w-44 h-56 md:w-80 md:h-[26rem]',
+    floatY: [0, 9, 0],
     img: portfolioClinica,
     accent: 'hsl(155 100% 50%)',
     alt: 'Referência de design de site 3',
   },
   {
-    pos: 'bottom-[6%] right-[2%] md:right-[4%]',
-    size: 'w-36 h-44 md:w-72 md:h-96',
-    hoverShift: 'translateY(8px)',
+    pos: 'bottom-[4%] right-[1%] md:right-[3%]',
+    size: 'w-44 h-56 md:w-80 md:h-[26rem]',
+    floatY: [0, 11, 0],
     img: portfolioBeatriz,
     accent: 'hsl(195 100% 50%)',
     alt: 'Referência de design de site 4',
@@ -103,12 +110,42 @@ export function Hero() {
   const textScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.85]);
 
   const dots = useMemo(
-    () => (isLight ? floatingDots.slice(0, 10) : floatingDots),
+    () => (isLight ? floatingDots.slice(0, 12) : floatingDots),
     [isLight],
   );
 
+  // Desktop-only mouse interactivity
+  const mouseX = useMotionValue(0.5);
+  const mouseY = useMotionValue(0.5);
+  const smoothX = useSpring(mouseX, { stiffness: 120, damping: 22, mass: 0.4 });
+  const smoothY = useSpring(mouseY, { stiffness: 120, damping: 22, mass: 0.4 });
+
+  // Cursor spotlight position (percent)
+  const spotX = useTransform(smoothX, (v) => `${v * 100}%`);
+  const spotY = useTransform(smoothY, (v) => `${v * 100}%`);
+  const spotlightBg = useMotionTemplate`radial-gradient(360px circle at ${spotX} ${spotY}, hsl(195 100% 55% / 0.18), hsl(155 100% 50% / 0.08) 35%, transparent 65%)`;
+
+  // Tilt for cards (per index)
+  const rx = useTransform(smoothY, [0, 1], [8, -8]);
+  const ry = useTransform(smoothX, [0, 1], [-8, 8]);
+
+  // Text counter-parallax
+  const textPX = useTransform(smoothX, [0, 1], [10, -10]);
+  const textPY = useTransform(smoothY, [0, 1], [8, -8]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (isLight) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width);
+    mouseY.set((e.clientY - rect.top) / rect.height);
+  };
+
   return (
-    <section ref={sectionRef} className="relative min-h-[150vh] overflow-hidden">
+    <section
+      ref={sectionRef}
+      onMouseMove={handleMouseMove}
+      className="relative min-h-[150vh] overflow-hidden"
+    >
       <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
         {/* Background gradient */}
         <motion.div style={{ y: layer1Y }} className="absolute inset-0 bg-hero-gradient" />
@@ -119,6 +156,36 @@ export function Hero() {
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
           style={{ background: 'hsl(195 100% 50% / 0.05)', filter: 'blur(120px)' }}
         />
+
+        {/* Desktop only: ambient orbs */}
+        {!isLight && (
+          <>
+            <div
+              className="floating-orb floating-orb-cyan pointer-events-none"
+              style={{ width: 380, height: 380, top: '15%', left: '20%' }}
+            />
+            <div
+              className="floating-orb floating-orb-green pointer-events-none"
+              style={{ width: 420, height: 420, top: '50%', right: '15%', animationDelay: '2s' }}
+            />
+            <div
+              className="floating-orb floating-orb-cyan pointer-events-none"
+              style={{ width: 320, height: 320, bottom: '10%', left: '40%', animationDelay: '4s' }}
+            />
+          </>
+        )}
+
+        {/* Desktop only: cursor spotlight */}
+        {!isLight && (
+          <motion.div
+            aria-hidden
+            className="absolute inset-0 pointer-events-none z-[5]"
+            style={{
+              background: spotlightBg,
+              mixBlendMode: 'screen',
+            }}
+          />
+        )}
 
         {/* Ambient floating dots */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -132,7 +199,7 @@ export function Hero() {
                 width: dot.size,
                 height: dot.size,
                 background: dot.color,
-                boxShadow: `0 0 ${dot.size * 2}px ${dot.color}`,
+                boxShadow: `0 0 ${dot.size * 3}px ${dot.color}, 0 0 ${dot.size * 6}px ${dot.color}`,
                 opacity: dot.opacity,
                 animation: `floatDot${i % 3} ${dot.duration}s ease-in-out infinite`,
               }}
@@ -140,16 +207,28 @@ export function Hero() {
           ))}
         </div>
 
-        {/* 4 cards retos formando um quadrado — vitrine de sites */}
-        <div className="absolute inset-0 pointer-events-none">
+        {/* 4 cards flutuantes — vitrine de sites */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={!isLight ? { perspective: '1200px' } : undefined}
+        >
           {cornerCards.map((c, i) => (
-            <div
+            <motion.div
               key={i}
-              className={`absolute ${c.pos} ${c.size} rounded-xl shadow-2xl overflow-hidden border transition-all duration-700 ease-out`}
+              className={`absolute ${c.pos} ${c.size} rounded-xl shadow-2xl overflow-hidden border`}
               style={{
-                borderColor: `${c.accent.replace(')', ' / 0.35)')}`,
-                boxShadow: `0 14px 44px hsl(220 50% 4% / 0.6), 0 0 32px ${c.accent.replace(')', ' / 0.2)')}`,
-                transform: ctaHover ? c.hoverShift : 'translateY(0)',
+                borderColor: c.accent.replace(')', ' / 0.4)'),
+                boxShadow: `0 18px 50px hsl(220 50% 4% / 0.65), 0 0 48px ${c.accent.replace(')', ' / 0.3)')}`,
+                rotateX: isLight ? 0 : rx,
+                rotateY: isLight ? 0 : ry,
+                transformStyle: 'preserve-3d',
+                willChange: 'transform',
+              }}
+              animate={{ y: c.floatY }}
+              transition={{
+                duration: 6 + i * 0.7,
+                repeat: Infinity,
+                ease: 'easeInOut',
               }}
             >
               <img
@@ -165,14 +244,19 @@ export function Hero() {
                   background: `linear-gradient(135deg, ${c.accent.replace(')', ' / 0.15)')} 0%, hsl(220 50% 4% / 0.55) 100%)`,
                 }}
               />
-            </div>
+            </motion.div>
           ))}
         </div>
 
-
         {/* Main content */}
         <motion.div
-          style={{ y: layer3Y, opacity: textOpacity, scale: textScale }}
+          style={{
+            y: layer3Y,
+            opacity: textOpacity,
+            scale: textScale,
+            x: isLight ? 0 : textPX,
+            translateY: isLight ? undefined : textPY,
+          }}
           className="container mx-auto px-4 relative z-20"
         >
           <div className="max-w-5xl mx-auto flex flex-col items-center text-center">
@@ -197,17 +281,17 @@ export function Hero() {
                 className="block"
                 style={{
                   textShadow:
-                    '0 1px 0 hsl(220 50% 12%), 0 2px 0 hsl(220 50% 10%), 0 3px 0 hsl(220 50% 8%), 0 6px 14px hsl(220 50% 2% / 0.6), 0 0 32px hsl(195 100% 50% / 0.25)',
+                    '0 1px 0 hsl(220 50% 14%), 0 2px 0 hsl(220 50% 12%), 0 3px 0 hsl(220 50% 10%), 0 4px 0 hsl(220 50% 8%), 0 5px 0 hsl(220 50% 6%), 0 6px 0 hsl(220 50% 4%), 0 10px 24px hsl(220 50% 0% / 0.75), 0 0 50px hsl(195 100% 50% / 0.4)',
                 }}
               >
                 Crio
               </span>
               <span className="block flex items-center justify-center gap-6 md:gap-16">
                 <span
-                  className="font-display not-italic font-light text-3xl md:text-5xl lg:text-6xl tracking-[0.2em] text-white/60 uppercase translate-y-1 md:translate-y-2"
+                  className="font-display not-italic font-light text-3xl md:text-5xl lg:text-6xl tracking-[0.2em] text-white/70 uppercase translate-y-1 md:translate-y-2"
                   style={{
                     textShadow:
-                      '0 2px 6px hsl(220 50% 2% / 0.7), 0 0 18px hsl(0 0% 100% / 0.15)',
+                      '0 2px 6px hsl(220 50% 0% / 0.8), 0 0 24px hsl(0 0% 100% / 0.25), 0 0 40px hsl(195 100% 55% / 0.2)',
                   }}
                 >
                   sites
@@ -216,7 +300,7 @@ export function Hero() {
                   className="text-[hsl(195_100%_55%)]"
                   style={{
                     textShadow:
-                      '0 2px 0 hsl(195 100% 25%), 0 4px 12px hsl(220 50% 2% / 0.55), 0 0 28px hsl(195 100% 55% / 0.45)',
+                      '0 2px 0 hsl(195 100% 25%), 0 4px 0 hsl(195 100% 18%), 0 6px 18px hsl(220 50% 0% / 0.7), 0 0 40px hsl(195 100% 55% / 0.6)',
                   }}
                 >
                   que
@@ -226,13 +310,12 @@ export function Hero() {
                 className="block text-[hsl(155_100%_50%)]"
                 style={{
                   textShadow:
-                    '0 1px 0 hsl(155 100% 20%), 0 2px 0 hsl(155 100% 16%), 0 3px 0 hsl(155 100% 12%), 0 6px 16px hsl(220 50% 2% / 0.6), 0 0 44px hsl(155 100% 50% / 0.5)',
+                    '0 1px 0 hsl(155 100% 22%), 0 2px 0 hsl(155 100% 18%), 0 3px 0 hsl(155 100% 14%), 0 4px 0 hsl(155 100% 10%), 0 5px 0 hsl(155 100% 8%), 0 6px 0 hsl(155 100% 6%), 0 10px 26px hsl(220 50% 0% / 0.75), 0 0 60px hsl(155 100% 50% / 0.65)',
                 }}
               >
                 Vendem
               </span>
             </motion.h1>
-
 
             {/* Subhead */}
             <motion.p

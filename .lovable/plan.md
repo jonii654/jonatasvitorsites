@@ -1,59 +1,53 @@
-## Mudanças na Hero
+## Mudanças
 
-### 1. Cards — formato quadrado (não X) e maiores
+### 1. Hero — cards maiores + flutuação + interação no mouse (`src/components/Hero.tsx`)
+- **Tamanho maior**: `w-44 h-56 md:w-80 md:h-[26rem]`. Reposicionar `top/bottom-[4%]`, `left/right-[1%] md:[3%]`.
+- **Flutuação suave (sempre)**: trocar `<div>` por `motion.div` com `animate={{ y: [0, ±8, 0] }}`, `duration: 6-8s`, `repeat: Infinity`, fases desencontradas por índice — leve, GPU-friendly em ambos.
+- **Desktop (≥ md) — interação com mouse**:
+  - Usar `useDeviceTier()` + `useIsMobile()` para condicionar.
+  - Cada card recebe `useMotionValue(x,y)` + `useTransform` para `rotateX/rotateY` (tilt 3D ±10°) em resposta ao `onMouseMove` do container Hero (parallax sutil baseado na distância do cursor a cada card).
+  - Cursor "spotlight": `motion.div` `pointer-events-none` posicionado em `cursorX/cursorY`, `radial-gradient` cyan→transparente, `mix-blend-mode: screen`, segue o mouse com `useSpring` (stiffness 200, damping 30).
+  - Headline e CTA com leve parallax inverso ao cursor (`translate ±6px`).
+- **Mobile / tier `light`**: pular o tilt, spotlight e parallax do cursor — manter só a flutuação `y` (já é leve), dots reduzidos (já em `slice(0,10)`).
 
-Atualmente os 4 cards têm rotação de ±14° formando X. Vou:
-- **Remover toda rotação** (`rot: 0`, `hoverRot: 0`) — ficam retos, formando um quadrado: 2 em cima (esquerda/direita), 2 embaixo (esquerda/direita).
-- **Aumentar tamanho** consideravelmente para ambos mobile e desktop:
-  - Mobile: `w-36 h-44` (antes `w-28 h-36`)
-  - Desktop: `w-64 h-80 md:w-72 md:h-96` (antes `w-52 h-72`)
-- **Reposicionar** levemente nos cantos pra acomodar o tamanho maior sem cobrir a headline central: `top-[6%]` / `bottom-[6%]`, `left-[2%]` / `right-[2%]` no mobile, `md:left-[4%]` / `md:right-[4%]` no desktop.
-- Manter borda colorida, sombra e overlay de gradiente existentes (mais peso visual de "vitrine de sites").
-- No hover do CTA, em vez de inclinar/girar, fazem um leve `translateY` pra dentro (efeito sutil de "vida"), mantendo o formato reto.
+### 2. Hero — mais "bolinhas de energia"
+- Acrescentar ~10 dots ao array; aumentar `boxShadow` para `${size*3}px` + opacidade +0.1.
+- Adicionar 3 `floating-orb` (cyan/green, blur 80px) atrás dos cards — desktop only (condicionar render por `!isLight`).
 
-### 2. Trocar as fotos pelas 4 referências enviadas
+### 3. Hero — sombreamento mais forte no headline "Crio sites que Vendem"
+- "Crio" e "Vendem": 7 camadas sólidas de `textShadow` + glow externo `0 0 60px` (cyan/green).
+- "que" e "sites": reforçar glow.
+- Sem mudar tipografia.
 
-As 4 imagens de referência (Shopify Renaissance, Buttermax, Cleo, Igloo) que você enviou em mensagens anteriores. Como elas ainda não estão em `src/assets/`, no build mode eu vou:
-- Copiar de `user-uploads://...` para `src/assets/hero-ref-1.jpg` ... `hero-ref-4.jpg` via `code--copy`.
-- Atualizar os imports em `Hero.tsx` (remover `portfolioAdvocacia/Beatriz/Clinica/Vini`, adicionar os 4 novos).
-- Atualizar os `alt` para descrições neutras tipo "Referência de design de site 1".
+### 4. PortalTransition — bolinha centralizada + mãos com luvas (`src/components/PortalTransition.tsx`)
+- **Substituir as 2 setas SVG por 2 mãos com luvas** (SVG inline de palma aberta):
+  - Luva esquerda **azul** (`hsl(195 100% 50%)`), luva direita **verde** (`hsl(155 100% 50%)`).
+  - Entram das laterais: `x: ['-45vw'→'0']` e `['45vw'→'0']` em `scrollYProgress` 0→0.45, ambas perfeitamente centradas verticalmente.
+  - Impacto em 0.45-0.55: `scale: 1 → 1.18 → 1` + flash branco rápido (`div absolute inset-0`, `opacity 0→0.7→0`).
+  - Mãos somem (`opacity → 0`) imediatamente após o impacto.
+- **Núcleo nasce exatamente no centro do "puf"**: ajustar `coreOpacity` para `[0.45, 0.55, 0.9]` → `[0, 1, 1]`; `coreScale` para `[0.5, 0.6, 1]` → `[0, 1.8, finalScale]`. Wrapper já está em `left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2` — manter.
+- **Desktop**: aceleração + glow extra (já condicional por `isLight`).
+- **Mobile (`isLight`)**: mãos simples sem `drop-shadow`/blur, `finalScale: 35`, sem ping ring; já implementado parcialmente.
 
-> ⚠️ Se as 4 imagens originais não estiverem mais acessíveis nos uploads, eu te aviso e peço pra reenviar antes de aplicar essa parte. O resto da mudança roda independente.
+### 5. PortalTransition — abertura revela próxima seção (não preto)
+- Hoje o stage fica `bg-background` puro → quando núcleo cobre tudo, aparece preto vazio.
+- Trocar `bg-background` por **gradiente combinando com início de `Interactive3DCard`** (mesmo `hsl(220 50% 8%)` + radial cyan/green leve).
+- Encurtar `height` da seção de `220vh` → `170vh` para emendar mais cedo.
+- `stageOpacity` em `[0.92, 1] → [1, 0]` (some já bem no fim).
+- `Index.tsx` já tem `Interactive3DCard` logo depois — sem mudança.
 
-### 3. Headline "Crio sites que Vendem" — relevo 3D + "sites" maior
+### 6. Timing — efeito começa ao sair da seção Hero
+- Já funciona: `PortalTransition` usa `scrollYProgress` próprio com `offset: ['start start', 'end end']` e segue diretamente após a Hero. Sem mudanças.
 
-Manter exatamente a tipografia atual (`font-serif italic` + `font-display`). Só dar mais peso:
-
-- **Sombras em camadas (faux 3D)** em `Crio` e `Vendem` via `text-shadow` inline:
-  ```
-  0 1px 0 hsl(220 50% 12%),
-  0 2px 0 hsl(220 50% 10%),
-  0 3px 0 hsl(220 50% 8%),
-  0 6px 14px hsl(220 50% 2% / 0.6),
-  0 0 32px hsl(195 100% 50% / 0.25)
-  ```
-- **"Vendem"** ganha glow verde extra (`0 0 40px hsl(155 100% 50% / 0.45)`) — é a palavra-âncora.
-- **"que"** (ciano) ganha glow ciano sutil (`0 0 24px hsl(195 100% 55% / 0.4)`).
-- **"sites"** fica maior: `text-3xl md:text-5xl lg:text-6xl` (antes `text-2xl md:text-4xl lg:text-5xl`) e opacidade do branco sobe de `text-white/40` → `text-white/60`.
-
-Nada de filtros pesados — só `text-shadow`, performático no mobile.
-
-### 4. Efeito no botão "Quero meu site"
-
-O botão já tem `btn-ripple` e hover scale. Vou turbinar com um efeito mais perceptível ao tocar/clicar:
-- **Pulse + glow ring**: ao clicar, dispara uma classe temporária (`onClick` + `setTimeout` 700ms) que aplica um keyframe `cta-burst`:
-  - escala vai `1 → 1.08 → 1`
-  - ring expansivo (pseudo-elemento `::after`) cresce de `inset:0` para `inset:-12px` com `border: 2px solid hsl(155 100% 50% / 0.6)` e fade-out
-  - glow do `boxShadow` pulsa pra `0 0 48px hsl(155 100% 50% / 0.8), 0 0 96px hsl(195 100% 50% / 0.4)` e volta
-- Keyframes `@keyframes cta-burst` e `@keyframes cta-ring` adicionados em `src/index.css`.
-- No mobile, o efeito também dispara no `:active` via CSS (sem precisar de hover).
+## Performance / mobile-first
+- Sem WebGL, Three.js, GSAP — apenas Framer Motion (já no projeto), CSS transforms e `will-change: transform`.
+- Todos os efeitos pesados (cursor spotlight, tilt 3D, orbs blur, ping ring, drop-shadow nas mãos) são condicionados por `useDeviceTier() === 'light'` ou `useIsMobile()` → desativados no celular.
+- Animações usam `transform/opacity` (GPU), `useSpring` com damping alto, sem layout thrashing.
 
 ## Arquivos afetados
-- `src/components/Hero.tsx` — array `cornerCards`, JSX dos cards, headline com `text-shadow`, handler de click no CTA.
-- `src/index.css` — keyframes `cta-burst` + `cta-ring` e classe `.cta-burst`.
-- `src/assets/hero-ref-{1..4}.jpg` — novos (copiados dos uploads).
+- `src/components/Hero.tsx` — cards maiores + motion.div flutuante + tilt/spotlight desktop + headline com mais sombra + mais dots/orbs.
+- `src/components/PortalTransition.tsx` — mãos com luvas, sincronização do "puf", centralização verificada, fundo emendando com próxima seção, altura ajustada.
+- `src/index.css` — keyframe opcional para flash branco; ajustes mobile já cobertos pelas media queries existentes.
 
-## Não muda
-- Estrutura geral da Hero (eyebrow, subhead, CTAs, partículas, gradient).
-- Outros componentes da página.
-- Tipografia (família e estilo continuam iguais).
+## Sem mudanças
+- Estrutura geral, tipografia, demais seções, design system, `Index.tsx`.
