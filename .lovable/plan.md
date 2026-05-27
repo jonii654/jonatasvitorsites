@@ -1,84 +1,79 @@
-## Objetivo
-Portar **os efeitos** do HTML enviado para o site React existente — usando **GSAP + ScrollTrigger** (instalar) junto com o Framer Motion já presente. Mantenho conteúdo, identidade ("Jônatas Vitor") e paleta atual (azul/cyan). O "verde-limão" do código original vira um **gradiente neon azul→limão** (`hsl(200 100% 55%)` → `hsl(75 100% 60%)`) usado só nos acentos novos.
+# Correções: Menu, Botão CTA e Stacking de Cards
 
-## 0. Setup
-- `bun add gsap` (já vem com ScrollTrigger).
-- Novo token CSS em `src/index.css`:
-  - `--accent-lime: 75 100% 60%;`
-  - `--gradient-neon: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent-lime)));`
+## 1. RippleMenu — abrir/fechar e mobile travado
 
-## 1. Botões — Lemon Hover + Gumroad 3D (CSS puro, sem GSAP)
-**`src/index.css`** — adicionar:
-- `.btn-lemon` — pill com `<span class="lemon-circle">` que expande no hover (`transform: scale(8)`, `cubic-bezier(0.16,1,0.3,1)`). Círculo usa `background: var(--gradient-neon)`; texto vira `hsl(var(--background))` no hover.
-- `.btn-gumroad` — fundo `var(--gradient-neon)`, borda preta, `box-shadow: 4px 4px 0 hsl(var(--foreground))` que colapsa para `1px 1px` com `translate(3px,3px)` no hover.
-- `.namma-link::after` — risco central com `background: var(--gradient-neon)`, `scale-x 0→1`, transform-origin center, `cubic-bezier(0.16,1,0.3,1)`.
+**Problemas identificados:**
+- O trigger do menu está só no mobile (`md:hidden`). No desktop não há botão pra abrir o ripple.
+- `display:'none'` + `clipPath` se sobrepõem: em mobile o GSAP usa `autoAlpha` mas o container começa com `display:none`, então o `fromTo` de `autoAlpha` colide com o `gsap.set(display:'block')` disparado em `open=true`.
+- A timeline é construída em `useLayoutEffect` dependente de `isMobile`, então no primeiro toggle `tlRef.current` pode ainda estar `null` (race).
 
-**Aplicação:**
-- `Hero.tsx`: CTA "Quero meu site" → `.btn-lemon`; CTA "Explorar Portfólio" → `.btn-gumroad`.
-- `CTASection.tsx`: CTA final → `.btn-lemon` grande.
-- `Header.tsx`: pill WhatsApp → `.btn-lemon` compacto.
+**Mudanças em `src/components/Header.tsx`:**
+- Adicionar trigger único (ícone hambúrguer animado) visível em desktop E mobile, posicionado no canto superior direito (origem do clip-path).
+- Manter os links inline do desktop ou ocultá-los — usar só o trigger + RippleMenu fullscreen como solicitado no HTML de referência.
 
-## 2. Hero — gradiente neon em "Vendem"
-**`src/components/Hero.tsx`** — "Vendem" recebe `bg-clip-text text-transparent` com `background: var(--gradient-neon)` + `drop-shadow` neon. "Crio" mantém as 7 camadas de sombra atuais (efeito 3D aprovado).
+**Mudanças em `src/components/effects/RippleMenu.tsx`:**
+- Remover `display:'none'` inline. Usar `visibility/pointer-events` controlados via `gsap.set` para evitar conflito com `autoAlpha`.
+- Construir a timeline com `gsap.context` mas inicializar o estado fechado via `gsap.set` no mount (não depender de inline style).
+- No mobile, simplificar: usar só `autoAlpha` + stagger dos links (sem clip-path, GPU leve).
+- No desktop, manter clip-path circular (`circle(0% at ...) → circle(160% at ...)`) com `ease: power3.inOut`.
+- Garantir cleanup: `tl.kill()` no revert; remover `setTimeout` frágil — usar `onReverseComplete` da própria timeline.
+- Ajustar trigger position (`calc(100% - 36px) 36px`) pra bater com a posição real do botão no Header em ambos breakpoints.
 
-## 3. Menu Ripple com foto lateral (GSAP)
-**Novo `src/components/effects/RippleMenu.tsx`** — substitui `FullscreenMenu` no `Header.tsx`.
+## 2. Botão "Quero meu site" — efeito não pega
 
-Portar **literalmente** a lógica do código enviado, em React+TS:
-- `gsap.timeline({ paused: true })` com:
-  - `clip-path: circle(0% at 93% 6%)` → `circle(150% at 93% 6%)`, `power3.inOut`, 0.75s.
-  - Hambúrguer → X via `gsap.to(path, { attr: { d: ... } })`.
-  - Links `fromTo({ y:30, opacity:0 }, { y:0, opacity:1, stagger:0.08 })` em 0.3s.
-- Refs em vez de querySelectors; timeline criada num `useLayoutEffect` com `gsap.context()` para cleanup.
-- Foto lateral 3/4 com 4 imagens absolutas; troca por opacidade no `onMouseEnter` de cada link.
-- Links gigantes (`text-5xl md:text-7xl font-display`) numerados `01..05`: **Home / Sobre / Design / Portfólio / Contato**, com `.namma-link` (risco neon central).
-- Body scroll lock quando aberto.
-- Mobile: detecta `useIsMobile()` — se mobile, animação simplificada (`opacity` + `y`) sem clip-path nem foto lateral.
+**Problema identificado:**
+- `.btn-lemon::before` (círculo gradiente que cresce no hover) e `.cta-burst::before` (anel de burst no click) competem pelo MESMO pseudo-elemento `::before`. Quando `cta-burst` é aplicado, o círculo lemon desaparece.
+- O efeito visual original (HTML de referência) era circular gradient azul→limão crescendo de dentro pra fora — está implementado mas mascarado pelo conflito.
 
-## 4. Nova seção "O design quem faz é você" — Scroll Stacking Cards (GSAP ScrollTrigger)
-**Novo `src/components/DesignStacking.tsx`**, inserido em `Index.tsx` logo após `Interactive3DCard`.
+**Mudanças em `src/index.css`:**
+- Mover `.cta-burst` para usar `::after` em vez de `::before` (libera o `::before` para o lemon).
+- Garantir que `.btn-lemon` tenha `position: relative` + `isolation: isolate` (já tem) e que o `::before` use `inset: 0` + `border-radius: inherit` em vez de `width: 120%; aspect-ratio: 1` — assim o círculo cobre o pill inteiro de forma confiável em qualquer largura.
+- Ajustar `transform-origin` pra animar de scale(0) no centro pra scale(1) cobrindo todo o botão.
+- Validar `.btn-gumroad` (sombra 3D offset) — já está correto, só conferir que `Ver portfólio` no Hero usa essa classe (já usa).
+- Manter `var(--gradient-neon)` (azul→limão) como fill — cores neon corretas.
 
-Porte direto do bloco "MOSS VIBE" do HTML:
-- Wrapper `h-[300vh]` (mobile `h-[220vh]`); interno `sticky top-0 h-screen`.
-- Palavra de fundo gigante `DESIGN` (`text-[28vw] font-display`, opacidade 0.08→0.18 via scrub).
-- 3 cards absolutos (placeholder com assets atuais — usuário enviará as fotos finais; código preparado para troca rápida via array).
-- `gsap.timeline({ paused: true })` idêntica:
-  - Card 1: `scale 0.88, opacity 0.35, y -12vh`.
-  - Card 2: `y 100vh → 0vh`, depois `scale 0.9, opacity 0.35, y -8vh`.
-  - Card 3: `y 100vh → 0vh`.
-- `ScrollTrigger.create({ trigger, start:"top top", end:"bottom bottom", scrub: isMobile?0.7:1.1, onUpdate: self => tl.progress(self.progress) })`.
-- Mobile: 2 cards, palavra com opacidade fixa.
+## 3. Stacking effect — mover pro Card 3D existente
 
-## 5. Portfolio — watermark gigante + transição de cor por projeto
-**`src/components/Portfolio.tsx`** — mantém estrutura/swipe/modal atuais. Adições:
-- Cada projeto recebe `bgColor` no objeto.
-- Container do card ativo: `transition: background-color 0.7s ease`.
-- Texto d'água absoluto atrás do card: `text-[18vw] font-display opacity-[0.025]` com nome curto do projeto, troca via `transition-opacity 0.5s` ao mudar slide.
-- Não altero `document.body` (evita conflito com `VideoBackground`).
+**Problema identificado:**
+O usuário quer que o efeito de cards subindo (atualmente na `DesignStacking`) seja aplicado **dentro** da seção do `Interactive3DCard` (pilot-card). O pilot-card original fica como card base e os 4 cards de referência (`design-ref-1..4`) sobem por cima conforme o scroll. O watermark "DESIGN" gigante e o título "O design quem faz é você" continuam onde estão na `DesignStacking`.
 
-## 6. Preloader — risco neon final
-**`src/components/Preloader.tsx`** — linha embaixo da barra de progresso que cresce com `scale-x` (CSS, sem GSAP). Usa `var(--gradient-neon)`.
+**Mudanças em `src/components/Interactive3DCard.tsx`:**
+- Envolver a seção num wrapper `h-[400vh]` (desktop) / `h-[280vh]` (mobile) com `sticky top-0` interno.
+- Manter o card 3D pilot-card como camada base (z-0), preservando rotateX/Y, drag e double-tap (lógica intacta).
+- Adicionar acima dele um stack de 4 cards (`design-ref-1-hadi`, `2-kpr`, `3-ascend`, `4-oryzo`) usando GSAP + ScrollTrigger com `scrub`.
+- Timeline: cada novo card sobe de `yPercent: 100 → 0` enquanto o anterior recua (`scale: 0.88, opacity: 0.35, yPercent: -10`). O pilot-card é o "card 0" — quando o card 1 sobe, ele recua também (vai pro fundo, como o usuário pediu).
+- Mobile: scrub mais curto (`0.6`), animações com `force3D: true` + `will-change: transform, opacity`, sem mouse parallax.
+- Desabilitar drag/rotate do pilot-card enquanto outros cards estiverem por cima (`pointer-events: none` no pilot quando `progress > 0.1`) pra evitar conflito de gesto com scroll.
 
-## 7. Performance / mobile
-- GSAP + ScrollTrigger só no desktop para timelines pesadas; em mobile uso `scrub` curto e desativo a palavra gigante (mantém estabilidade).
-- Todas as animações com `force3D: true` / `will-change: transform`.
-- `gsap.context()` em cada componente para cleanup limpo no unmount.
-- Mantenho a regra do mem: `overflow-x: clip` só no wrapper de `Index.tsx`, nunca em `html/body` (sticky do stacking depende disso).
+**Mudanças em `src/components/DesignStacking.tsx`:**
+- Remover o stack de cards interno. Manter apenas:
+  - O título "Design / O design quem faz é você" no topo.
+  - O watermark gigante "DESIGN" centralizado com leve scale/opacity tween via ScrollTrigger.
+- Reduzir altura pra `h-[120vh]` (desktop) / `h-[100vh]` (mobile) — só hero text + watermark.
+- Manter cor de fundo `hsl(220 50% 6%)` e o gradiente neon no "você".
 
-## Arquivos afetados
-- `package.json` — `gsap`.
-- `src/index.css` — tokens neon + classes `.btn-lemon`, `.btn-gumroad`, `.namma-link`.
-- `src/components/Hero.tsx` — gradiente neon + classes nos CTAs.
-- `src/components/Header.tsx` — troca `FullscreenMenu` por `RippleMenu`; WhatsApp btn-lemon.
-- `src/components/effects/RippleMenu.tsx` — novo (GSAP).
-- `src/components/DesignStacking.tsx` — novo (GSAP ScrollTrigger).
-- `src/pages/Index.tsx` — importa `DesignStacking`.
-- `src/components/Portfolio.tsx` — watermark + bgColor por projeto.
-- `src/components/CTASection.tsx` — botão lemon.
-- `src/components/Preloader.tsx` — risco neon.
+**Mudanças em `src/pages/Index.tsx`:**
+- Nenhuma reordenação — a ordem `Interactive3DCard → DesignStacking` continua. O efeito de stacking acontece dentro da primeira; a segunda vira só uma seção de "letreiro DESIGN" como transição visual.
 
-## Fora do escopo
-- AboutMe ("Prazer, sou o Jonas"), VideoBackground, HowItWorks, Testimonials, FAQ, BenefitsBar, Footer, paleta principal — intactos.
+## 4. Detalhes técnicos
 
-## Pendente do usuário
-- Fotos finais dos cards de "O design quem faz é você". Começo com placeholders e troco quando enviar.
+**Performance mobile (mantido):**
+- GSAP ScrollTrigger só carrega via lazy import (já é).
+- `useIsMobile` controla `scrub` curto e desabilita parallax pesado.
+- Todas animações usam `transform`/`opacity` (GPU), `will-change` declarado.
+- Sem WebGL/Canvas adicionados.
+
+**Cleanup:**
+- `gsap.context()` em todos os componentes pra revert automático no unmount.
+- `tlRef.current?.kill()` explícito antes de recriar timeline.
+
+**Arquivos alterados:**
+- `src/components/Header.tsx` — trigger desktop + mobile do RippleMenu
+- `src/components/effects/RippleMenu.tsx` — fix abrir/fechar, mobile sem clip-path
+- `src/index.css` — `.cta-burst` usar `::after`; `.btn-lemon::before` cobrir botão inteiro
+- `src/components/Interactive3DCard.tsx` — adicionar stack de 4 cards sobre o pilot-card
+- `src/components/DesignStacking.tsx` — remover cards, manter só watermark + título
+
+**Fora de escopo:**
+- AboutMe, VideoBackground, HorizontalNotebookScroll, HowItWorks, Portfolio, Testimonials, FAQ, CTASection, Footer — intactos.
+- Paleta principal — mantida (azul/cyan). Gradiente neon azul→limão continua só como accent.
