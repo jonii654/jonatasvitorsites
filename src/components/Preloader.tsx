@@ -11,7 +11,7 @@ export function Preloader({ onFinish }: PreloaderProps) {
 
   useEffect(() => {
     const start = performance.now();
-    const DURATION = 4200;
+    const DURATION = 7500;
     let raf = 0;
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / DURATION);
@@ -20,13 +20,14 @@ export function Preloader({ onFinish }: PreloaderProps) {
       setProgress(Math.round(eased * 100));
       if (p < 1) raf = requestAnimationFrame(tick);
       else {
-        setTimeout(() => setVisible(false), 400);
-        setTimeout(onFinish, 1100);
+        setTimeout(() => setVisible(false), 700);
+        setTimeout(onFinish, 1500);
       }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [onFinish]);
+
 
 
   return (
