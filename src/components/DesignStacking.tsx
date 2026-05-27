@@ -2,21 +2,25 @@ import { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useIsMobile } from '@/hooks/use-mobile';
-import mosaic1 from '@/assets/portfolio-mosaic-1.webp';
-import mosaic2 from '@/assets/portfolio-mosaic-2.webp';
-import mosaic3 from '@/assets/portfolio-mosaic-3.webp';
+import card1 from '@/assets/design-ref-1-hadi.jpg';
+import card2 from '@/assets/design-ref-2-kpr.jpg';
+import card3 from '@/assets/design-ref-3-ascend.jpg';
+import card4 from '@/assets/design-ref-4-oryzo.jpg';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const CARDS = [
-  { img: mosaic1, label: 'Editorial' },
-  { img: mosaic2, label: 'Conversão' },
-  { img: mosaic3, label: 'Marca' },
+  { img: card1, label: 'Performance' },
+  { img: card2, label: 'Bold' },
+  { img: card3, label: 'Editorial' },
+  { img: card4, label: 'Artesanal' },
 ];
 
 /**
- * Scroll-jacked stacking cards over giant background word — port of the
- * "MOSS VIBE" timeline from the reference HTML to GSAP+React.
+ * Scroll-jacked stacking cards over a giant background word — port of the
+ * "MOSS VIBE" timeline from the user's reference HTML to GSAP + React.
+ * Stacks 4 cards: each new card slides up from the bottom while the previous
+ * card scales down and fades. Heavily GPU-accelerated.
  */
 export function DesignStacking() {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -30,15 +34,22 @@ export function DesignStacking() {
       gsap.set(cardsRef.current[0], { scale: 1, opacity: 1, yPercent: 0 });
       gsap.set(cardsRef.current[1], { yPercent: 100, opacity: 1, scale: 1 });
       gsap.set(cardsRef.current[2], { yPercent: 100, opacity: 1, scale: 1 });
+      gsap.set(cardsRef.current[3], { yPercent: 100, opacity: 1, scale: 1 });
 
-      const tl = gsap.timeline({ paused: true, defaults: { ease: 'none' } });
+      const tl = gsap.timeline({ paused: true, defaults: { ease: 'none', force3D: true } });
+
+      // Step 1: card 2 sobe, card 1 recua
       tl.to(cardsRef.current[1], { yPercent: 0, duration: 1 }, 0)
-        .to(cardsRef.current[0], { scale: 0.88, opacity: 0.4, yPercent: -10, duration: 1 }, 0)
+        .to(cardsRef.current[0], { scale: 0.88, opacity: 0.35, yPercent: -10, duration: 1 }, 0)
+        // Step 2: card 3 sobe, card 2 recua
         .to(cardsRef.current[2], { yPercent: 0, duration: 1 }, 1)
-        .to(cardsRef.current[1], { scale: 0.9, opacity: 0.4, yPercent: -8, duration: 1 }, 1);
+        .to(cardsRef.current[1], { scale: 0.9, opacity: 0.35, yPercent: -8, duration: 1 }, 1)
+        // Step 3: card 4 sobe, card 3 recua
+        .to(cardsRef.current[3], { yPercent: 0, duration: 1 }, 2)
+        .to(cardsRef.current[2], { scale: 0.92, opacity: 0.35, yPercent: -6, duration: 1 }, 2);
 
       if (wordRef.current) {
-        tl.fromTo(wordRef.current, { opacity: 0.08 }, { opacity: 0.18, duration: 2 }, 0);
+        tl.fromTo(wordRef.current, { opacity: 0.08, scale: 0.95 }, { opacity: 0.18, scale: 1.05, duration: 3 }, 0);
       }
 
       ScrollTrigger.create({
@@ -57,7 +68,7 @@ export function DesignStacking() {
       id="design"
       ref={wrapperRef}
       className="relative w-full"
-      style={{ height: isMobile ? '220vh' : '300vh' }}
+      style={{ height: isMobile ? '280vh' : '400vh' }}
     >
       <div
         className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center"
@@ -78,7 +89,7 @@ export function DesignStacking() {
           ref={wordRef}
           aria-hidden
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-          style={{ opacity: 0.08 }}
+          style={{ opacity: 0.08, willChange: 'transform, opacity' }}
         >
           <span
             className="font-display font-black text-foreground leading-none tracking-tighter"
@@ -88,7 +99,7 @@ export function DesignStacking() {
           </span>
         </div>
 
-        <div className="relative w-[80vw] max-w-md md:max-w-lg aspect-[3/4] z-10">
+        <div className="relative w-[82vw] max-w-md md:max-w-lg aspect-[3/4] z-10">
           {CARDS.map((card, i) => (
             <div
               key={i}

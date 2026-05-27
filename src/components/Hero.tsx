@@ -3,10 +3,10 @@ import { ArrowRight } from 'lucide-react';
 import { useRef, useMemo, useState } from 'react';
 import { useDeviceTier } from '@/hooks/use-device-tier';
 import { useAnalytics } from '@/hooks/use-analytics';
-import portfolioAdvocacia from '@/assets/portfolio-advocacia.png';
-import portfolioBeatriz from '@/assets/portfolio-beatriz.png';
-import portfolioClinica from '@/assets/portfolio-clinicaiphone.png';
-import portfolioVini from '@/assets/portfolio-vinidigital.png';
+import heroRef1 from '@/assets/hero-ref-1-shopify.jpg';
+import heroRef2 from '@/assets/hero-ref-2-cleo.jpg';
+import heroRef3 from '@/assets/hero-ref-3-igloo.jpg';
+import heroRef4 from '@/assets/hero-ref-4-buttermax.jpg';
 
 const WHATSAPP_NUMBER = "551931990107";
 
@@ -55,33 +55,33 @@ const cornerCards = [
     pos: 'top-[4%] left-[1%] md:left-[3%]',
     size: 'w-44 h-56 md:w-80 md:h-[26rem]',
     floatY: [0, -10, 0],
-    img: portfolioVini,
+    img: heroRef1,
     accent: 'hsl(195 100% 50%)',
-    alt: 'Referência de design de site 1',
+    alt: 'Referência de design — editorial premium',
   },
   {
     pos: 'top-[4%] right-[1%] md:right-[3%]',
     size: 'w-44 h-56 md:w-80 md:h-[26rem]',
     floatY: [0, -8, 0],
-    img: portfolioAdvocacia,
-    accent: 'hsl(155 100% 50%)',
-    alt: 'Referência de design de site 2',
+    img: heroRef2,
+    accent: 'hsl(75 100% 60%)',
+    alt: 'Referência de design — mobile app',
   },
   {
     pos: 'bottom-[4%] left-[1%] md:left-[3%]',
     size: 'w-44 h-56 md:w-80 md:h-[26rem]',
     floatY: [0, 9, 0],
-    img: portfolioClinica,
+    img: heroRef3,
     accent: 'hsl(155 100% 50%)',
-    alt: 'Referência de design de site 3',
+    alt: 'Referência de design — cinemático',
   },
   {
     pos: 'bottom-[4%] right-[1%] md:right-[3%]',
     size: 'w-44 h-56 md:w-80 md:h-[26rem]',
     floatY: [0, 11, 0],
-    img: portfolioBeatriz,
-    accent: 'hsl(195 100% 50%)',
-    alt: 'Referência de design de site 4',
+    img: heroRef4,
+    accent: 'hsl(75 100% 60%)',
+    alt: 'Referência de design — bold colorblock',
   },
 ];
 
