@@ -6,11 +6,12 @@ import { useAnalytics } from '@/hooks/use-analytics';
 const WHATSAPP_NUMBER = "551931990107";
 
 const navItems = [
+  { label: 'Início', href: '#top' },
+  { label: 'Design', href: '#design' },
   { label: 'Quem Sou Eu', href: '#sobre' },
-  { label: 'Benefícios', href: '#beneficios' },
-  { label: 'Portfólio', href: '#portfolio' },
-  { label: 'Perguntas', href: '#faq' },
-  { label: 'Orçamento', href: '#orcamento' },
+  { label: 'Como Funciona', href: '#servicos' },
+  { label: 'Trabalhos', href: '#portfolio' },
+  { label: 'Contato', href: '#contato' },
 ];
 
 export function Header() {

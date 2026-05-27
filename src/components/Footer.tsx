@@ -20,7 +20,7 @@ export function Footer() {
   const { trackCtaClick } = useAnalytics();
 
   return (
-    <footer className="py-12 border-t border-border/50">
+    <footer id="contato" className="py-12 border-t border-border/50">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           {/* Logo & Copyright */}

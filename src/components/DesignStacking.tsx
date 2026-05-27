@@ -84,6 +84,7 @@ export function DesignStacking() {
 
   return (
     <section
+      id="design"
       ref={wrapperRef}
       className="relative w-full"
       style={{ height: isMobile ? '380vh' : '560vh' }}
