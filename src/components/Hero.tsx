@@ -345,9 +345,12 @@ export function Hero() {
                   triggerBurst();
                   trackCtaClick({ location: 'hero', label: 'Quero meu site' });
                 }}
-                className={`btn-lemon font-display text-base md:text-lg ${ctaBurst ? 'cta-burst' : ''}`}
+                className={`btn-lemon font-display text-sm md:text-base ${ctaBurst ? 'cta-burst' : ''}`}
               >
-                Quero meu site
+                <span className="uppercase tracking-widest">Quero meu site</span>
+                <span className="lemon-circle">
+                  <ArrowRight className="w-4 h-4" />
+                </span>
               </a>
 
               <a
