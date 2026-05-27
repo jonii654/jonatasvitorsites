@@ -51,9 +51,7 @@ const Index = () => {
           </Suspense>
 
 
-          <Suspense fallback={<Fallback />}>
-            <Interactive3DCard />
-          </Suspense>
+
 
           <Suspense fallback={<Fallback />}>
             <DesignStacking />
