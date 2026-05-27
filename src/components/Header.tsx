@@ -15,7 +15,7 @@ const navItems = [
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { trackCtaClick } = useAnalytics();
 
   useEffect(() => {
@@ -25,8 +25,6 @@ export function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // (body scroll lock handled inside FullscreenMenu)
 
   const whatsappLink = `https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Gostaria de saber mais sobre criação de sites.`;
 
@@ -41,59 +39,43 @@ export function Header() {
       >
         <div className="container mx-auto px-4">
           <nav className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo */}
             <a href="#" className="flex items-center gap-2">
               <span className="text-xl md:text-2xl font-bold text-foreground">
                 Jônatas Vitor
               </span>
-              <span className="text-sm md:text-base text-muted-foreground">
+              <span className="hidden sm:inline text-sm md:text-base text-muted-foreground">
                 — Criador de Sites
               </span>
             </a>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              {navItems.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative group"
-                >
-                  {item.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
-                </a>
-              ))}
-            </div>
-
-            {/* CTA Button (desktop) */}
-            <div className="hidden md:block">
+            <div className="flex items-center gap-3">
               <a
                 href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackCtaClick({ location: 'header', label: 'WhatsApp' })}
-                className="btn-lemon !py-2.5 !px-5 text-sm"
+                className="hidden md:inline-flex btn-lemon !py-2.5 !px-5 text-sm"
               >
                 <MessageCircle className="w-4 h-4" />
                 WhatsApp
               </a>
-            </div>
 
-            {/* Mobile menu button */}
-            <button
-              aria-label="Abrir menu"
-              className="md:hidden p-2 text-foreground z-[60]"
-              onClick={() => setIsMobileMenuOpen(true)}
-            >
-              <Menu className="w-6 h-6" />
-            </button>
+              {/* Menu trigger — visível em todos breakpoints; origem do ripple */}
+              <button
+                aria-label="Abrir menu"
+                className="p-2 text-foreground z-[60] rounded-full border border-foreground/15 bg-foreground/5 hover:bg-foreground/10 transition-colors"
+                onClick={() => setIsMenuOpen(true)}
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
           </nav>
         </div>
       </header>
 
       <RippleMenu
-        open={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
+        open={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
         items={navItems}
         whatsappLink={whatsappLink}
       />

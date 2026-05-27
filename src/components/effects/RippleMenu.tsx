@@ -22,7 +22,7 @@ const PHOTOS = [jonatas1, jonatas2, portfolioVivendo, portfolioCsa];
 /**
  * Ripple-reveal fullscreen menu (GSAP).
  * Desktop: circular clip-path reveal + lateral photo swap on hover.
- * Mobile: simplified opacity/y reveal.
+ * Mobile: simplified opacity/y reveal (no clip-path for perf).
  */
 export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
   const isMobile = useIsMobile();
@@ -40,42 +40,53 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
   useLayoutEffect(() => {
     if (!containerRef.current) return;
     const ctx = gsap.context(() => {
+      gsap.set(containerRef.current!, {
+        autoAlpha: 0,
+        pointerEvents: 'none',
+        ...(isMobile
+          ? { y: -20, clipPath: 'none' }
+          : { clipPath: 'circle(0% at calc(100% - 36px) 36px)', y: 0 }),
+      });
+      gsap.set(linksRef.current.filter(Boolean), { y: 30, autoAlpha: 0 });
+
       const tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.inOut' } });
-      if (!isMobile) {
-        tl.fromTo(containerRef.current!,
-          { clipPath: 'circle(0% at calc(100% - 36px) 36px)' },
-          { clipPath: 'circle(160% at calc(100% - 36px) 36px)', duration: 0.75 },
+      if (isMobile) {
+        tl.to(containerRef.current!,
+          { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' },
           0
         );
       } else {
-        tl.fromTo(containerRef.current!,
-          { autoAlpha: 0, y: -20 },
-          { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power2.out' },
+        tl.to(containerRef.current!,
+          { autoAlpha: 1, clipPath: 'circle(160% at calc(100% - 36px) 36px)', duration: 0.75 },
           0
         );
       }
-      tl.fromTo(linksRef.current.filter(Boolean),
-        { y: 30, autoAlpha: 0 },
+      tl.to(linksRef.current.filter(Boolean),
         { y: 0, autoAlpha: 1, duration: 0.5, stagger: 0.07, ease: 'power3.out' },
-        isMobile ? 0.15 : 0.35
+        isMobile ? 0.12 : 0.3
       );
+      tl.eventCallback('onReverseComplete', () => {
+        if (containerRef.current) {
+          gsap.set(containerRef.current, { pointerEvents: 'none' });
+        }
+      });
       tlRef.current = tl;
     }, containerRef);
-    return () => ctx.revert();
+    return () => {
+      tlRef.current?.kill();
+      tlRef.current = null;
+      ctx.revert();
+    };
   }, [isMobile]);
 
   useEffect(() => {
     const tl = tlRef.current;
     if (!tl || !containerRef.current) return;
     if (open) {
-      gsap.set(containerRef.current, { display: 'block' });
+      gsap.set(containerRef.current, { pointerEvents: 'auto' });
       tl.play(0);
     } else {
       tl.reverse();
-      const t = setTimeout(() => {
-        if (containerRef.current) gsap.set(containerRef.current, { display: 'none' });
-      }, 850);
-      return () => clearTimeout(t);
     }
   }, [open]);
 
@@ -84,10 +95,9 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
       ref={containerRef}
       className="fixed inset-0 z-[70]"
       style={{
-        display: 'none',
+        visibility: 'hidden',
         background:
           'radial-gradient(circle at 80% 20%, hsl(195 100% 50% / 0.16), transparent 60%), hsl(220 50% 6%)',
-        clipPath: 'circle(0% at calc(100% - 36px) 36px)',
       }}
       aria-hidden={!open}
     >
