@@ -131,7 +131,7 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
         </div>
       )}
 
-      <nav className="h-full flex flex-col justify-center pl-6 pr-6 md:pl-20 gap-2 md:gap-3 max-w-[60vw]">
+      <nav className="h-full flex flex-col justify-center items-center text-center gap-2 md:gap-3 px-6 mx-auto">
         {items.map((item, i) => (
           <a
             key={item.label}
@@ -139,10 +139,10 @@ export function RippleMenu({ open, onClose, items, whatsappLink }: Props) {
             href={item.href}
             onClick={onClose}
             onMouseEnter={() => setHoverIdx(i % PHOTOS.length)}
-            className="namma-link font-display font-bold uppercase leading-[0.95] tracking-tight w-fit"
-            style={{ fontSize: 'clamp(2.2rem, 7vw, 5.5rem)', letterSpacing: '-0.03em' }}
+            className="namma-link font-display font-bold uppercase leading-[0.95] tracking-tight inline-flex items-baseline justify-center"
+            style={{ fontSize: 'clamp(2rem, 6.5vw, 5rem)', letterSpacing: '-0.03em' }}
           >
-            <span className="text-foreground/40 text-xs md:text-sm font-mono mr-3 align-top">
+            <span className="text-foreground/40 text-xs md:text-sm font-mono mr-3 self-start">
               0{i + 1}
             </span>
             {item.label}
