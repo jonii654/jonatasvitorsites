@@ -109,7 +109,7 @@ export function Preloader({ onFinish }: PreloaderProps) {
           </div>
 
           {/* Bottom labels */}
-          <div className="absolute bottom-12 left-6 right-6 md:bottom-16 md:left-10 md:right-10 flex justify-between text-[10px] md:text-xs text-muted-foreground/80">
+          <div className="absolute bottom-12 left-6 right-6 md:bottom-16 md:left-10 md:right-10 flex justify-between text-[10px] md:text-xs text-foreground/70 z-10">
             <span>Sites que vendem</span>
             <span className="hidden md:inline">Design premium</span>
             <span>Entrega rápida</span>
