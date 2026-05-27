@@ -1,81 +1,51 @@
-# Portar efeitos do HTML de referência para o site React
+# Corrigir 3 pontos do site
 
-Vou mapear cada efeito do HTML/vídeo enviado para o componente React correspondente, mantendo a stack atual (React + GSAP + Tailwind + tokens semânticos do `index.css`).
+## 1. Fundir o efeito de empilhamento na seção "O design quem faz é você"
 
-## 1. Menu Ripple "Estúdio Namma" — `RippleMenu.tsx` + `Header.tsx`
+Hoje temos duas seções separadas:
+- `Interactive3DCard` (pilot-card + 4 cards subindo)
+- `DesignStacking` (palavra gigante WORK que eu fiz por engano)
 
-- Overlay com `clip-path: circle(0% at 93% 6%) → circle(150% at 93% 6%)` (já existe parcialmente, vou alinhar à referência).
-- Coluna esquerda com **foto vertical rotacionada -2°** que troca via opacity ao passar o mouse em cada link (`data-preview` → `m-img-home / work / showcase / brands`).
-- Links gigantes (`text-7xl font-display font-black`) com número `01..04` à esquerda e **risco neon verde-limão** central no hover (pseudo `::after` com `scaleX 0→1`).
-- Caption inferior (`CONCEITO PREMIUM`) que muda conforme link com `data-caption`.
-- Trigger único (hamburger neon `bg-brand-accent`) que troca para "X" via tween de `path d`.
+Vou consolidar em **uma única seção** dentro de `DesignStacking.tsx`, replicando o efeito do vídeo MOSS:
 
-## 2. Botão Lemon — novo utilitário em `index.css` + aplicar em Header CTA e Footer CTA
+- Heading "O design quem faz é você" + subtítulo aparecem no topo
+- Pilot card (CSS card da Landing Knowledge) fica centralizado como camada base
+- Palavra gigante **DESIGN** vive atrás como watermark
+- Ao rolar:
+  1. Heading e subtítulo fazem fade-out (`opacity 1→0, y 0→-20`) bem no início (`progress 0→0.1`)
+  2. DESIGN ganha leve scale + opacidade
+  3. Pilot card recua (`scale 0.88, opacity 0.35, yPercent -10`)
+  4. Os 4 design-ref cards sobem um a um (`yPercent 100 → 0`) passando POR CIMA da palavra DESIGN, cada um empurrando o anterior pra trás
+- Wrapper `h-[500vh]` desktop / `h-[320vh]` mobile com `sticky top-0 h-screen` (mesma altura do Interactive3DCard atual)
 
-- Estrutura: pílula com borda, texto à esquerda, círculo pequeno (`32×32`) à direita.
-- No hover: círculo escala `scale(8)` e migra para o centro, texto vira preto.
-- Substitui o atual `.btn-lemon`/`.cta-burst` por implementação fiel da referência (sem conflito de pseudo-elementos).
+Remover `Interactive3DCard` do `Index.tsx` (componente fica no repo mas não é renderizado). Remover o conteúdo "WORK" da DesignStacking — substituído pelo conteúdo consolidado.
 
-## 3. Botão Gumroad 3D — `Hero.tsx`
+## 2. Botão Lemon — seta dentro do círculo que migra do canto direito até preencher o botão
 
-- CTA principal do Hero: fundo `brand-accent`, borda preta, `shadow [4px 4px 0 white]`, no hover translada `+3px,+3px` e sombra colapsa para `[1px 1px 0]` (efeito de clique tátil).
+A versão atual escala o círculo no lugar (canto direito), o que não tem o movimento característico da referência HTML. Vou ajustar `.btn-lemon` em `index.css`:
 
-## 4. Stacking "WORK" — `DesignStacking.tsx` (reescrita)
+- `.lemon-circle` passa a ser `position: absolute; right: 6px; top: 50%; transform: translateY(-50%)`
+- No hover: `transform: translate(50%, -50%) scale(8); right: 50%; top: 50%` — círculo migra para o centro e escala, fazendo a cor neon "engolir" o botão da direita pra esquerda com a seta ainda visível
+- Padding direito aumentado para reservar espaço do círculo (`padding-right: 3rem`)
 
-- Wrapper `h-[350vh]` + `sticky top-0 h-screen`.
-- Texto gigante `WORK` (`text-[30vw] font-black opacity-10`) atrás, **z-0**.
-- 3 cards compactos (`max-w-sm`) passando **por cima** do texto (z-10): tons moss-green e terra como na referência.
-- Timeline GSAP com `scrub` ligando: card1 recua (`scale 0.88, y -12vh, opacity 0.35`) enquanto card2 sobe (`y 100vh → 0`), depois mesma transição entre card2 → card3.
-- Mantém a integração já existente em `Interactive3DCard` (pilot-card continua sendo a base 3D em outra seção).
+## 3. Botão "Falar no WhatsApp" do CTASection no mesmo estilo do Hero
 
-## 5. Portfolio Premium Drag — `Portfolio.tsx` (refinado)
+Em `src/components/effects/KineticBlobsCTA.tsx`, substituir o `<Button className="btn-cta">` atual por:
 
-- Box central com **watermark gigante** (`text-[18vw]` da palavra-chave do projeto) ao fundo.
-- Coluna esquerda: tag piscante, título `text-6xl`, descrição, specs (Performance / Conversão).
-- Coluna direita: mockup aspect-video que **inclina com o arraste** (`x: diff*0.3, rotate: diff*0.05`) e volta com `power2.out`.
-- Swipe tátil + drag de mouse com threshold de 80px para avançar/voltar.
-- Cor de fundo do box e do `body` muda suavemente por projeto (`ambientColor`), só enquanto a seção está visível (`ScrollTrigger onEnter/onLeave`).
-- Setas inferiores + contador `0X / 05`.
-
-## 6. Marquee Infinito — novo componente `BrandsMarquee.tsx` (substitui parte do Footer/Testimonials area, ou insere antes do CTA)
-
-- Duas faixas de texto gigante (`text-8xl font-display opacity-5`) com nomes de marcas, uma rolando para a esquerda e outra para a direita (`@keyframes marquee` 30s linear).
-- Card central aspect-video com gradient moss + imagem em `mix-blend-overlay` e título "Marcas e Projetos".
-
-## Onde encaixar no `Index.tsx`
-
-Sem mexer na lógica, só na camada visual:
-
-```text
-Hero (botão Gumroad) 
- → PortalTransition 
- → Interactive3DCard (mantém pilot-card 3D)
- → DesignStacking (agora = stacking WORK)
- → BenefitsBar / AboutMe / HorizontalNotebookScroll / HowItWorks
- → Portfolio (refeito com drag + watermark + ambient color)
- → BrandsMarquee (novo, antes de Testimonials)
- → Testimonials / FAQ / CTASection (CTA com botão Lemon novo)
+```tsx
+<a href={whatsappLink} className="btn-lemon font-display text-base md:text-lg">
+  <span className="uppercase tracking-widest">Falar no WhatsApp</span>
+  <span className="lemon-circle"><ArrowRight /></span>
+</a>
 ```
 
-## Detalhes técnicos
-
-- Tudo via **GSAP + ScrollTrigger** (já no projeto), nada de `<script src>` CDN.
-- Cores adicionadas como tokens em `index.css` (`--brand-accent: 75 100% 60%`, `--brand-moss: 138 17% 12%`, `--brand-sand: 36 35% 87%`) e expostas em `tailwind.config.ts` para uso semântico.
-- Mobile: `scrub` mais curto (`0.7`), stacking permanece, drag usa `touchstart/move/end` com `{ passive: true }`.
-- Respeitar memória do projeto: `overflow-x: clip` só em `Index.tsx`, nunca em `html/body`.
-- Sem alterações de backend, dados ou rotas — puramente front-end/UI.
+Mantém ícone, tracking e tracking de analytics. Botões do site (hero + footer CTA + header WhatsApp + menu) ficam todos no mesmo padrão Lemon.
 
 ## Arquivos afetados
 
-- `src/index.css` — tokens + `.btn-lemon` reescrito + `.btn-gumroad` + keyframes marquee + `.namma-link`
-- `tailwind.config.ts` — cores `brand.accent/moss/sand`
-- `src/components/Header.tsx` — CTA esquerdo vira botão Lemon
-- `src/components/effects/RippleMenu.tsx` — layout Namma (foto + links numerados + risco verde)
-- `src/components/Hero.tsx` — CTA Gumroad 3D
-- `src/components/DesignStacking.tsx` — reescrito como stacking "WORK"
-- `src/components/Portfolio.tsx` — refeito com drag/swipe + watermark + ambient color
-- `src/components/BrandsMarquee.tsx` — novo
-- `src/components/CTASection.tsx` / `src/components/Footer.tsx` — CTA final usa botão Lemon
-- `src/pages/Index.tsx` — insere `BrandsMarquee`
+- `src/index.css` — `.btn-lemon` reescrito com círculo absolute que migra
+- `src/components/DesignStacking.tsx` — consolidação do efeito completo (heading + DESIGN + pilot + 4 cards)
+- `src/pages/Index.tsx` — remove `Interactive3DCard` da árvore
+- `src/components/effects/KineticBlobsCTA.tsx` — CTA final vira `btn-lemon`
 
-Confirmar e eu executo todas as mudanças de uma vez.
+Confirma e executo.
