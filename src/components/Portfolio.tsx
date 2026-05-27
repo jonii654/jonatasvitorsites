@@ -171,44 +171,41 @@ export function Portfolio() {
       ref={sectionRef}
       className="relative overflow-hidden py-20 md:py-28"
     >
-      {/* Background video (desktop only — light tier uses static gradient) */}
-      {!isLight && (
-        <video
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          src="/portfolio-bg.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden
-        />
-      )}
-      {/* Static gradient fallback (always present — behind video as background while it loads, or as full fallback on mobile) */}
+      {/* Static gradient fallback — base layer */}
       <div
         aria-hidden
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-0"
         style={{
           background:
             'radial-gradient(ellipse at top, hsl(220 50% 12%) 0%, hsl(220 50% 6%) 60%, hsl(220 50% 4%) 100%)',
-          zIndex: -1,
         }}
       />
-      {/* Dark overlay for readability over the video */}
+      {/* Background video — visible on all devices (mobile included) */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-90"
+        src="/portfolio-bg.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden
+      />
+      {/* Soft dark overlay — light so the video keeps showing through */}
       <div
         aria-hidden
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-0"
         style={{
           background:
-            'linear-gradient(180deg, hsl(220 50% 4% / 0.7) 0%, hsl(220 50% 4% / 0.55) 50%, hsl(220 50% 4% / 0.8) 100%)',
+            'linear-gradient(180deg, hsl(220 50% 4% / 0.45) 0%, hsl(220 50% 4% / 0.3) 50%, hsl(220 50% 4% / 0.6) 100%)',
         }}
       />
       {/* Subtle adaptive tint per project */}
       <motion.div
         aria-hidden
-        className="absolute inset-0 pointer-events-none mix-blend-overlay"
+        className="absolute inset-0 pointer-events-none mix-blend-overlay z-0"
         animate={{
-          background: `radial-gradient(ellipse 75% 60% at 50% 50%, hsl(${active.glow.from} / 0.25) 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse 75% 60% at 50% 50%, hsl(${active.glow.from} / 0.18) 0%, transparent 70%)`,
         }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       />
@@ -242,7 +239,7 @@ export function Portfolio() {
         onTouchEnd={onTouchEnd}
       >
         {/* Project name (giant background type) */}
-        <div className="relative h-[60vh] md:h-[70vh] max-h-[700px] flex items-center justify-center">
+        <div className="relative h-[55vh] md:h-[60vh] max-h-[560px] flex items-center justify-center">
           {/* Giant brand text behind card */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -267,7 +264,7 @@ export function Portfolio() {
 
           {/* Featured card — flutuando sobre o vídeo */}
           <motion.div
-            className="relative w-[88vw] max-w-[520px] aspect-[3/4] md:aspect-[4/5]"
+            className="relative w-[62vw] max-w-[340px] md:max-w-[380px] aspect-[3/4]"
             animate={{ y: [0, -12, 0] }}
             transition={{ duration: 5, ease: 'easeInOut', repeat: Infinity }}
           >
