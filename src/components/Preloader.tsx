@@ -40,7 +40,8 @@ export function Preloader({ onFinish }: PreloaderProps) {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-background overflow-hidden"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black overflow-hidden"
+          style={{ background: 'linear-gradient(180deg, hsl(220 50% 6%) 0%, #000 100%)' }}
         >
           {/* Background video */}
           <video
