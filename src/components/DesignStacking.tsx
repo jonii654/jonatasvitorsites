@@ -58,45 +58,54 @@ export function DesignStacking() {
         (context) => {
           const { isMobile: mobile } = context.conditions as { isMobile: boolean };
 
+          // Cards começam embaixo, fora do quadro
           gsap.set(stackRefs.current, {
-            yPercent: 0,
-            opacity: 0,
-            scale: 0.82,
+            yPercent: 110,
+            opacity: 1,
+            scale: 1,
             force3D: true,
             transformOrigin: 'center center',
           });
-
-          const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out', force3D: true } });
-
-          tl.to(headingRef.current, { autoAlpha: 0, y: -24, duration: 0.5, ease: 'none' }, 0)
-            .to(bgTextRef.current, { scale: 1.04, opacity: 0.18, duration: 4.5, ease: 'none' }, 0);
-
-          // Cada card surge sozinho, fade+scale; o anterior some completamente antes do próximo.
-          // Card 1
-          tl.to(stackRefs.current[0], { opacity: 1, scale: 1, duration: 0.6 }, 0.6);
+          // Pilot card visível como base no início
           if (pilotRef.current) {
-            tl.to(pilotRef.current, { scale: 0.9, opacity: 0, duration: 0.6 }, 0.6);
+            gsap.set(pilotRef.current, { yPercent: 0, opacity: 1, scale: 1, force3D: true });
           }
-          // Card 2
-          tl.to(stackRefs.current[0], { opacity: 0, scale: 0.92, duration: 0.5 }, 1.6)
-            .to(stackRefs.current[1], { opacity: 1, scale: 1, duration: 0.6 }, 1.7);
-          // Card 3
-          tl.to(stackRefs.current[1], { opacity: 0, scale: 0.92, duration: 0.5 }, 2.6)
-            .to(stackRefs.current[2], { opacity: 1, scale: 1, duration: 0.6 }, 2.7);
-          // Card 4
-          tl.to(stackRefs.current[2], { opacity: 0, scale: 0.92, duration: 0.5 }, 3.6)
-            .to(stackRefs.current[3], { opacity: 1, scale: 1, duration: 0.6 }, 3.7);
+          // Heading visível no início
+          gsap.set(headingRef.current, { autoAlpha: 1, y: 0 });
+          gsap.set(bgTextRef.current, { scale: 1, opacity: 0.12 });
 
-
-          ScrollTrigger.create({
-            trigger: wrapperRef.current,
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: mobile ? 1.2 : 1.1,
-            fastScrollEnd: true,
-            preventOverlaps: true,
-            onUpdate: (self) => tl.progress(self.progress),
+          const tl = gsap.timeline({
+            defaults: { ease: 'power2.inOut', force3D: true },
+            scrollTrigger: {
+              trigger: wrapperRef.current,
+              start: 'top top',
+              end: 'bottom bottom',
+              scrub: mobile ? 1.2 : 1.1,
+              fastScrollEnd: true,
+              invalidateOnRefresh: true,
+            },
           });
+
+          // Heading desaparece e watermark cresce no começo
+          tl.to(headingRef.current, { autoAlpha: 0, y: -24, duration: 0.4, ease: 'none' }, 0)
+            .to(bgTextRef.current, { scale: 1.04, opacity: 0.18, duration: 4.6, ease: 'none' }, 0);
+
+          // Pilot card sai subindo enquanto card 1 entra de baixo
+          if (pilotRef.current) {
+            tl.to(pilotRef.current, { yPercent: -110, duration: 0.8 }, 0.4);
+          }
+          // Card 1 entra
+          tl.to(stackRefs.current[0], { yPercent: 0, duration: 0.8 }, 0.5);
+          // Card 1 sobe saindo / Card 2 entra
+          tl.to(stackRefs.current[0], { yPercent: -110, duration: 0.8 }, 1.5)
+            .to(stackRefs.current[1], { yPercent: 0, duration: 0.8 }, 1.6);
+          // Card 2 sobe / Card 3 entra
+          tl.to(stackRefs.current[1], { yPercent: -110, duration: 0.8 }, 2.5)
+            .to(stackRefs.current[2], { yPercent: 0, duration: 0.8 }, 2.6);
+          // Card 3 sobe / Card 4 entra
+          tl.to(stackRefs.current[2], { yPercent: -110, duration: 0.8 }, 3.5)
+            .to(stackRefs.current[3], { yPercent: 0, duration: 0.8 }, 3.6);
+
         }
       );
     }, wrapperRef);
