@@ -239,7 +239,7 @@ export function Portfolio() {
         onTouchEnd={onTouchEnd}
       >
         {/* Project name (giant background type) */}
-        <div className="relative h-[60vh] md:h-[70vh] max-h-[700px] flex items-center justify-center">
+        <div className="relative h-[55vh] md:h-[60vh] max-h-[560px] flex items-center justify-center">
           {/* Giant brand text behind card */}
           <AnimatePresence mode="wait">
             <motion.div
