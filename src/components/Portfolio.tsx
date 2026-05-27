@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ExternalLink, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useDeviceTier } from '@/hooks/use-device-tier';
 
 gsap.registerPlugin(ScrollTrigger);
+
 
 import portfolioVivendo from '@/assets/portfolio-vivendo.png';
 import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
@@ -98,8 +100,11 @@ export function Portfolio() {
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef(0);
+  const tier = useDeviceTier();
+  const isLight = tier === 'light';
 
   const active = projects[activeIndex];
+
 
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
@@ -166,25 +171,52 @@ export function Portfolio() {
       ref={sectionRef}
       className="relative overflow-hidden py-20 md:py-28"
     >
-      {/* Adaptive glow that changes per project */}
-      <motion.div
+      {/* Background video (desktop only — light tier uses static gradient) */}
+      {!isLight && (
+        <video
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          src="/portfolio-bg.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden
+        />
+      )}
+      {/* Static gradient fallback (always present — behind video as background while it loads, or as full fallback on mobile) */}
+      <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
-        animate={{
-          background: `radial-gradient(ellipse 75% 60% at 50% 50%, hsl(${active.glow.from} / 0.35) 0%, hsl(${active.glow.to} / 0.18) 35%, transparent 75%)`,
+        style={{
+          background:
+            'radial-gradient(ellipse at top, hsl(220 50% 12%) 0%, hsl(220 50% 6%) 60%, hsl(220 50% 4%) 100%)',
+          zIndex: -1,
         }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       />
+      {/* Dark overlay for readability over the video */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'linear-gradient(180deg, hsl(220 50% 4% / 0.7) 0%, hsl(220 50% 4% / 0.55) 50%, hsl(220 50% 4% / 0.8) 100%)',
+        }}
+      />
+      {/* Subtle adaptive tint per project */}
       <motion.div
         aria-hidden
-        className="absolute -top-32 left-1/2 -translate-x-1/2 w-[120vw] h-[60vw] rounded-full blur-[120px] pointer-events-none"
-        animate={{ background: `hsl(${active.glow.from} / 0.18)` }}
-        transition={{ duration: 0.9 }}
+        className="absolute inset-0 pointer-events-none mix-blend-overlay"
+        animate={{
+          background: `radial-gradient(ellipse 75% 60% at 50% 50%, hsl(${active.glow.from} / 0.25) 0%, transparent 70%)`,
+        }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       />
 
       {/* Header */}
       <div ref={headerRef} className="container mx-auto px-4 relative z-10 text-center mb-10">
         <span className="section-label">Portfólio</span>
+
         <h2
           className="font-black leading-[0.85] tracking-tight uppercase mt-4"
           style={{
@@ -233,8 +265,13 @@ export function Portfolio() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Featured card */}
-          <div className="relative w-[88vw] max-w-[520px] aspect-[3/4] md:aspect-[4/5]">
+          {/* Featured card — flutuando sobre o vídeo */}
+          <motion.div
+            className="relative w-[88vw] max-w-[520px] aspect-[3/4] md:aspect-[4/5]"
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 5, ease: 'easeInOut', repeat: Infinity }}
+          >
+
             <AnimatePresence mode="popLayout" custom={direction}>
               <motion.a
                 key={active.id}
@@ -309,7 +346,7 @@ export function Portfolio() {
                 </div>
               </motion.a>
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
 
         {/* Controls */}

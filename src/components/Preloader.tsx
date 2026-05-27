@@ -11,7 +11,7 @@ export function Preloader({ onFinish }: PreloaderProps) {
 
   useEffect(() => {
     const start = performance.now();
-    const DURATION = 4200;
+    const DURATION = 7500;
     let raf = 0;
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / DURATION);
@@ -20,13 +20,14 @@ export function Preloader({ onFinish }: PreloaderProps) {
       setProgress(Math.round(eased * 100));
       if (p < 1) raf = requestAnimationFrame(tick);
       else {
-        setTimeout(() => setVisible(false), 400);
-        setTimeout(onFinish, 1100);
+        setTimeout(() => setVisible(false), 700);
+        setTimeout(onFinish, 1500);
       }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [onFinish]);
+
 
 
   return (
@@ -39,7 +40,8 @@ export function Preloader({ onFinish }: PreloaderProps) {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-background overflow-hidden"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black overflow-hidden"
+          style={{ background: 'linear-gradient(180deg, hsl(220 50% 6%) 0%, #000 100%)' }}
         >
           {/* Background video */}
           <video
@@ -115,18 +117,10 @@ export function Preloader({ onFinish }: PreloaderProps) {
             <span>Entrega rápida</span>
           </div>
 
-          {/* Progress bar */}
-          <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-10 md:right-10 h-px bg-foreground/20 overflow-hidden z-10">
-            <motion.div
-              className="h-full"
-              style={{ background: 'var(--gradient-neon)' }}
-              animate={{ width: `${progress}%` }}
-              transition={{ ease: 'easeOut', duration: 0.1 }}
-            />
-          </div>
+          {/* Progress bar (linha única com glow neon) */}
           <div
             aria-hidden
-            className="absolute bottom-[14px] md:bottom-[22px] left-6 right-6 md:left-10 md:right-10 h-[2px] origin-left rounded-full z-10"
+            className="absolute bottom-6 md:bottom-8 left-6 right-6 md:left-10 md:right-10 h-[2px] origin-left rounded-full z-10"
             style={{
               background: 'var(--gradient-neon)',
               transform: `scaleX(${progress / 100})`,

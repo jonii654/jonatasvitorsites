@@ -1,39 +1,36 @@
 
-## 1. DesignStacking — cards "correndo de baixo pra cima" (igual vídeo)
+## 1. Seção Trabalhos — vídeo de fundo + cards flutuando
 
-**Arquivo:** `src/components/DesignStacking.tsx`
+**Arquivos:** `src/components/Portfolio.tsx`, novo `public/portfolio-bg.mp4`
 
-- Trocar a animação atual (fade + scale) por uma de **slide vertical**: cada card entra de baixo (`yPercent: 100`) deslizando até o centro (`yPercent: 0`), e ao sair continua subindo (`yPercent: -100`) — efeito de "correndo pra cima" como no vídeo.
-- Manter a regra de "um por vez": quando o próximo card começa a subir, o anterior já está saindo por cima — só um card visível por vez no quadro central, sem stack acumulado atrás.
-- Adicionar leve ease (`power2.inOut`) para o movimento ficar fluido nos dois sentidos.
+- Copiar o vídeo enviado anteriormente (`Rustic_Party_Appetizers_on_a_Budget`) para `public/portfolio-bg.mp4`.
+- Adicionar `<video>` absoluto cobrindo a seção inteira (`autoPlay`, `muted`, `playsInline`, `loop`, `preload="metadata"`).
+- Overlay escuro por cima (gradient `bg-black/60` → `bg-black/40`) para contraste com o card sem matar o vídeo.
+- No mobile (tier light): cair em gradiente CSS estático (regra de performance do projeto).
+- Remover/atenuar o glow gigante atual de fundo — o vídeo já cumpre esse papel.
 
-## 2. DesignStacking — corrigir bug do scroll reverso
+**Card flutuando (sem "base"):**
+- Tirar o fundo opaco/bg do card atual e qualquer plataforma/sombra-base de baixo.
+- Deixar a imagem do projeto com cantos arredondados, borda fina translúcida e sombra grande embaixo (`shadow-[0_40px_80px_rgba(0,0,0,0.6)]`) — sensação de flutuar sobre o vídeo.
+- Animação `y: [0, -10, 0]` com `duration: 5s, easeInOut, repeat: Infinity` para o card "respirar".
+- Manter o watermark do nome do projeto como camada acima do vídeo.
 
-**Arquivo:** `src/components/DesignStacking.tsx`
+**Navegação:**
+- Manter as setas laterais (desktop e mobile).
+- Manter o swipe/drag touch.
+- Manter os dots indicadores embaixo.
 
-- Causa do bug: hoje uso `tl.progress(self.progress)` no `onUpdate` com `scrub`, e o `gsap.set` inicial dos cards (`opacity: 0`) só roda uma vez. Quando o usuário volta ao topo, o estado inicial não é reconstruído corretamente porque a timeline já passou e os elementos ficaram em estado intermediário.
-- Solução: usar `scrub` direto na timeline (em vez de `onUpdate` manual) — assim o GSAP reverte automaticamente quando o scroll volta. Trocar o `ScrollTrigger.create({ onUpdate })` por `gsap.timeline({ scrollTrigger: { trigger, start, end, scrub, ... } })`.
-- Adicionar `invalidateOnRefresh: true` para recalcular ao redimensionar.
-- Garantir que o heading e o pilot card também voltem ao estado inicial visível quando se rola pra cima.
+## 2. Preloader — mais lento, sem flash, uma linha só
 
-## 3. PortalTransition — animação 100% bidirecional sem travas
+**Arquivo:** `src/components/Preloader.tsx`
 
-**Arquivo:** `src/components/PortalTransition.tsx`
-
-- Já usa `useScroll` + `useTransform` do framer-motion (que é reversível por natureza), então o problema deve ser apenas de **curvas**: hoje uso `scale` com pico em `[1, 1.12, 0.92, 1]` que cria um "salto" no meio. Trocar por curvas monotônicas/lineares onde possível.
-- Substituir as curvas de squash por uma única passagem linear: mãos entram → tocam → saem, sem picos intermediários que travam ao reverter.
-- Reduzir o número de `useTransform` por elemento — combinar em menos animações para evitar conflitos de timing ao reverter.
-- Garantir que o flash, onda de choque e esfera nasçam/sumam linearmente para que ao rolar pra cima o efeito desfaça igualzinho ao revés do filme.
-
-## 4. Watermark "DESIGN" — visível no mobile mas grande, gigante no desktop
-
-**Arquivo:** `src/components/DesignStacking.tsx`
-
-- Hoje: `fontSize: clamp(16rem, 55vw, 44rem)` — no mobile (≈566px) isso dá ~310px de altura e estoura a tela.
-- Trocar por `clamp(7rem, 38vw, 56rem)`:
-  - Mobile (~566px): ~215px (cabe na tela e ainda parece "gigante" pela proporção).
-  - Desktop (1920px): ~56rem (≈896px) — toma a tela inteira como o vídeo pede.
+- Aumentar `DURATION` de `4200ms` → `7500ms` (mais tempo pra imersão do vídeo de fundo).
+- Aumentar delays de saída: `400ms` → `700ms` e `onFinish` `1100ms` → `1500ms`.
+- Trocar `bg-background` do container por `bg-black` puro + fallback escuro inline — elimina o flash do fundo antigo enquanto o vídeo carrega.
+- Adicionar `poster` no `<video>` (frame escuro) pra zero flicker.
+- Remover a barra duplicada de progresso: hoje existem duas (linhas 119-126 e 127-136). Manter apenas a barra única com glow neon + drop-shadow.
 
 ## Arquivos afetados
-- `src/components/DesignStacking.tsx`
-- `src/components/PortalTransition.tsx`
+- `public/portfolio-bg.mp4` (novo)
+- `src/components/Portfolio.tsx`
+- `src/components/Preloader.tsx`
