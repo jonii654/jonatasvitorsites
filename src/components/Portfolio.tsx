@@ -346,7 +346,7 @@ export function Portfolio() {
                 </div>
               </motion.a>
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
 
         {/* Controls */}
