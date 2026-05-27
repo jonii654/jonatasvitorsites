@@ -85,6 +85,12 @@ export function Hero() {
   const isLight = tier === 'light';
   const { trackCtaClick } = useAnalytics();
   const [ctaHover, setCtaHover] = useState(false);
+  const [ctaBurst, setCtaBurst] = useState(false);
+
+  const triggerBurst = () => {
+    setCtaBurst(true);
+    window.setTimeout(() => setCtaBurst(false), 700);
+  };
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
