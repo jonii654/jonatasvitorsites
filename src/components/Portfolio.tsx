@@ -352,10 +352,12 @@ export function Portfolio() {
             return (
               <motion.button
                 key={project.id}
+                data-portfolio-card
                 layoutId={`card-${project.id}`}
                 onClick={() => handleCardClick(idx)}
                 animate={style}
                 transition={{ duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
+
                 className={`relative group cursor-pointer overflow-hidden h-full block ${
                   mode === 'focus' && isActive
                     ? 'rounded-3xl border border-primary/30 shadow-[0_20px_50px_rgba(0,0,0,0.9)]'
