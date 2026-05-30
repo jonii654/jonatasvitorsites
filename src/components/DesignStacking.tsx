@@ -127,13 +127,13 @@ export function DesignStacking() {
           ref={bgTextRef}
           aria-hidden
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-          style={{ opacity: 0.12, willChange: 'transform, opacity' }}
+          style={{ opacity: 0.85, willChange: 'transform, opacity' }}
         >
           <span
             className="font-display font-black tracking-tighter leading-none text-white"
             style={{
-              fontSize: 'clamp(7rem, 38vw, 56rem)',
-              letterSpacing: '-0.05em',
+              fontSize: 'clamp(8rem, 55vw, 90rem)',
+              letterSpacing: '-0.06em',
             }}
           >
             DESIGN
