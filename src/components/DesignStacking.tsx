@@ -105,6 +105,8 @@ export function DesignStacking() {
           // Card 3 sobe / Card 4 entra
           tl.to(stackRefs.current[2], { yPercent: -110, duration: 0.8 }, 3.5)
             .to(stackRefs.current[3], { yPercent: 0, duration: 0.8 }, 3.6);
+          // Hold do card 4 totalmente visível antes de sair da seção
+          tl.to(stackRefs.current[3], { yPercent: 0, duration: 1.2 }, 4.4);
 
         }
       );
