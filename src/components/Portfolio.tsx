@@ -338,10 +338,6 @@ export function Portfolio() {
           </button>
         </div>
 
-        {/* Counter */}
-        <div className="text-center mt-4 text-[10px] tracking-[0.4em] uppercase text-foreground/50 font-bold">
-          {String(activeIndex + 1).padStart(2, '0')} — {String(projects.length).padStart(2, '0')}
-        </div>
       </div>
     </section>
   );
