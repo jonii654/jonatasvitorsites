@@ -72,7 +72,7 @@ export function DesignStacking() {
           }
           // Heading visível no início
           gsap.set(headingRef.current, { autoAlpha: 1, y: 0 });
-          gsap.set(bgTextRef.current, { scale: 1, opacity: 0.12 });
+          gsap.set(bgTextRef.current, { scale: 1, opacity: 0.85 });
 
           const tl = gsap.timeline({
             defaults: { ease: 'power2.inOut', force3D: true },
@@ -88,7 +88,7 @@ export function DesignStacking() {
 
           // Heading desaparece e watermark cresce no começo
           tl.to(headingRef.current, { autoAlpha: 0, y: -24, duration: 0.4, ease: 'none' }, 0)
-            .to(bgTextRef.current, { scale: 1.04, opacity: 0.18, duration: 4.6, ease: 'none' }, 0);
+            .to(bgTextRef.current, { scale: 1.05, opacity: 0.95, duration: 4.6, ease: 'none' }, 0);
 
           // Pilot card sai subindo enquanto card 1 entra de baixo
           if (pilotRef.current) {
@@ -105,6 +105,8 @@ export function DesignStacking() {
           // Card 3 sobe / Card 4 entra
           tl.to(stackRefs.current[2], { yPercent: -110, duration: 0.8 }, 3.5)
             .to(stackRefs.current[3], { yPercent: 0, duration: 0.8 }, 3.6);
+          // Hold do card 4 totalmente visível antes de sair da seção
+          tl.to(stackRefs.current[3], { yPercent: 0, duration: 1.2 }, 4.4);
 
         }
       );
@@ -117,7 +119,7 @@ export function DesignStacking() {
       id="design"
       ref={wrapperRef}
       className="relative w-full"
-      style={{ height: isMobile ? '280vh' : '560vh' }}
+      style={{ height: isMobile ? '340vh' : '560vh' }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-background">
         {/* Watermark DESIGN */}
@@ -125,13 +127,13 @@ export function DesignStacking() {
           ref={bgTextRef}
           aria-hidden
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-          style={{ opacity: 0.12, willChange: 'transform, opacity' }}
+          style={{ opacity: 0.85, willChange: 'transform, opacity' }}
         >
           <span
             className="font-display font-black tracking-tighter leading-none text-white"
             style={{
-              fontSize: 'clamp(7rem, 38vw, 56rem)',
-              letterSpacing: '-0.05em',
+              fontSize: 'clamp(8rem, 55vw, 90rem)',
+              letterSpacing: '-0.06em',
             }}
           >
             DESIGN
@@ -174,13 +176,10 @@ export function DesignStacking() {
                 QUEM FAZ É VOCÊ!
               </span>
             </h2>
-            <p className="mt-4 text-sm md:text-base text-muted-foreground max-w-lg mx-auto">
-              Role para revelar as direções de design — cada card é uma linguagem visual possível.
-            </p>
           </div>
 
           {/* Stack container: pilot base + 4 cards subindo */}
-          <div className="relative w-[72vw] max-w-[300px] md:max-w-[420px] aspect-square">
+          <div className="relative w-[72vw] max-w-[260px] md:max-w-[300px] aspect-square">
             {/* Pilot card (base) */}
             <div
               ref={pilotRef}

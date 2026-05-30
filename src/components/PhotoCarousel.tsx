@@ -1,6 +1,5 @@
-import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import photo1 from '@/assets/jonatas-photo-1.jpg';
 import photo2 from '@/assets/jonatas-photo-2.jpg';
 
@@ -10,103 +9,113 @@ const photos = [
 ];
 
 /**
- * Two-photo carousel with a "emerge from darkness" scroll-driven effect.
- * Each photo enters dark + scaled-up and brightens to full as it scrolls into view.
+ * "Card deck" — both photos visible at once, fanned out in an X shape like
+ * holding two playing cards. Hover/tap fans them out further. Tapping the
+ * back card brings it to the front.
  */
 export function PhotoCarousel() {
-  const [index, setIndex] = useState(0);
-  const [direction, setDirection] = useState(0);
+  const [frontIndex, setFrontIndex] = useState(0);
+  const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const touchStart = useRef<number | null>(null);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start 90%', 'center 50%'],
   });
+  const brightness = useTransform(scrollYProgress, [0, 1], [0.25, 1]);
+  const opacity = useTransform(scrollYProgress, [0, 0.6], [0.4, 1]);
 
-  const brightness = useTransform(scrollYProgress, [0, 1], [0.1, 1]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1.15, 1]);
-  const opacity = useTransform(scrollYProgress, [0, 0.6], [0.3, 1]);
+  const backIndex = (frontIndex + 1) % photos.length;
 
-  const go = (dir: number) => {
-    setDirection(dir);
-    setIndex((i) => (i + dir + photos.length) % photos.length);
-  };
-
-  // Swipe support
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStart.current = e.touches[0].clientX;
-  };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchStart.current == null) return;
-    const delta = e.changedTouches[0].clientX - touchStart.current;
-    if (Math.abs(delta) > 50) go(delta < 0 ? 1 : -1);
-    touchStart.current = null;
-  };
+  // Rotation/offset: larger when "open" (hover/tap), tighter at rest
+  const restRot = 6;
+  const openRot = 14;
+  const restX = 14; // %
+  const openX = 28; // %
 
   return (
     <div
       ref={containerRef}
       className="relative w-full max-w-md mx-auto"
       style={{ aspectRatio: '4 / 5' }}
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
     >
-      {/* Subtle glow behind */}
+      {/* Glow behind */}
       <div className="absolute -inset-6 rounded-[2rem] bg-primary/10 blur-3xl pointer-events-none" />
 
-      <div className="relative w-full h-full rounded-3xl overflow-hidden border border-border/40 bg-background/40">
-        <AnimatePresence initial={false} custom={direction} mode="wait">
+      <motion.div
+        className="relative w-full h-full"
+        style={{ opacity, perspective: 1200 }}
+        onHoverStart={() => setOpen(true)}
+        onHoverEnd={() => setOpen(false)}
+        onTapStart={() => setOpen(true)}
+        onTap={() => setOpen(false)}
+      >
+        {/* BACK card (left, rotated negative) */}
+        <motion.button
+          type="button"
+          aria-label="Trazer outra foto para frente"
+          onClick={(e) => {
+            e.stopPropagation();
+            setFrontIndex(backIndex);
+          }}
+          className="absolute inset-0 rounded-3xl overflow-hidden border border-border/40 bg-background/40 cursor-pointer"
+          animate={{
+            rotate: open ? -openRot : -restRot,
+            x: open ? `-${openX}%` : `-${restX}%`,
+            y: open ? '2%' : '0%',
+            scale: 0.96,
+            zIndex: 1,
+          }}
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          style={{ transformOrigin: 'bottom center' }}
+        >
           <motion.img
-            key={index}
-            src={photos[index].src}
-            alt={photos[index].alt}
-            custom={direction}
-            initial={{ opacity: 0, x: direction === 0 ? 0 : direction * 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -direction * 40 }}
-            transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+            src={photos[backIndex].src}
+            alt={photos[backIndex].alt}
+            loading="eager"
+            draggable={false}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: useTransform(brightness, (b) => `brightness(${b * 0.85})`) as any }}
+          />
+          {/* Subtle dim so back card reads as background */}
+          <div className="absolute inset-0 bg-background/20 pointer-events-none" />
+        </motion.button>
+
+        {/* FRONT card (right, rotated positive) */}
+        <motion.div
+          className="absolute inset-0 rounded-3xl overflow-hidden border border-border/40 bg-background/40 shadow-[0_30px_60px_rgba(0,0,0,0.45)]"
+          animate={{
+            rotate: open ? openRot : restRot,
+            x: open ? `${openX}%` : `${restX}%`,
+            y: open ? '-1%' : '0%',
+            scale: 1,
+            zIndex: 2,
+          }}
+          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+          style={{ transformOrigin: 'bottom center' }}
+        >
+          <motion.img
+            key={frontIndex}
+            src={photos[frontIndex].src}
+            alt={photos[frontIndex].alt}
             loading="eager"
             {...({ fetchpriority: 'high' } as any)}
-            style={{
-              filter: useTransform(brightness, (b) => `brightness(${b})`),
-              scale,
-              opacity,
-            } as any}
-            className="absolute inset-0 w-full h-full object-cover"
             draggable={false}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: useTransform(brightness, (b) => `brightness(${b})`) as any }}
           />
-        </AnimatePresence>
-
-        {/* Arrows - desktop */}
-        <button
-          aria-label="Foto anterior"
-          onClick={() => go(-1)}
-          className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full items-center justify-center bg-background/60 backdrop-blur-md border border-border/40 hover:bg-background/80 transition"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <button
-          aria-label="Próxima foto"
-          onClick={() => go(1)}
-          className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full items-center justify-center bg-background/60 backdrop-blur-md border border-border/40 hover:bg-background/80 transition"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Dots */}
-      <div className="flex justify-center gap-2 mt-4">
+      <div className="flex justify-center gap-2 mt-6">
         {photos.map((_, i) => (
           <button
             key={i}
-            aria-label={`Ir para foto ${i + 1}`}
-            onClick={() => {
-              setDirection(i > index ? 1 : -1);
-              setIndex(i);
-            }}
+            aria-label={`Trazer foto ${i + 1} para frente`}
+            onClick={() => setFrontIndex(i)}
             className={`h-1.5 rounded-full transition-all ${
-              i === index ? 'w-8 bg-primary' : 'w-2 bg-muted-foreground/40'
+              i === frontIndex ? 'w-8 bg-primary' : 'w-2 bg-muted-foreground/40'
             }`}
           />
         ))}

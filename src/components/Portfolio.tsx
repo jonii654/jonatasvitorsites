@@ -238,30 +238,7 @@ export function Portfolio() {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        {/* Project name (giant background type) */}
         <div className="relative h-[55vh] md:h-[60vh] max-h-[560px] flex items-center justify-center">
-          {/* Giant brand text behind card */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`brand-${active.id}`}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 0.08, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-            >
-              <span
-                className="font-black uppercase whitespace-nowrap tracking-tighter text-foreground"
-                style={{
-                  fontSize: 'clamp(4rem, 18vw, 16rem)',
-                  letterSpacing: '-0.06em',
-                }}
-              >
-                {active.title.split(' ')[0]}
-              </span>
-            </motion.div>
-          </AnimatePresence>
-
           {/* Featured card — flutuando sobre o vídeo */}
           <motion.div
             className="relative w-[92vw] max-w-[560px] md:max-w-[720px] aspect-[4/3]"
@@ -304,39 +281,13 @@ export function Portfolio() {
                 <div
                   className="absolute inset-0"
                   style={{
-                    background: `linear-gradient(180deg, transparent 40%, hsl(220 50% 4% / 0.55) 75%, hsl(220 50% 4% / 0.92) 100%)`,
+                    background: `linear-gradient(180deg, transparent 55%, hsl(220 50% 4% / 0.55) 80%, hsl(220 50% 4% / 0.92) 100%)`,
                   }}
                 />
 
-                {/* Top tags */}
-                <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-                  <span
-                    className="text-[10px] tracking-widest font-mono px-2 py-1 rounded-full border bg-background/30 backdrop-blur"
-                    style={{
-                      color: `hsl(${active.glow.accent})`,
-                      borderColor: `hsl(${active.glow.accent} / 0.4)`,
-                    }}
-                  >
-                    {active.code} / {String(projects.length).padStart(2, '0')}
-                  </span>
-                  <span className="text-[10px] tracking-widest uppercase font-bold px-2 py-1 rounded-full bg-foreground/10 backdrop-blur text-foreground/90 border border-foreground/20">
-                    {active.type}
-                  </span>
-                </div>
-
-                {/* Bottom info */}
-                <div className="absolute inset-x-0 bottom-0 p-5 md:p-7 text-left">
-                  <p
-                    className="text-[10px] md:text-xs tracking-[0.3em] uppercase font-bold mb-2"
-                    style={{ color: `hsl(${active.glow.accent})` }}
-                  >
-                    {active.categoryLabel}
-                  </p>
-                  <h3 className="text-2xl md:text-4xl font-black text-white leading-[0.95] tracking-tight mb-2">
-                    {active.title}
-                  </h3>
-                  <p className="text-sm text-white/70 mb-4">{active.subtitle}</p>
-                  <span className="inline-flex items-center gap-2 text-xs font-semibold text-white/90 uppercase tracking-wider">
+                {/* Bottom "Ver projeto" only */}
+                <div className="absolute inset-x-0 bottom-0 p-5 md:p-7 flex justify-center">
+                  <span className="inline-flex items-center gap-2 text-xs md:text-sm font-semibold text-white uppercase tracking-[0.25em] px-5 py-2.5 rounded-full bg-background/40 backdrop-blur border border-foreground/20">
                     Ver projeto
                     <ExternalLink className="w-3.5 h-3.5" />
                   </span>
@@ -387,10 +338,6 @@ export function Portfolio() {
           </button>
         </div>
 
-        {/* Counter */}
-        <div className="text-center mt-4 text-[10px] tracking-[0.4em] uppercase text-foreground/50 font-bold">
-          {String(activeIndex + 1).padStart(2, '0')} — {String(projects.length).padStart(2, '0')}
-        </div>
       </div>
     </section>
   );
