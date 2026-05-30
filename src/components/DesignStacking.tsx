@@ -176,13 +176,10 @@ export function DesignStacking() {
                 QUEM FAZ É VOCÊ!
               </span>
             </h2>
-            <p className="mt-4 text-sm md:text-base text-muted-foreground max-w-lg mx-auto">
-              Role para revelar as direções de design — cada card é uma linguagem visual possível.
-            </p>
           </div>
 
           {/* Stack container: pilot base + 4 cards subindo */}
-          <div className="relative w-[72vw] max-w-[300px] md:max-w-[420px] aspect-square">
+          <div className="relative w-[72vw] max-w-[260px] md:max-w-[300px] aspect-square">
             {/* Pilot card (base) */}
             <div
               ref={pilotRef}
