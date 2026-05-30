@@ -72,7 +72,7 @@ export function DesignStacking() {
           }
           // Heading visível no início
           gsap.set(headingRef.current, { autoAlpha: 1, y: 0 });
-          gsap.set(bgTextRef.current, { scale: 1, opacity: 0.12 });
+          gsap.set(bgTextRef.current, { scale: 1, opacity: 0.85 });
 
           const tl = gsap.timeline({
             defaults: { ease: 'power2.inOut', force3D: true },
