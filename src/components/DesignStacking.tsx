@@ -117,7 +117,7 @@ export function DesignStacking() {
       id="design"
       ref={wrapperRef}
       className="relative w-full"
-      style={{ height: isMobile ? '280vh' : '560vh' }}
+      style={{ height: isMobile ? '340vh' : '560vh' }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-background">
         {/* Watermark DESIGN */}
