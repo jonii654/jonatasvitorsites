@@ -88,7 +88,7 @@ export function DesignStacking() {
 
           // Heading desaparece e watermark cresce no começo
           tl.to(headingRef.current, { autoAlpha: 0, y: -24, duration: 0.4, ease: 'none' }, 0)
-            .to(bgTextRef.current, { scale: 1.04, opacity: 0.18, duration: 4.6, ease: 'none' }, 0);
+            .to(bgTextRef.current, { scale: 1.05, opacity: 0.95, duration: 4.6, ease: 'none' }, 0);
 
           // Pilot card sai subindo enquanto card 1 entra de baixo
           if (pilotRef.current) {
