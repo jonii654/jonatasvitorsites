@@ -1,5 +1,5 @@
 import { CheckCircle2 } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { useRef } from 'react';
 
 const benefits = [
@@ -15,10 +15,16 @@ export function BenefitsBar() {
     offset: ["start end", "end start"]
   });
 
-  // Fade in when entering, fade out when leaving
+  // Section reveal
   const opacity = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [0, 1, 1, 1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [0.9, 1, 1, 1, 0.9]);
   const y = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [40, 0, 0, -40]);
+
+  // Light progress connecting the icons (0 → 1 as user scrolls through the section)
+  const rawProgress = useTransform(scrollYProgress, [0.3, 0.7], [0, 1]);
+  const lightProgress = useSpring(rawProgress, { stiffness: 80, damping: 22, mass: 0.4 });
+  const scaleDesktop = useTransform(lightProgress, (p) => p);
+  const scaleMobile = useTransform(lightProgress, (p) => p);
 
   return (
     <div className="py-20 md:py-28" ref={sectionRef}>
@@ -26,23 +32,27 @@ export function BenefitsBar() {
         style={{ opacity, scale, y }}
         className="container mx-auto px-4"
       >
-        {/* Desktop Layout - Icons in a column on left, lines between icons, text beside each */}
+        {/* Desktop Layout */}
         <div className="hidden md:flex justify-center items-center gap-0">
           {benefits.map((item, i) => (
             <div key={i} className="flex items-center">
-              {/* Horizontal connecting line between icons */}
+              {/* Horizontal light connecting icons (scroll-driven) */}
               {i > 0 && (
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 + i * 0.15, duration: 0.6 }}
-                  className="w-16 lg:w-24 h-[2px] origin-left"
+                <div
+                  className="relative w-16 lg:w-24 h-[2px] overflow-visible"
                   style={{
-                    background: 'linear-gradient(90deg, hsl(195 100% 50% / 0.5), hsl(155 100% 50% / 0.35), hsl(195 100% 50% / 0.5))',
-                    boxShadow: '0 0 8px hsl(195 100% 50% / 0.3), 0 0 16px hsl(195 100% 50% / 0.15)',
+                    background: 'hsl(195 100% 50% / 0.12)',
                   }}
-                />
+                >
+                  <motion.div
+                    className="absolute inset-y-0 left-0 h-full origin-left"
+                    style={{
+                      scaleX: scaleDesktop,
+                      background: 'linear-gradient(90deg, hsl(195 100% 60%), hsl(155 100% 55%), hsl(195 100% 60%))',
+                      boxShadow: '0 0 10px hsl(195 100% 55% / 0.7), 0 0 24px hsl(155 100% 55% / 0.5)',
+                    }}
+                  />
+                </div>
               )}
 
               <motion.div
@@ -53,16 +63,16 @@ export function BenefitsBar() {
                 className="flex items-center gap-3"
               >
                 <div className="relative">
-                  <CheckCircle2 
-                    className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0 relative z-10" 
-                    style={{ 
+                  <CheckCircle2
+                    className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0 relative z-10"
+                    style={{
                       color: item.icon === 'green' ? 'hsl(155 100% 50%)' : 'hsl(195 100% 50%)',
                       filter: `drop-shadow(0 0 8px ${item.icon === 'green' ? 'hsl(155 100% 50% / 0.5)' : 'hsl(195 100% 50% / 0.5)'})`
-                    }} 
+                    }}
                   />
                 </div>
 
-                <span 
+                <span
                   className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground whitespace-nowrap"
                 >
                   {item.text}
@@ -72,23 +82,27 @@ export function BenefitsBar() {
           ))}
         </div>
 
-        {/* Mobile Layout - Icons connected vertically, text beside each icon */}
+        {/* Mobile Layout */}
         <div className="flex md:hidden flex-col items-center">
           {benefits.map((item, i) => (
             <div key={i} className="flex flex-col items-center">
-              {/* Vertical connecting line between icons */}
+              {/* Vertical light connecting icons (scroll-driven) */}
               {i > 0 && (
-                <motion.div
-                  initial={{ scaleY: 0 }}
-                  whileInView={{ scaleY: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2 + i * 0.15, duration: 0.6 }}
-                  className="w-[2px] h-10 origin-top"
+                <div
+                  className="relative w-[2px] h-10 overflow-visible"
                   style={{
-                    background: 'linear-gradient(180deg, hsl(195 100% 50% / 0.5), hsl(155 100% 50% / 0.35), hsl(195 100% 50% / 0.5))',
-                    boxShadow: '0 0 8px hsl(195 100% 50% / 0.3), 0 0 16px hsl(195 100% 50% / 0.15)',
+                    background: 'hsl(195 100% 50% / 0.12)',
                   }}
-                />
+                >
+                  <motion.div
+                    className="absolute inset-x-0 top-0 w-full origin-top"
+                    style={{
+                      scaleY: scaleMobile,
+                      background: 'linear-gradient(180deg, hsl(195 100% 60%), hsl(155 100% 55%), hsl(195 100% 60%))',
+                      boxShadow: '0 0 10px hsl(195 100% 55% / 0.7), 0 0 24px hsl(155 100% 55% / 0.5)',
+                    }}
+                  />
+                </div>
               )}
 
               <motion.div
@@ -99,16 +113,16 @@ export function BenefitsBar() {
                 className="flex items-center gap-3 py-2"
               >
                 <div className="relative">
-                  <CheckCircle2 
-                    className="w-7 h-7 flex-shrink-0 relative z-10" 
-                    style={{ 
+                  <CheckCircle2
+                    className="w-7 h-7 flex-shrink-0 relative z-10"
+                    style={{
                       color: item.icon === 'green' ? 'hsl(155 100% 50%)' : 'hsl(195 100% 50%)',
                       filter: `drop-shadow(0 0 8px ${item.icon === 'green' ? 'hsl(155 100% 50% / 0.5)' : 'hsl(195 100% 50% / 0.5)'})`
-                    }} 
+                    }}
                   />
                 </div>
 
-                <span 
+                <span
                   className="text-lg font-bold text-foreground whitespace-nowrap"
                 >
                   {item.text}
