@@ -331,7 +331,7 @@ export function Hero() {
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.35 }}
+              transition={{ duration: 0.7, delay: 3.3 }}
               className="font-display text-slate-300 text-base md:text-xl font-light leading-relaxed max-w-xl mb-8"
             >
               Especialista em sites institucionais e landing pages com design moderno,
@@ -342,7 +342,7 @@ export function Hero() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.5 }}
+              transition={{ duration: 0.7, delay: 3.6 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2"
             >
               <a
