@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef } from 'react';
+import { useRef } from 'react';
 import {
   motion,
   useScroll,
@@ -9,7 +9,7 @@ import {
 
 import { useDeviceTier } from '@/hooks/use-device-tier';
 
-const Hand3D = lazy(() => import('@/components/effects/Hand3D').then(m => ({ default: m.Hand3D })));
+
 
 
 /**
