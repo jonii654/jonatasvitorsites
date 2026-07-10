@@ -128,41 +128,42 @@ export function PortalTransition() {
     restDelta: 0.001,
   });
 
-  // Mãos entram das laterais e se encontram no centro — curvas monotônicas
-  const handLeftX = useTransform(progress, [0, 0.45], ['-55vw', '0vw']);
-  const handRightX = useTransform(progress, [0, 0.45], ['55vw', '0vw']);
-  const handScale = useTransform(progress, [0, 0.45], [1, 1.03]);
+  // Mãos entram das laterais; param com pequeno gap (dedos indicadores quase se tocando)
+  const handLeftX = useTransform(progress, [0, 0.42], ['-55vw', '-4vw']);
+  const handRightX = useTransform(progress, [0, 0.42], ['55vw', '4vw']);
+  const handScale = useTransform(progress, [0, 0.42], [1, 1.02]);
   const handOpacity = useTransform(
     progress,
-    [0, 0.08, 0.5, 0.58],
+    [0, 0.08, 0.46, 0.52],
     [0, 1, 1, 0],
   );
-  const handLeftRot = useTransform(progress, [0, 0.45], [-10, 0]);
-  const handRightRot = useTransform(progress, [0, 0.45], [10, 0]);
+  // Sem rotação final "fechando palma" — mãos permanecem horizontais
+  const handLeftRot = useTransform(progress, [0, 0.42], [-4, 0]);
+  const handRightRot = useTransform(progress, [0, 0.42], [4, 0]);
 
-  // Flash branco — entra e sai linear
+  // Flash: pico curto e sai rápido — sensação de "faísca" no toque
   const flashOpacity = useTransform(
     progress,
-    [0.42, 0.48, 0.56],
-    [0, 0.85, 0],
+    [0.42, 0.46, 0.52],
+    [0, 0.95, 0],
   );
 
-  // Onda de choque — linear
-  const shockScale = useTransform(progress, [0.46, 0.62], [0, 8]);
-  const shockOpacity = useTransform(progress, [0.46, 0.5, 0.62], [0, 0.8, 0]);
+  // Onda de choque acelerada
+  const shockScale = useTransform(progress, [0.44, 0.58], [0, 10]);
+  const shockOpacity = useTransform(progress, [0.44, 0.48, 0.58], [0, 0.9, 0]);
 
-  // Núcleo nasce no centro; tamanho final menor pra não criar "explosão" ao reverter
-  const finalScale = isLight ? 18 : 32;
-  const coreOpacity = useTransform(progress, [0.46, 0.55, 0.88, 0.95], [0, 1, 1, 0]);
+  // Núcleo cresce rápido — imersão instantânea
+  const finalScale = isLight ? 22 : 40;
+  const coreOpacity = useTransform(progress, [0.44, 0.5, 0.62, 0.72], [0, 1, 1, 0]);
   const coreScale = useTransform(
     progress,
-    [0.46, 0.7, 0.92],
-    [0, 2.5, finalScale],
+    [0.44, 0.55, 0.66],
+    [0, 6, finalScale],
   );
-  const coreRotate = useTransform(progress, [0.46, 0.92], [0, 120]);
+  const coreRotate = useTransform(progress, [0.44, 0.72], [0, 90]);
 
-  // Stage fade out — completa cedo para o DesignStacking aparecer logo após o disparo
-  const stageOpacity = useTransform(progress, [0.6, 0.82], [1, 0]);
+  // Stage sai cedo — emenda direto no DesignStacking (imersão instantânea)
+  const stageOpacity = useTransform(progress, [0.5, 0.62], [1, 0]);
 
 
   if (reduced) return null;
