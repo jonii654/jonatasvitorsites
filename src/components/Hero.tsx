@@ -272,13 +272,13 @@ export function Hero() {
             </motion.span>
 
             {/* Editorial headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.1 }}
+            <h1
               className="font-serif italic text-white text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-[0.85] tracking-tight flex flex-col mb-10"
             >
-              <span
+              <motion.span
+                initial={{ opacity: 0, x: -220 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 className="block"
                 style={{
                   textShadow:
@@ -286,9 +286,12 @@ export function Hero() {
                 }}
               >
                 Crio
-              </span>
+              </motion.span>
               <span className="block flex items-center justify-center gap-6 md:gap-16">
-                <span
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.55, filter: 'blur(24px)' }}
+                  animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                  transition={{ duration: 0.8, delay: 1.0, ease: 'easeOut' }}
                   className="font-display not-italic font-light text-3xl md:text-5xl lg:text-6xl tracking-[0.2em] text-white/70 uppercase translate-y-1 md:translate-y-2"
                   style={{
                     textShadow:
@@ -296,8 +299,11 @@ export function Hero() {
                   }}
                 >
                   sites
-                </span>
-                <span
+                </motion.span>
+                <motion.span
+                  initial={{ opacity: 0, x: 220 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.7, delay: 1.7, ease: [0.16, 1, 0.3, 1] }}
                   className="text-[hsl(195_100%_55%)]"
                   style={{
                     textShadow:
@@ -305,9 +311,12 @@ export function Hero() {
                   }}
                 >
                   que
-                </span>
+                </motion.span>
               </span>
-              <span
+              <motion.span
+                initial={{ opacity: 0, x: -240, rotate: -4 }}
+                animate={{ opacity: 1, x: 0, rotate: 0 }}
+                transition={{ duration: 0.8, delay: 2.4, ease: [0.16, 1, 0.3, 1] }}
                 className="block text-neon-gradient"
                 style={{
                   textShadow:
@@ -315,14 +324,14 @@ export function Hero() {
                 }}
               >
                 Vendem
-              </span>
-            </motion.h1>
+              </motion.span>
+            </h1>
 
             {/* Subhead */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.35 }}
+              transition={{ duration: 0.7, delay: 3.3 }}
               className="font-display text-slate-300 text-base md:text-xl font-light leading-relaxed max-w-xl mb-8"
             >
               Especialista em sites institucionais e landing pages com design moderno,
@@ -333,7 +342,7 @@ export function Hero() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.5 }}
+              transition={{ duration: 0.7, delay: 3.6 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2"
             >
               <a

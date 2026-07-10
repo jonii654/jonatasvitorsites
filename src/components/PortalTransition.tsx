@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { lazy, Suspense, useRef } from 'react';
 import {
   motion,
   useScroll,
@@ -8,6 +8,9 @@ import {
 } from 'framer-motion';
 
 import { useDeviceTier } from '@/hooks/use-device-tier';
+
+const Hand3D = lazy(() => import('@/components/effects/Hand3D').then(m => ({ default: m.Hand3D })));
+
 
 /**
  * Portal dimensional: duas mãos humanas (azul + verde) entram pelas laterais,
@@ -160,8 +163,9 @@ export function PortalTransition() {
   );
   const coreRotate = useTransform(progress, [0.46, 0.92], [0, 120]);
 
-  // Stage fade out suave
-  const stageOpacity = useTransform(progress, [0.82, 0.95], [1, 0]);
+  // Stage fade out — completa cedo para o DesignStacking aparecer logo após o disparo
+  const stageOpacity = useTransform(progress, [0.6, 0.82], [1, 0]);
+
 
   if (reduced) return null;
 
@@ -176,7 +180,7 @@ export function PortalTransition() {
       ref={sectionRef}
       aria-label="Transição portal dimensional"
       className="relative w-full"
-      style={{ height: '120vh' }}
+      style={{ height: '100vh' }}
     >
       <motion.div
         className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center"
@@ -221,7 +225,13 @@ export function PortalTransition() {
             ...gpu,
           }}
         >
-          <HumanHand color="hsl(195 100% 55%)" />
+          {isLight ? (
+            <HumanHand color="hsl(195 100% 55%)" />
+          ) : (
+            <Suspense fallback={<HumanHand color="hsl(195 100% 55%)" />}>
+              <Hand3D auraColor="hsl(195 100% 55%)" />
+            </Suspense>
+          )}
         </motion.div>
 
         {/* Mão direita — humana com aura VERDE */}
@@ -236,10 +246,16 @@ export function PortalTransition() {
             ...gpu,
           }}
         >
-          <HumanHand color="hsl(155 100% 55%)" mirror />
+          {isLight ? (
+            <HumanHand color="hsl(155 100% 55%)" mirror />
+          ) : (
+            <Suspense fallback={<HumanHand color="hsl(155 100% 55%)" mirror />}>
+              <Hand3D auraColor="hsl(155 100% 55%)" mirror />
+            </Suspense>
+          )}
         </motion.div>
 
-        {/* Onda de choque */}
+        {/* Onda de choque — branca */}
         <motion.div
           aria-hidden
           className="absolute top-1/2 left-1/2 z-30 w-32 h-32 rounded-full pointer-events-none"
@@ -253,6 +269,24 @@ export function PortalTransition() {
             ...gpu,
           }}
         />
+
+        {/* Onda de choque — ciano (segunda camada) */}
+        <motion.div
+          aria-hidden
+          className="absolute top-1/2 left-1/2 z-30 w-24 h-24 rounded-full pointer-events-none"
+          style={{
+            x: '-50%',
+            y: '-50%',
+            scale: shockScale,
+            opacity: shockOpacity,
+            border: '2px solid hsl(195 100% 65% / 0.8)',
+            ...gpu,
+          }}
+        />
+
+        {/* Sparks radiais no impacto */}
+        <Sparks progress={progress} />
+
 
         {/* Flash branco do impacto */}
         <motion.div
@@ -298,4 +332,53 @@ export function PortalTransition() {
   );
 }
 
+function Sparks({ progress }: { progress: import('framer-motion').MotionValue<number> }) {
+  const N = 16;
+  const sparks = Array.from({ length: N }, (_, i) => {
+    const angle = (i / N) * Math.PI * 2;
+    return { angle, dist: 120 + (i % 3) * 50, color: i % 2 === 0 ? 'hsl(195 100% 60%)' : 'hsl(155 100% 60%)' };
+  });
+  return (
+    <>
+      {sparks.map((s, i) => (
+        <Spark key={i} progress={progress} angle={s.angle} dist={s.dist} color={s.color} />
+      ))}
+    </>
+  );
+}
+
+function Spark({
+  progress,
+  angle,
+  dist,
+  color,
+}: {
+  progress: import('framer-motion').MotionValue<number>;
+  angle: number;
+  dist: number;
+  color: string;
+}) {
+  const x = useTransform(progress, [0.46, 0.62], [0, Math.cos(angle) * dist]);
+  const y = useTransform(progress, [0.46, 0.62], [0, Math.sin(angle) * dist]);
+  const opacity = useTransform(progress, [0.46, 0.5, 0.62], [0, 1, 0]);
+  const scale = useTransform(progress, [0.46, 0.62], [0.6, 1.4]);
+  return (
+    <motion.div
+      aria-hidden
+      className="absolute top-1/2 left-1/2 z-30 w-2 h-2 rounded-full pointer-events-none"
+      style={{
+        x,
+        y,
+        opacity,
+        scale,
+        translateX: '-50%',
+        translateY: '-50%',
+        background: color,
+        boxShadow: `0 0 12px ${color}, 0 0 24px ${color}`,
+      }}
+    />
+  );
+}
+
 export default PortalTransition;
+
