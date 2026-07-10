@@ -352,10 +352,10 @@ function Spark({
   dist: number;
   color: string;
 }) {
-  const x = useTransform(progress, [0.44, 0.58], [0, Math.cos(angle) * dist]);
-  const y = useTransform(progress, [0.44, 0.58], [0, Math.sin(angle) * dist]);
-  const opacity = useTransform(progress, [0.44, 0.48, 0.58], [0, 1, 0]);
-  const scale = useTransform(progress, [0.44, 0.58], [0.6, 1.4]);
+  const x = useTransform(progress, [0.52, 0.68], [0, Math.cos(angle) * dist]);
+  const y = useTransform(progress, [0.52, 0.68], [0, Math.sin(angle) * dist]);
+  const opacity = useTransform(progress, [0.52, 0.56, 0.68], [0, 1, 0]);
+  const scale = useTransform(progress, [0.52, 0.68], [0.6, 1.6]);
   return (
     <motion.div
       aria-hidden
