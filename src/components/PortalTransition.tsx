@@ -163,8 +163,9 @@ export function PortalTransition() {
   );
   const coreRotate = useTransform(progress, [0.46, 0.92], [0, 120]);
 
-  // Stage fade out suave
-  const stageOpacity = useTransform(progress, [0.82, 0.95], [1, 0]);
+  // Stage fade out — completa cedo para o DesignStacking aparecer logo após o disparo
+  const stageOpacity = useTransform(progress, [0.6, 0.82], [1, 0]);
+
 
   if (reduced) return null;
 
