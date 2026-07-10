@@ -239,13 +239,7 @@ export function PortalTransition() {
             ...gpu,
           }}
         >
-          {isLight ? (
-            <HumanHand color="hsl(155 100% 55%)" mirror />
-          ) : (
-            <Suspense fallback={<HumanHand color="hsl(155 100% 55%)" mirror />}>
-              <Hand3D auraColor="hsl(155 100% 55%)" mirror />
-            </Suspense>
-          )}
+          <HumanHand color="hsl(155 100% 55%)" mirror />
         </motion.div>
 
         {/* Onda de choque — branca */}
