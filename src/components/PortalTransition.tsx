@@ -179,7 +179,7 @@ export function PortalTransition() {
       ref={sectionRef}
       aria-label="Transição portal dimensional"
       className="relative w-full"
-      style={{ height: '100vh' }}
+      style={{ height: '80vh' }}
     >
       <motion.div
         className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center"
