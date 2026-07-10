@@ -1,55 +1,40 @@
-# Plano
+# Plano — Seção "O que você ganha / Compromisso com qualidade" (`src/components/Results.tsx`)
 
-## 1. Hero — palavras entrando em sequência (`Hero.tsx`)
+## 1. Numeração (01, 02, 03, 04) fora do meio da linha
 
-Substituir o `motion.h1` atual por 4 palavras animadas individualmente, cada uma com o próprio timing e direção:
+Hoje o `<span>` do número fica em `left-1/2 -translate-x-1/2` embaixo do nó — cai exatamente em cima da linha neon vertical.
 
-1. **"Crio"** — entra deslizando da esquerda (`x: -200 → 0`, `opacity: 0 → 1`) — delay `0.2s`, duração `0.7s`, ease `power3.out`.
-2. **"sites"** — brota do fundo (blur + scale): `opacity: 0 → 1`, `filter: blur(24px) → blur(0)`, `scale: 0.6 → 1` — delay `1.0s`, duração `0.8s`.
-3. **"que"** — entra deslizando da direita (`x: 200 → 0`) — delay `1.7s`, duração `0.7s`.
-4. **"Vendem"** — entra deslizando da esquerda (`x: -220 → 0`, leve `rotate: -4 → 0`) — delay `2.4s`, duração `0.8s`.
+Ajustar para deslocar o número para a esquerda do nó (fora da trilha), mantendo legibilidade:
 
-Usar Framer Motion com `initial`/`animate` e `transition.delay` (já é a lib padrão do projeto — sem GSAP extra aqui). Manter estilos/tipografia atuais (serif itálica, neon, text-shadow 3D). Preservar eyebrow, subhead e CTAs, apenas empurrando o delay do subhead/CTAs para depois da última palavra (`~3.2s / 3.5s`) para respeitar a sequência.
+- Trocar posicionamento para `left-[-22px]` (ou `-left-6`) e remover o `-translate-x-1/2`, ancorando o número à esquerda do círculo.
+- Ajustar `bottom` ligeiramente (`-bottom-4`) para não colidir com o card abaixo.
+- No mobile (nó já está em `left-6`), mesmo deslocamento à esquerda funciona porque a trilha fica à esquerda; o número passa a ficar levemente antes do círculo, fora da linha.
 
-## 2. Portal / Mãos — mãos 3D realistas + transição correta (`PortalTransition.tsx`, `Index.tsx`)
+## 2. Animar os ícones: cada um se "desenha" conforme rola
 
-### 2.1 Mãos realistas
-Trocar o `HumanHand` SVG 2D atual por mãos 3D reais usando `@react-three/fiber` + `@react-three/drei`:
+Substituir os ícones do `lucide-react` (Zap, Clock, Smartphone, Shield) por SVGs inline com `stroke` animável, e desenhar cada um com a técnica `stroke-dasharray` + `stroke-dashoffset` dirigida pelo ScrollTrigger do GSAP (mesma lib já usada no arquivo).
 
-- Adicionar dependências (versões fixadas pelo ambiente): `@react-three/fiber@^8.18`, `@react-three/drei@^9.122.0`, `three@^0.160`.
-- Novo componente `Hand3D` renderiza um `<Canvas>` transparente com:
-  - Modelo de mão realista via `useGLTF` a partir de um GLB público estável de mão humana (ex.: modelo Poly Haven / KhronosGroup sample "hand" — carregado por URL absoluta e cacheado por Drei).
-  - Fallback (se o GLB falhar em carregar) para uma mão low-poly esculpida com primitivos (`MeshStandardMaterial` cor pele `#d9a488`, `roughness: 0.55`, `metalness: 0`), garantindo que a cena nunca fique vazia.
-  - Iluminação: `ambientLight 0.4` + `directionalLight` cor da aura (azul à esquerda, verde à direita) para "pintar" a mão com energia sem descaracterizar a pele.
-  - `Environment preset="studio"` do drei para reflexos realistas.
-  - Aura/glow por `pointLight` colorido + `<mesh>` esfera com material `emissive` translúcido atrás da mão (substitui o `drop-shadow` do SVG).
-- Mobile / `useDeviceTier() === 'light'`: **não** montar o Canvas — cair no SVG atual (já existente) para manter a performance mobile (regra do projeto: nada de WebGL pesado no mobile).
+- Criar 4 componentes SVG locais no arquivo:
+  - `BoltIcon` — polyline do raio (path único), traço fino neon.
+  - `ClockIcon` — círculo do mostrador + 2 ponteiros (3 sub-paths).
+  - `PhoneIcon` — retângulo do celular + botão home + tela.
+  - `ShieldIcon` — silhueta do escudo + check interno.
+- Cada `<path>` recebe `strokeDasharray = length` e `strokeDashoffset = length` no init (invisível).
+- Para o ícone atualmente na viewport, um `ScrollTrigger` com `scrub` anima `strokeDashoffset: 0` — o traço se desenha à medida que o item entra em foco (entre `top 85%` e `top 45%`). Ao final, um leve fill/glow neon aparece (`fill-opacity 0 → 0.15` e boost no `filter: drop-shadow`).
+- Manter a animação atual de "node activation" (halo neon no círculo) — combina com o desenho terminando.
+- Respeitar `prefers-reduced-motion`: se reduzido, renderiza o ícone já desenhado (offset = 0) sem scrub.
 
-### 2.2 Animação de aproximação e faísca
-Manter o driver por `useScroll` já existente, mas:
-- Aumentar densidade de partículas no impacto: adicionar 12–18 sparks (divs pequenas) irradiando do centro entre progress `0.46–0.6`, com trajetórias radiais via `useTransform`.
-- Onda de choque em duas camadas (branca + ciano) para leitura mais "energética".
-- Manter flash branco atual.
+## 3. Reforçar leitura do parallax na abertura da seção
 
-### 2.3 Corrigir "abre a seção errada"
-Hoje, quando a energia dispara, a próxima seção visível é o `BenefitsBar` (a seção `PortalTransition` termina antes de `DesignStacking` entrar na viewport, então o usuário vê vazio/errado).
-
-Alterações:
-- Em `Index.tsx`, **mover `BenefitsBar` para depois de `DesignStacking`** para que, ao sair do portal, a próxima seção seja `DesignStacking`.
-- Reduzir a "cauda" do portal: `height: '120vh' → '100vh'` e ajustar `stageOpacity` para completar o fade em `[0.7, 0.9]`, de modo que assim que a energia dispara (progress `~0.5`) o portal já esteja terminando e o `DesignStacking` (sticky) aparece imediatamente.
-- No `DesignStacking`, garantir que o `bgTextRef` inicie com opacidade já visível (já está `0.85`) para o "flash → DESIGN" ficar contínuo.
+- Adicionar um leve parallax vertical no header (`headerRef`) via `useScroll` do GSAP: `y: -30 → 0` conforme `top bottom → top 60%`, para reforçar a sensação de "abrir" a seção junto com os ícones começando a se desenhar.
+- Sem mexer no restante da timeline neon vertical (já existente).
 
 ## Arquivos afetados
 
-- `src/components/Hero.tsx` — sequência de palavras.
-- `src/components/PortalTransition.tsx` — Hand3D + partículas + timing.
-- `src/components/effects/Hand3D.tsx` — **novo** componente WebGL.
-- `src/pages/Index.tsx` — reordenar `BenefitsBar` para depois de `DesignStacking`.
-- `package.json` — adicionar three / fiber / drei.
+- `src/components/Results.tsx` — reposicionar numeração, trocar `lucide-react` icons por SVGs inline animáveis e adicionar as timelines de `stroke-dashoffset` por item.
 
 ## Detalhes técnicos
 
-- Palavras da Hero: `motion.span` com `initial={{ opacity:0, x:-200 }}` etc. Estilos inline atuais (text-shadow neon) preservados.
-- `Hand3D` usa `Suspense` interno com fallback null; `<Canvas dpr={[1, 1.6]} gl={{ alpha:true, antialias:true }} camera={{ position:[0,0,3], fov:35 }}`.
-- GLB: se o carregamento remoto for bloqueado, o fallback low-poly (palma cilíndrica achatada + 5 dedos cápsula) mantém a experiência 3D real.
-- `useDeviceTier()` decide entre `Hand3D` (mid/high) e `HumanHand` SVG (light).
+- Medir comprimento de cada path via `path.getTotalLength()` em `useLayoutEffect` (dentro do `gsap.context`) e setar `strokeDasharray`/`strokeDashoffset` antes do ScrollTrigger.
+- Cores: usar `hsl(195 100% 55%)` (ciano) para stroke inicial, transicionando para `hsl(155 100% 55%)` (verde) no final via `gsap.to({stroke: ...})`.
+- `strokeWidth ~ 1.75`, `strokeLinecap="round"`, `strokeLinejoin="round"`, `fill="none"` para o efeito de traço.

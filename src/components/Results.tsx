@@ -1,15 +1,60 @@
 import { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Zap, Clock, Smartphone, Shield } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
+/* ---------- Ícones SVG inline com paths animáveis (stroke-dasharray) ---------- */
+
+const strokeProps = {
+  fill: 'none' as const,
+  stroke: 'hsl(195 100% 55%)',
+  strokeWidth: 1.75,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+  vectorEffect: 'non-scaling-stroke' as const,
+};
+
+function BoltIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" {...props}>
+      <path {...strokeProps} d="M13 2 L4 14 h7 l-1 8 9-12 h-7 z" />
+    </svg>
+  );
+}
+
+function ClockIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" {...props}>
+      <circle {...strokeProps} cx="12" cy="12" r="9" />
+      <path {...strokeProps} d="M12 7 L12 12 L16 14" />
+    </svg>
+  );
+}
+
+function PhoneIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" {...props}>
+      <rect {...strokeProps} x="6" y="2.5" width="12" height="19" rx="2.5" />
+      <path {...strokeProps} d="M10 18.5 L14 18.5" />
+    </svg>
+  );
+}
+
+function ShieldIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" {...props}>
+      <path {...strokeProps} d="M12 2.5 L20 5.5 V12 C20 16.5 16.5 20 12 21.5 C7.5 20 4 16.5 4 12 V5.5 Z" />
+      <path {...strokeProps} d="M8.5 12 L11 14.5 L15.5 10" />
+    </svg>
+  );
+}
+
 const results = [
-  { icon: Zap, value: 'Alta', label: 'Performance', description: 'Sites rápidos e otimizados, prontos para escalar.' },
-  { icon: Clock, value: '7 dias', label: 'Prazo de entrega', description: 'Do briefing ao lançamento, com etapas claras.' },
-  { icon: Smartphone, value: '100%', label: 'Responsivo', description: 'Experiência fluida em qualquer tela e dispositivo.' },
-  { icon: Shield, value: 'Total', label: 'Suporte', description: 'Acompanhamento próximo durante e após a entrega.' },
+  { Icon: BoltIcon, value: 'Alta', label: 'Performance', description: 'Sites rápidos e otimizados, prontos para escalar.' },
+  { Icon: ClockIcon, value: '7 dias', label: 'Prazo de entrega', description: 'Do briefing ao lançamento, com etapas claras.' },
+  { Icon: PhoneIcon, value: '100%', label: 'Responsivo', description: 'Experiência fluida em qualquer tela e dispositivo.' },
+  { Icon: ShieldIcon, value: 'Total', label: 'Suporte', description: 'Acompanhamento próximo durante e após a entrega.' },
 ];
 
 export function Results() {
@@ -21,16 +66,36 @@ export function Results() {
 
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     const ctx = gsap.context(() => {
       gsap.from(headerRef.current, {
         opacity: 0,
-        y: 24,
-        duration: 0.7,
+        y: 30,
+        duration: 0.8,
         ease: 'power3.out',
         scrollTrigger: { trigger: headerRef.current, start: 'top 85%', once: true },
       });
 
-      // Vertical neon line that lights up on scroll
+      // Parallax sutil do header
+      if (headerRef.current && !reduced) {
+        gsap.fromTo(
+          headerRef.current,
+          { y: -20 },
+          {
+            y: 20,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.8,
+            },
+          },
+        );
+      }
+
+      // Linha neon vertical
       if (lineFillRef.current && timelineRef.current) {
         gsap.fromTo(
           lineFillRef.current,
@@ -48,7 +113,7 @@ export function Results() {
         );
       }
 
-      // Each item reveal + node activation
+      // Cada item: revela + ativa nó + desenha ícone
       itemsRef.current.forEach((el, i) => {
         if (!el) return;
         gsap.from(el, {
@@ -74,6 +139,32 @@ export function Results() {
               ease: 'power2.out',
             },
           );
+        }
+
+        // Desenho do ícone via stroke-dashoffset
+        const paths = el.querySelectorAll<SVGGeometryElement>('[data-icon] path, [data-icon] circle, [data-icon] rect');
+        paths.forEach((p) => {
+          const len = p.getTotalLength();
+          gsap.set(p, { strokeDasharray: len, strokeDashoffset: reduced ? 0 : len });
+        });
+        if (!reduced && paths.length) {
+          gsap.to(paths, {
+            strokeDashoffset: 0,
+            ease: 'none',
+            stagger: 0.05,
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              end: 'top 45%',
+              scrub: 0.6,
+            },
+          });
+          gsap.to(paths, {
+            stroke: 'hsl(155 100% 60%)',
+            duration: 0.6,
+            ease: 'power2.out',
+            scrollTrigger: { trigger: el, start: 'top 55%', once: true },
+          });
         }
       });
     }, sectionRef);
@@ -111,6 +202,7 @@ export function Results() {
           <div className="flex flex-col gap-12 md:gap-16">
             {results.map((r, i) => {
               const isLeft = i % 2 === 0;
+              const Icon = r.Icon;
               return (
                 <div
                   key={i}
@@ -139,8 +231,9 @@ export function Results() {
                     data-node
                     className="absolute left-6 md:left-1/2 top-2 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-12 h-12 md:w-14 md:h-14 rounded-full border border-primary/40 flex items-center justify-center z-10 bg-background"
                   >
-                    <r.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-                    <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-mono tracking-widest text-foreground/60">
+                    <Icon data-icon className="w-5 h-5 md:w-6 md:h-6" style={{ filter: 'drop-shadow(0 0 6px hsl(195 100% 55% / 0.6))' }} />
+                    {/* Numeração posicionada à esquerda do nó, fora da linha vertical */}
+                    <span className="absolute -left-8 md:-left-9 top-1/2 -translate-y-1/2 text-[10px] md:text-[11px] font-mono tracking-widest text-foreground/60">
                       0{i + 1}
                     </span>
                   </div>
