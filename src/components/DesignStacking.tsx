@@ -86,9 +86,18 @@ export function DesignStacking() {
             },
           });
 
-          // Heading desaparece e watermark cresce no começo
+          // Heading desaparece e watermark ENCOLHE ao rolar (fica legível)
           tl.to(headingRef.current, { autoAlpha: 0, y: -24, duration: 0.4, ease: 'none' }, 0)
-            .to(bgTextRef.current, { scale: 1.05, opacity: 0.95, duration: 4.6, ease: 'none' }, 0);
+            .to(
+              bgTextRef.current,
+              {
+                scale: mobile ? 0.45 : 0.6,
+                opacity: 0.35,
+                duration: 4.6,
+                ease: 'none',
+              },
+              0,
+            );
 
           // Pilot card sai subindo enquanto card 1 entra de baixo
           if (pilotRef.current) {
@@ -102,11 +111,12 @@ export function DesignStacking() {
           // Card 2 sobe / Card 3 entra
           tl.to(stackRefs.current[1], { yPercent: -110, duration: 0.8 }, 2.5)
             .to(stackRefs.current[2], { yPercent: 0, duration: 0.8 }, 2.6);
-          // Card 3 sobe / Card 4 entra
-          tl.to(stackRefs.current[2], { yPercent: -110, duration: 0.8 }, 3.5)
-            .to(stackRefs.current[3], { yPercent: 0, duration: 0.8 }, 3.6);
+          // Card 3 sobe / Card 4 (Artesanal) entra — antecipa no mobile
+          const card4In = mobile ? 3.2 : 3.6;
+          tl.to(stackRefs.current[2], { yPercent: -110, duration: 0.8 }, card4In - 0.4)
+            .to(stackRefs.current[3], { yPercent: 0, duration: 0.8 }, card4In);
           // Hold do card 4 totalmente visível antes de sair da seção
-          tl.to(stackRefs.current[3], { yPercent: 0, duration: 1.2 }, 4.4);
+          tl.to(stackRefs.current[3], { yPercent: 0, duration: 1.6 }, card4In + 0.9);
 
         }
       );
