@@ -19,14 +19,13 @@ const Hand3D = lazy(() => import('@/components/effects/Hand3D').then(m => ({ def
  * para a próxima seção.
  */
 function HumanHand({ color, mirror = false }: { color: string; mirror?: boolean }) {
-  // ID único para o filter de aura
   const auraId = `aura-${color.replace(/[^a-z0-9]/gi, '')}${mirror ? '-r' : '-l'}`;
   const gradId = `skin-${color.replace(/[^a-z0-9]/gi, '')}${mirror ? '-r' : '-l'}`;
 
   return (
     <svg
-      viewBox="0 0 240 300"
-      className="w-[160px] md:w-[240px]"
+      viewBox="0 0 260 220"
+      className="w-[170px] md:w-[250px]"
       style={{
         transform: mirror ? 'scaleX(-1)' : undefined,
         filter: `drop-shadow(0 0 14px ${color}) drop-shadow(0 0 38px ${color})`,
@@ -34,79 +33,78 @@ function HumanHand({ color, mirror = false }: { color: string; mirror?: boolean 
       }}
     >
       <defs>
-        <linearGradient id={gradId} x1="0" y1="0" x2="0.6" y2="1">
-          <stop offset="0%" stopColor="hsl(28 30% 78%)" />
-          <stop offset="55%" stopColor="hsl(24 28% 62%)" />
+        <linearGradient id={gradId} x1="0" y1="0" x2="0.4" y2="1">
+          <stop offset="0%" stopColor="hsl(28 32% 82%)" />
+          <stop offset="55%" stopColor="hsl(24 28% 64%)" />
           <stop offset="100%" stopColor="hsl(20 25% 42%)" />
         </linearGradient>
-        <radialGradient id={auraId} cx="0.5" cy="0.5" r="0.6">
+        <radialGradient id={auraId} cx="0.55" cy="0.5" r="0.6">
           <stop offset="0%" stopColor={color} stopOpacity="0.7" />
           <stop offset="60%" stopColor={color} stopOpacity="0.18" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </radialGradient>
       </defs>
 
-      {/* Aura colorida atrás da mão */}
-      <ellipse cx="120" cy="170" rx="120" ry="135" fill={`url(#${auraId})`} />
+      {/* Aura */}
+      <ellipse cx="140" cy="120" rx="140" ry="105" fill={`url(#${auraId})`} />
 
-      {/* Mão humana 2D — palma + 5 dedos, lateral (palma virada pro centro) */}
-      {/* Punho */}
+      {/*
+        Mão vista de cima/lado — inspirada em "A Criação de Adão".
+        Punho no canto esquerdo, indicador estendido apontando pra direita,
+        polegar acima, e demais dedos recolhidos.
+      */}
+      {/* Antebraço/punho */}
       <path
-        d="M70 295 Q70 270 80 255 L160 255 Q170 270 170 295 Z"
+        d="M0 140 Q10 120 40 118 L90 118 Q108 118 118 128 L118 168 Q108 178 90 178 L40 178 Q10 176 0 158 Z"
+        fill={`url(#${gradId})`}
+        stroke={color}
+        strokeOpacity="0.45"
+        strokeWidth="1.2"
+      />
+      {/* Palma */}
+      <path
+        d="M90 112 Q140 108 168 120 Q180 126 180 140 L180 160 Q180 176 164 180 L100 180 Q88 180 88 168 L88 122 Q88 114 90 112 Z"
+        fill={`url(#${gradId})`}
+        stroke={color}
+        strokeOpacity="0.45"
+        strokeWidth="1.2"
+      />
+      {/* Polegar (dobrado por cima) */}
+      <path
+        d="M112 118 Q118 96 138 92 Q152 90 156 100 Q158 110 150 118 Q140 124 132 122 Z"
+        fill={`url(#${gradId})`}
+        stroke={color}
+        strokeOpacity="0.4"
+        strokeWidth="1.1"
+      />
+      {/* Dedos recolhidos (médio/anelar/mindinho, empilhados) */}
+      <path
+        d="M168 124 Q200 126 208 138 Q212 148 202 156 Q188 162 168 158 Z"
+        fill={`url(#${gradId})`}
+        stroke={color}
+        strokeOpacity="0.35"
+        strokeWidth="1"
+      />
+      <path
+        d="M172 148 Q198 150 204 160 Q208 168 198 174 Q182 178 168 174 Z"
+        fill={`url(#${gradId})`}
+        stroke={color}
+        strokeOpacity="0.35"
+        strokeWidth="1"
+      />
+      {/* Indicador estendido — ponto de contato */}
+      <path
+        d="M168 132 Q210 128 240 132 Q252 134 252 140 Q252 146 240 148 Q210 152 168 148 Z"
         fill={`url(#${gradId})`}
         stroke={color}
         strokeOpacity="0.5"
         strokeWidth="1.2"
-      />
-      {/* Palma + dedos */}
-      <path
-        d="
-          M80 255
-          Q70 220 72 185
-          L70 120
-          Q70 105 82 105
-          Q94 105 94 120
-          L94 165
-          L100 165
-          L100 70
-          Q100 55 113 55
-          Q126 55 126 70
-          L126 165
-          L132 165
-          L132 60
-          Q132 45 145 45
-          Q158 45 158 60
-          L158 168
-          L164 168
-          L164 80
-          Q164 66 176 66
-          Q188 66 188 80
-          L188 180
-          L194 182
-          L196 150
-          Q198 135 210 138
-          Q222 142 218 158
-          L208 210
-          Q200 245 180 258
-          L160 255
-          Z
-        "
-        fill={`url(#${gradId})`}
-        stroke={color}
-        strokeOpacity="0.4"
-        strokeWidth="1.2"
         strokeLinejoin="round"
       />
-      {/* Linhas da palma — sutil */}
-      <path
-        d="M95 200 Q120 210 150 200 M100 225 Q130 232 160 222"
-        stroke="hsl(20 30% 30%)"
-        strokeOpacity="0.35"
-        strokeWidth="1"
-        fill="none"
-      />
-      {/* Highlight */}
-      <ellipse cx="135" cy="170" rx="22" ry="40" fill="white" opacity="0.08" />
+      {/* Unha do indicador — sutil highlight */}
+      <ellipse cx="246" cy="140" rx="5" ry="4" fill="white" opacity="0.35" />
+      {/* Highlight na palma */}
+      <ellipse cx="130" cy="150" rx="26" ry="12" fill="white" opacity="0.1" />
     </svg>
   );
 }
