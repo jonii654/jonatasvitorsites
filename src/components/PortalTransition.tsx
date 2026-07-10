@@ -224,13 +224,7 @@ export function PortalTransition() {
             ...gpu,
           }}
         >
-          {isLight ? (
-            <HumanHand color="hsl(195 100% 55%)" />
-          ) : (
-            <Suspense fallback={<HumanHand color="hsl(195 100% 55%)" />}>
-              <Hand3D auraColor="hsl(195 100% 55%)" />
-            </Suspense>
-          )}
+          <HumanHand color="hsl(195 100% 55%)" />
         </motion.div>
 
         {/* Mão direita — humana com aura VERDE */}
