@@ -19,92 +19,99 @@ import { useDeviceTier } from '@/hooks/use-device-tier';
  * para a próxima seção.
  */
 function HumanHand({ color, mirror = false }: { color: string; mirror?: boolean }) {
-  const auraId = `aura-${color.replace(/[^a-z0-9]/gi, '')}${mirror ? '-r' : '-l'}`;
-  const gradId = `skin-${color.replace(/[^a-z0-9]/gi, '')}${mirror ? '-r' : '-l'}`;
+  const uid = `${color.replace(/[^a-z0-9]/gi, '')}${mirror ? 'r' : 'l'}`;
+  const skin = `skin-${uid}`;
+  const shade = `shade-${uid}`;
+  const aura = `aura-${uid}`;
 
   return (
     <svg
-      viewBox="0 0 260 220"
-      className="w-[170px] md:w-[250px]"
+      viewBox="0 0 320 200"
+      className="w-[200px] md:w-[300px]"
       style={{
         transform: mirror ? 'scaleX(-1)' : undefined,
-        filter: `drop-shadow(0 0 14px ${color}) drop-shadow(0 0 38px ${color})`,
+        filter: `drop-shadow(0 8px 24px rgba(0,0,0,0.55)) drop-shadow(0 0 22px ${color}) drop-shadow(0 0 60px ${color})`,
         overflow: 'visible',
       }}
     >
       <defs>
-        <linearGradient id={gradId} x1="0" y1="0" x2="0.4" y2="1">
-          <stop offset="0%" stopColor="hsl(28 32% 82%)" />
-          <stop offset="55%" stopColor="hsl(24 28% 64%)" />
-          <stop offset="100%" stopColor="hsl(20 25% 42%)" />
+        <linearGradient id={skin} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="hsl(28 40% 82%)" />
+          <stop offset="45%" stopColor="hsl(24 38% 68%)" />
+          <stop offset="100%" stopColor="hsl(18 32% 42%)" />
         </linearGradient>
-        <radialGradient id={auraId} cx="0.55" cy="0.5" r="0.6">
-          <stop offset="0%" stopColor={color} stopOpacity="0.7" />
-          <stop offset="60%" stopColor={color} stopOpacity="0.18" />
+        <radialGradient id={shade} cx="0.3" cy="0.3" r="0.9">
+          <stop offset="0%" stopColor="white" stopOpacity="0.35" />
+          <stop offset="60%" stopColor="white" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={aura} cx="0.7" cy="0.5" r="0.7">
+          <stop offset="0%" stopColor={color} stopOpacity="0.55" />
+          <stop offset="55%" stopColor={color} stopOpacity="0.14" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </radialGradient>
       </defs>
 
-      {/* Aura */}
-      <ellipse cx="140" cy="120" rx="140" ry="105" fill={`url(#${auraId})`} />
+      {/* Aura suave em volta */}
+      <ellipse cx="200" cy="100" rx="170" ry="120" fill={`url(#${aura})`} />
 
       {/*
-        Mão vista de cima/lado — inspirada em "A Criação de Adão".
-        Punho no canto esquerdo, indicador estendido apontando pra direita,
-        polegar acima, e demais dedos recolhidos.
+        Mão "Criação de Adão" — vista lateral, palma para baixo,
+        indicador estendido apontando para a direita, polegar levantado,
+        demais dedos suavemente curvados.
       */}
-      {/* Antebraço/punho */}
+      <g stroke="hsl(18 40% 28%)" strokeWidth="1.2" strokeLinejoin="round" strokeLinecap="round">
+        {/* Antebraço */}
+        <path
+          d="M0 118 Q30 100 78 104 L108 108 Q118 120 118 132 L118 148 Q112 160 96 162 L40 162 Q12 158 0 144 Z"
+          fill={`url(#${skin})`}
+        />
+        {/* Palma / dorso */}
+        <path
+          d="M96 96 Q140 88 176 96 Q198 102 208 118 L208 148 Q206 162 190 168 L118 168 Q100 166 96 152 Z"
+          fill={`url(#${skin})`}
+        />
+        {/* Polegar levantado */}
+        <path
+          d="M118 100 Q126 68 148 60 Q168 56 176 72 Q180 88 168 100 Q156 108 140 106 Z"
+          fill={`url(#${skin})`}
+        />
+        {/* Dedos curvados (médio/anelar) — atrás do indicador */}
+        <path
+          d="M188 108 Q222 106 234 122 L234 138 Q228 150 210 150 L188 148 Z"
+          fill={`url(#${skin})`}
+          opacity="0.92"
+        />
+        <path
+          d="M188 138 Q220 140 230 154 L228 168 Q216 176 198 172 L186 166 Z"
+          fill={`url(#${skin})`}
+          opacity="0.9"
+        />
+        {/* Indicador estendido — ponto de contato */}
+        <path
+          d="M198 108
+             Q240 100 278 104
+             Q300 106 306 116
+             Q308 124 300 128
+             Q262 134 220 132
+             Q200 130 196 122 Z"
+          fill={`url(#${skin})`}
+        />
+        {/* Ponta do indicador (falange distal) */}
+        <path
+          d="M292 108 Q310 110 312 120 Q312 128 300 130 Q290 130 286 122 Z"
+          fill={`url(#${skin})`}
+        />
+      </g>
+
+      {/* Highlight geral (luz) */}
       <path
-        d="M0 140 Q10 120 40 118 L90 118 Q108 118 118 128 L118 168 Q108 178 90 178 L40 178 Q10 176 0 158 Z"
-        fill={`url(#${gradId})`}
-        stroke={color}
-        strokeOpacity="0.45"
-        strokeWidth="1.2"
+        d="M96 96 Q140 88 176 96 Q198 102 208 118 L208 130 Q160 118 120 122 Q100 122 96 132 Z"
+        fill={`url(#${shade})`}
       />
-      {/* Palma */}
-      <path
-        d="M90 112 Q140 108 168 120 Q180 126 180 140 L180 160 Q180 176 164 180 L100 180 Q88 180 88 168 L88 122 Q88 114 90 112 Z"
-        fill={`url(#${gradId})`}
-        stroke={color}
-        strokeOpacity="0.45"
-        strokeWidth="1.2"
-      />
-      {/* Polegar (dobrado por cima) */}
-      <path
-        d="M112 118 Q118 96 138 92 Q152 90 156 100 Q158 110 150 118 Q140 124 132 122 Z"
-        fill={`url(#${gradId})`}
-        stroke={color}
-        strokeOpacity="0.4"
-        strokeWidth="1.1"
-      />
-      {/* Dedos recolhidos (médio/anelar/mindinho, empilhados) */}
-      <path
-        d="M168 124 Q200 126 208 138 Q212 148 202 156 Q188 162 168 158 Z"
-        fill={`url(#${gradId})`}
-        stroke={color}
-        strokeOpacity="0.35"
-        strokeWidth="1"
-      />
-      <path
-        d="M172 148 Q198 150 204 160 Q208 168 198 174 Q182 178 168 174 Z"
-        fill={`url(#${gradId})`}
-        stroke={color}
-        strokeOpacity="0.35"
-        strokeWidth="1"
-      />
-      {/* Indicador estendido — ponto de contato */}
-      <path
-        d="M168 132 Q210 128 240 132 Q252 134 252 140 Q252 146 240 148 Q210 152 168 148 Z"
-        fill={`url(#${gradId})`}
-        stroke={color}
-        strokeOpacity="0.5"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-      />
-      {/* Unha do indicador — sutil highlight */}
-      <ellipse cx="246" cy="140" rx="5" ry="4" fill="white" opacity="0.35" />
-      {/* Highlight na palma */}
-      <ellipse cx="130" cy="150" rx="26" ry="12" fill="white" opacity="0.1" />
+      {/* Unha do indicador */}
+      <ellipse cx="304" cy="118" rx="5" ry="3.5" fill="white" opacity="0.45" />
+      {/* Micro glow no dedo — ponto de contato */}
+      <circle cx="310" cy="120" r="4" fill="white" opacity="0.85" />
     </svg>
   );
 }
@@ -128,42 +135,42 @@ export function PortalTransition() {
     restDelta: 0.001,
   });
 
-  // Mãos entram das laterais; param com pequeno gap (dedos indicadores quase se tocando)
-  const handLeftX = useTransform(progress, [0, 0.42], ['-55vw', '-4vw']);
-  const handRightX = useTransform(progress, [0, 0.42], ['55vw', '4vw']);
-  const handScale = useTransform(progress, [0, 0.42], [1, 1.02]);
+  // Mãos entram das laterais e param com pequeno gap — indicadores quase se tocando
+  const handLeftX = useTransform(progress, [0, 0.5], ['-60vw', '-3vw']);
+  const handRightX = useTransform(progress, [0, 0.5], ['60vw', '3vw']);
+  const handScale = useTransform(progress, [0, 0.5, 0.58], [0.9, 1.05, 1.1]);
   const handOpacity = useTransform(
     progress,
-    [0, 0.08, 0.46, 0.52],
+    [0, 0.08, 0.54, 0.6],
     [0, 1, 1, 0],
   );
-  // Sem rotação final "fechando palma" — mãos permanecem horizontais
-  const handLeftRot = useTransform(progress, [0, 0.42], [-4, 0]);
-  const handRightRot = useTransform(progress, [0, 0.42], [4, 0]);
+  // Rotação sutil ao aproximar — mãos ficam praticamente horizontais no toque
+  const handLeftRot = useTransform(progress, [0, 0.5], [-8, 0]);
+  const handRightRot = useTransform(progress, [0, 0.5], [8, 0]);
 
-  // Flash: pico curto e sai rápido — sensação de "faísca" no toque
+  // Flash do toque: pico curtíssimo (faísca)
   const flashOpacity = useTransform(
     progress,
-    [0.42, 0.46, 0.52],
-    [0, 0.95, 0],
+    [0.5, 0.54, 0.6],
+    [0, 1, 0],
   );
 
-  // Onda de choque acelerada
-  const shockScale = useTransform(progress, [0.44, 0.58], [0, 10]);
-  const shockOpacity = useTransform(progress, [0.44, 0.48, 0.58], [0, 0.9, 0]);
+  // Onda de choque expandindo do ponto de toque
+  const shockScale = useTransform(progress, [0.52, 0.68], [0, 14]);
+  const shockOpacity = useTransform(progress, [0.52, 0.56, 0.68], [0, 0.95, 0]);
 
-  // Núcleo cresce rápido — imersão instantânea
-  const finalScale = isLight ? 22 : 40;
-  const coreOpacity = useTransform(progress, [0.44, 0.5, 0.62, 0.72], [0, 1, 1, 0]);
+  // Núcleo cresce rápido — "sugando" para dentro
+  const finalScale = isLight ? 26 : 50;
+  const coreOpacity = useTransform(progress, [0.5, 0.56, 0.72, 0.82], [0, 1, 1, 0]);
   const coreScale = useTransform(
     progress,
-    [0.44, 0.55, 0.66],
-    [0, 6, finalScale],
+    [0.5, 0.62, 0.76],
+    [0, 8, finalScale],
   );
-  const coreRotate = useTransform(progress, [0.44, 0.72], [0, 90]);
+  const coreRotate = useTransform(progress, [0.5, 0.82], [0, 120]);
 
-  // Stage sai cedo — emenda direto no DesignStacking (imersão instantânea)
-  const stageOpacity = useTransform(progress, [0.5, 0.62], [1, 0]);
+  // Stage some rápido logo após o flash — emenda instantânea no DesignStacking
+  const stageOpacity = useTransform(progress, [0.56, 0.7], [1, 0]);
 
 
   if (reduced) return null;
@@ -345,10 +352,10 @@ function Spark({
   dist: number;
   color: string;
 }) {
-  const x = useTransform(progress, [0.44, 0.58], [0, Math.cos(angle) * dist]);
-  const y = useTransform(progress, [0.44, 0.58], [0, Math.sin(angle) * dist]);
-  const opacity = useTransform(progress, [0.44, 0.48, 0.58], [0, 1, 0]);
-  const scale = useTransform(progress, [0.44, 0.58], [0.6, 1.4]);
+  const x = useTransform(progress, [0.52, 0.68], [0, Math.cos(angle) * dist]);
+  const y = useTransform(progress, [0.52, 0.68], [0, Math.sin(angle) * dist]);
+  const opacity = useTransform(progress, [0.52, 0.56, 0.68], [0, 1, 0]);
+  const scale = useTransform(progress, [0.52, 0.68], [0.6, 1.6]);
   return (
     <motion.div
       aria-hidden
