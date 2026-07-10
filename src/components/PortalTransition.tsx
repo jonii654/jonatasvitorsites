@@ -225,7 +225,13 @@ export function PortalTransition() {
             ...gpu,
           }}
         >
-          <HumanHand color="hsl(195 100% 55%)" />
+          {isLight ? (
+            <HumanHand color="hsl(195 100% 55%)" />
+          ) : (
+            <Suspense fallback={<HumanHand color="hsl(195 100% 55%)" />}>
+              <Hand3D auraColor="hsl(195 100% 55%)" />
+            </Suspense>
+          )}
         </motion.div>
 
         {/* Mão direita — humana com aura VERDE */}
@@ -240,10 +246,16 @@ export function PortalTransition() {
             ...gpu,
           }}
         >
-          <HumanHand color="hsl(155 100% 55%)" mirror />
+          {isLight ? (
+            <HumanHand color="hsl(155 100% 55%)" mirror />
+          ) : (
+            <Suspense fallback={<HumanHand color="hsl(155 100% 55%)" mirror />}>
+              <Hand3D auraColor="hsl(155 100% 55%)" mirror />
+            </Suspense>
+          )}
         </motion.div>
 
-        {/* Onda de choque */}
+        {/* Onda de choque — branca */}
         <motion.div
           aria-hidden
           className="absolute top-1/2 left-1/2 z-30 w-32 h-32 rounded-full pointer-events-none"
@@ -257,6 +269,24 @@ export function PortalTransition() {
             ...gpu,
           }}
         />
+
+        {/* Onda de choque — ciano (segunda camada) */}
+        <motion.div
+          aria-hidden
+          className="absolute top-1/2 left-1/2 z-30 w-24 h-24 rounded-full pointer-events-none"
+          style={{
+            x: '-50%',
+            y: '-50%',
+            scale: shockScale,
+            opacity: shockOpacity,
+            border: '2px solid hsl(195 100% 65% / 0.8)',
+            ...gpu,
+          }}
+        />
+
+        {/* Sparks radiais no impacto */}
+        <Sparks progress={progress} />
+
 
         {/* Flash branco do impacto */}
         <motion.div
