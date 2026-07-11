@@ -80,7 +80,7 @@ export function DesignStacking() {
               trigger: wrapperRef.current,
               start: 'top top',
               end: 'bottom bottom',
-              scrub: mobile ? 1.2 : 1.1,
+              scrub: mobile ? 1.6 : 1.4,
               fastScrollEnd: true,
               invalidateOnRefresh: true,
             },
@@ -101,20 +101,20 @@ export function DesignStacking() {
 
           // Pilot card sai subindo enquanto card 1 entra de baixo
           if (pilotRef.current) {
-            tl.to(pilotRef.current, { yPercent: -110, duration: 0.8 }, 0.4);
+            tl.to(pilotRef.current, { yPercent: -110, duration: 0.7 }, 0.4);
           }
           // Card 1 entra
-          tl.to(stackRefs.current[0], { yPercent: 0, duration: 0.8 }, 0.5);
+          tl.to(stackRefs.current[0], { yPercent: 0, duration: 0.7 }, 0.5);
           // Card 1 sobe saindo / Card 2 entra
-          tl.to(stackRefs.current[0], { yPercent: -110, duration: 0.8 }, 1.5)
-            .to(stackRefs.current[1], { yPercent: 0, duration: 0.8 }, 1.6);
+          tl.to(stackRefs.current[0], { yPercent: -110, duration: 0.7 }, 1.5)
+            .to(stackRefs.current[1], { yPercent: 0, duration: 0.7 }, 1.6);
           // Card 2 sobe / Card 3 entra
-          tl.to(stackRefs.current[1], { yPercent: -110, duration: 0.8 }, 2.5)
-            .to(stackRefs.current[2], { yPercent: 0, duration: 0.8 }, 2.6);
+          tl.to(stackRefs.current[1], { yPercent: -110, duration: 0.7 }, 2.5)
+            .to(stackRefs.current[2], { yPercent: 0, duration: 0.7 }, 2.6);
           // Card 3 sobe / Card 4 (Artesanal) entra — antecipa no mobile
           const card4In = mobile ? 3.2 : 3.6;
-          tl.to(stackRefs.current[2], { yPercent: -110, duration: 0.8 }, card4In - 0.4)
-            .to(stackRefs.current[3], { yPercent: 0, duration: 0.8 }, card4In);
+          tl.to(stackRefs.current[2], { yPercent: -110, duration: 0.7 }, card4In - 0.4)
+            .to(stackRefs.current[3], { yPercent: 0, duration: 0.7 }, card4In);
           // Hold do card 4 totalmente visível antes de sair da seção
           tl.to(stackRefs.current[3], { yPercent: 0, duration: 1.6 }, card4In + 0.9);
 
