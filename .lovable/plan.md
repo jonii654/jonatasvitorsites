@@ -1,38 +1,62 @@
-## Ajustes — Portal (mãos) + Design Stacking
+# Plano — Portal, Compromisso com qualidade e fluidez geral
 
-### 1) Portal: mãos "Criação de Adão" + imersão instantânea
-Arquivo: `src/components/PortalTransition.tsx`
+## 1. Mão realista (fim do "cara de Roblox")
 
-- Substituir o gesto atual (palmas se batendo) por **dedos indicadores se tocando**, inspirado em *A Criação de Adão*:
-  - Trocar o SVG `HumanHand` por uma versão nova mostrando **mão de perfil com o indicador estendido** (demais dedos recolhidos). Mão esquerda vem da esquerda com indicador apontando pra direita; mão direita espelhada.
-  - Manter as auras (azul e verde) e o `Hand3D` só como fallback visual — mas passar novas props para `Hand3D` renderizar também o indicador estendido (ajuste rápido de `rotation` dos dedos em `Hand3D.tsx`).
-  - Ajustar `handLeftX` / `handRightX` para pararem com um pequeno gap (dedos quase tocando), não sobrepostas. Remover a rotação final que "fecha a palma".
-- Fazer o "toque" disparar imersão instantânea:
-  - Encurtar bastante o flash (`flashOpacity` pico em ~0.48 e já em 0 em ~0.52).
-  - `stageOpacity` cai para 0 em `[0.5, 0.6]` (era `[0.6, 0.82]`), levando direto pro `DesignStacking`.
-  - Reduzir a duração da seção (`height: '80vh'`) para o portal terminar mais rápido e emendar no próximo bloco.
-  - Núcleo/onda de choque: acelerar o crescimento (`coreScale` completo em ~0.6) para dar sensação de "sugado para dentro".
+Trocar o SVG cartunizado atual por **duas imagens PNG fotorrealistas** geradas com `imagegen` (modelo `premium`, fundo transparente), inspiradas em "A Criação de Adão" de Michelangelo:
 
-### 2) DesignStacking: watermark DESIGN encolhe no scroll
-Arquivo: `src/components/DesignStacking.tsx`
+- `src/assets/hand-left-realistic.png` — mão masculina/andrógina em perfil lateral, pele natural, indicador estendido apontando para a **direita**, demais dedos suavemente curvados, iluminação renascentista suave.
+- `src/assets/hand-right-realistic.png` — espelho (indicador apontando para a **esquerda**).
 
-- Inverter a animação do `bgTextRef`: começa **grande** (`scale: 1`) e **encolhe** ao longo do scroll até `scale: 0.45` (mobile) / `0.6` (desktop), com opacidade caindo para ~0.35 no final — assim a palavra "DESIGN" fica legível conforme os cards aparecem.
-- Ajustar `fontSize` inicial para caber na tela sem clip: `clamp(6rem, 42vw, 60rem)` no desktop e menor no mobile via matchMedia (evita cortar em telas estreitas).
+No `PortalTransition.tsx`, o componente `HumanHand` passa a renderizar um `<img>` com aura em `drop-shadow` (azul na esquerda, verde na direita) via filtro CSS — mantém o glow neon sem deformar a mão.
 
-### 3) Bug do card "Artesanal" cortado no mobile
-Arquivo: `src/components/DesignStacking.tsx`
+## 2. Ordem correta da animação (tocar → explodir → abrir seção)
 
-- O último keyframe segura `stackRefs.current[3]` até o fim da timeline, mas a altura total da seção (`340vh` mobile) e o offset da `ScrollTrigger` fazem o card 4 não completar a entrada antes do unpin. Correções:
-  - Aumentar altura mobile de `340vh` para `420vh` (dá scroll suficiente para o card 4 chegar a `yPercent: 0`).
-  - Antecipar a entrada do card 4 no timeline mobile: mover o keyframe de `3.6` para `3.2` e o "hold" para `4.0` com duração maior.
-  - Garantir que o container do stack no mobile use `max-w-[240px]` e `mx-auto` sem overflow lateral, e que o pai (`sticky`) tenha `overflow: hidden` (já tem) — validar via Playwright screenshot mobile 390x844 depois da mudança.
+Hoje o scrub deixa flash/onda começarem cedo demais e as mãos parecem "abrir em vez de tocar". Reajustar a timeline do scroll (0 → 1):
 
-### Validação
-- Rodar Playwright em viewport mobile (390x844) e desktop (1280x900):
-  1. Screenshot do PortalTransition em 3 pontos do scroll (indicadores se aproximando, toque, imersão).
-  2. Screenshot do DesignStacking em 5 pontos (heading, card 1, 2, 3, 4 completo).
-- Conferir que o card "Artesanal" aparece inteiro no mobile e que a palavra DESIGN encolhe suavemente.
+```
+0.00 – 0.55  Mãos entram das laterais e se aproximam suavemente
+0.55         Pontas dos indicadores SE TOCAM (gap 0 no centro)
+0.55 – 0.60  Flash branco curto + micro-shake
+0.60 – 0.70  Onda de choque + sparks explodem para fora
+0.60 – 0.72  Núcleo branco cresce até preencher a tela
+0.68 – 0.75  Stage some (opacity → 0) — emenda direta no DesignStacking
+```
 
-### Fora do escopo
-- Não mexer em SEO, sitemap, Header, Footer, ou qualquer outra seção.
-- Não trocar bibliotecas (mantém GSAP + Framer Motion + R3F já instalados).
+Concretamente em `PortalTransition.tsx`:
+- `handLeftX/RightX`: `[0, 0.55] → ['-60vw','0vw']` e `['60vw','0vw']` (sem gap final — realmente se tocam).
+- `handOpacity`: some só em `[0.6, 0.66]` (depois do toque, não antes).
+- `flashOpacity`: pico em `0.57`, zerado em `0.62`.
+- `shockScale/shockOpacity` e `Sparks`: começam em `0.57` (após o toque, não durante a aproximação).
+- `coreScale`: `[0.58, 0.68, 0.74] → [0, 10, finalScale]` — cresce rápido depois do flash.
+- `stageOpacity`: `[0.66, 0.74] → [1, 0]`.
+- Reduzir `height` da section de `80vh` para `70vh` no desktop e `60vh` no mobile (via `matchMedia`) — imersão mais rápida, menos scroll morto até chegar em "O design quem faz é você".
+
+## 3. Fluidez geral do site
+
+- **Spring do scroll no Portal**: `stiffness: 90, damping: 24, mass: 0.4` (hoje `120/28/0.35` está "duro") — movimento das mãos fica mais orgânico.
+- **DesignStacking**: aumentar `scrub` de `1.1/1.2` para `1.4` (desktop) / `1.6` (mobile) — cards deslizam com mais inércia; reduzir `duration` de cada troca de card de `0.8` para `0.7` para compensar o scrub mais lento.
+- **Índice `willChange`**: garantir `transform, opacity` em `pilotRef`, `stackRefs` e watermark (já parcial) — evita repaint.
+- **Preload das 4 imagens de card** (`loading="eager"` no primeiro, `fetchPriority="high"` nos demais) — evita flash branco no meio da animação em conexões lentas.
+
+## 4. Bugs da seção "Compromisso com qualidade" (Results.tsx)
+
+Ajustes em `src/components/Results.tsx`:
+
+- **Mobile — numeração `01/02/…` cortada**: hoje `-left-8` sai da tela quando o nó está em `left-6`. Mover a numeração para **dentro do card**, acima do valor (ex.: `<span className="block text-xs font-mono text-primary/70 mb-2">0{i+1}</span>`), removendo a `<span absolute -left-8>`.
+- **Mobile — texto colando no nó**: aumentar `pl-20` para `pl-24` e adicionar `pt-1` para alinhar com o centro do nó.
+- **Desktop — item da direita com texto encostando na linha central**: aumentar `md:pl-12` / `md:pr-12` para `md:pl-16` / `md:pr-16`.
+- **Linha neon "pulando" no fim**: mudar `scrollTrigger.end` de `'bottom 70%'` para `'bottom 85%'` e `scrub` de `0.5` para `0.8` — preenchimento suave até o último item.
+- **Ícones piscando ao entrar**: o `gsap.set` inicial deixa `strokeDashoffset = len` já visível como card em `opacity: 0`; adicionar `visibility: hidden` no set inicial dos paths e revelar no primeiro keyframe.
+- **Header parallax exagerado no mobile**: envolver o `fromTo` de parallax em `gsap.matchMedia` apenas `(min-width: 768px)` — no mobile o header fica estático (evita "tremida" ao rolar).
+
+## 5. Validação
+
+Rodar Playwright em:
+- Mobile 390×844: rolar do Hero até o começo do AboutMe, screenshot em 6 pontos (mãos aproximando, toque, flash, portal, DesignStacking cards 1/4, Results completo).
+- Desktop 1280×900: mesmo roteiro.
+
+Checar: (a) as duas pontas realmente se encostam antes do flash, (b) o núcleo cresce **depois** do toque, (c) DesignStacking abre imediatamente após o portal, (d) numeração de Results visível nos 4 itens em ambos os viewports, (e) nenhum erro no console.
+
+## Escopo intencionalmente fora
+
+Sitemap/SEO, Header/Footer, Hero, AboutMe, HowItWorks, Portfolio, FAQ, CTASection, libs (nenhuma adição/remoção além dos 2 PNGs em `src/assets`).

@@ -67,6 +67,7 @@ export function Results() {
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
 
     const ctx = gsap.context(() => {
       gsap.from(headerRef.current, {
@@ -77,8 +78,8 @@ export function Results() {
         scrollTrigger: { trigger: headerRef.current, start: 'top 85%', once: true },
       });
 
-      // Parallax sutil do header
-      if (headerRef.current && !reduced) {
+      // Parallax sutil do header — apenas desktop (mobile ficava tremido)
+      if (headerRef.current && !reduced && isDesktop) {
         gsap.fromTo(
           headerRef.current,
           { y: -20 },
@@ -95,7 +96,7 @@ export function Results() {
         );
       }
 
-      // Linha neon vertical
+      // Linha neon vertical — preenchimento suave até o último item
       if (lineFillRef.current && timelineRef.current) {
         gsap.fromTo(
           lineFillRef.current,
@@ -106,8 +107,8 @@ export function Results() {
             scrollTrigger: {
               trigger: timelineRef.current,
               start: 'top 75%',
-              end: 'bottom 70%',
-              scrub: 0.5,
+              end: 'bottom 85%',
+              scrub: 0.8,
             },
           },
         );
@@ -214,7 +215,10 @@ export function Results() {
                   }`}
                 >
                   {/* Content */}
-                  <div className={`pl-20 md:pl-0 ${isLeft ? 'md:text-right md:pr-12' : 'md:pl-12'}`}>
+                  <div className={`pl-24 pt-1 md:pl-0 md:pt-0 ${isLeft ? 'md:text-right md:pr-16' : 'md:pl-16'}`}>
+                    <span className={`block text-[11px] font-mono tracking-widest text-primary/70 mb-2 ${isLeft ? 'md:text-right' : ''}`}>
+                      0{i + 1} / 0{results.length}
+                    </span>
                     <div className="text-3xl md:text-5xl font-black tracking-tight text-foreground mb-1">
                       {r.value}
                     </div>
@@ -232,10 +236,6 @@ export function Results() {
                     className="absolute left-6 md:left-1/2 top-2 md:top-1/2 -translate-x-1/2 md:-translate-y-1/2 w-12 h-12 md:w-14 md:h-14 rounded-full border border-primary/40 flex items-center justify-center z-10 bg-background"
                   >
                     <Icon data-icon className="w-5 h-5 md:w-6 md:h-6" style={{ filter: 'drop-shadow(0 0 6px hsl(195 100% 55% / 0.6))' }} />
-                    {/* Numeração posicionada à esquerda do nó, fora da linha vertical */}
-                    <span className="absolute -left-8 md:-left-9 top-1/2 -translate-y-1/2 text-[10px] md:text-[11px] font-mono tracking-widest text-foreground/60">
-                      0{i + 1}
-                    </span>
                   </div>
 
                   {/* Spacer (other half on desktop) */}
