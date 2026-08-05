@@ -262,9 +262,11 @@ export function Portfolio() {
           {/* Featured card — flutuando sobre o vídeo */}
           <motion.div
             className="relative w-[92vw] max-w-[560px] md:max-w-[720px] aspect-[4/3]"
-            animate={{ y: [0, -12, 0] }}
+            style={{ willChange: 'transform' }}
+            animate={isLight ? undefined : { y: [0, -12, 0] }}
             transition={{ duration: 5, ease: 'easeInOut', repeat: Infinity }}
           >
+
 
             <AnimatePresence mode="popLayout" custom={direction}>
               <motion.a
