@@ -41,13 +41,15 @@ function HumanHand({
         draggable={false}
         width={1024}
         height={640}
-        loading="lazy"
+        loading="eager"
         decoding="async"
+        fetchPriority="high"
         className="w-full h-auto select-none"
         style={{
           transformOrigin: side === 'left' ? 'right center' : 'left center',
         }}
       />
+
     </div>
   );
 }
