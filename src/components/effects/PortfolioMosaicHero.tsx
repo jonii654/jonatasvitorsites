@@ -1,10 +1,10 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useDeviceTier } from '@/hooks/use-device-tier';
-import portfolioVivendo from '@/assets/portfolio-vivendo.png';
-import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
-import portfolioClinica from '@/assets/portfolio-clinicaiphone.png';
-import portfolioBeatriz from '@/assets/portfolio-beatriz.png';
+import portfolioVivendo from '@/assets/portfolio-vivendo.webp';
+import portfolioVinidigital from '@/assets/portfolio-vinidigital.webp';
+import portfolioClinica from '@/assets/portfolio-clinicaiphone.webp';
+import portfolioBeatriz from '@/assets/portfolio-beatriz.webp';
 
 const tiles = [
   { src: portfolioVivendo, span: 'col-span-2 row-span-2', y: [-40, 40] as [number, number] },

@@ -8,10 +8,10 @@ import { useDeviceTier } from '@/hooks/use-device-tier';
 gsap.registerPlugin(ScrollTrigger);
 
 
-import portfolioVivendo from '@/assets/portfolio-vivendo.png';
-import portfolioVinidigital from '@/assets/portfolio-vinidigital.png';
-import portfolioClinica from '@/assets/portfolio-clinicaiphone.png';
-import portfolioBeatriz from '@/assets/portfolio-beatriz.png';
+import portfolioVivendo from '@/assets/portfolio-vivendo.webp';
+import portfolioVinidigital from '@/assets/portfolio-vinidigital.webp';
+import portfolioClinica from '@/assets/portfolio-clinicaiphone.webp';
+import portfolioBeatriz from '@/assets/portfolio-beatriz.webp';
 import portfolioCsa from '@/assets/portfolio-csa.jpg';
 
 interface Project {
@@ -102,6 +102,24 @@ export function Portfolio() {
   const touchStartX = useRef(0);
   const tier = useDeviceTier();
   const isLight = tier === 'light';
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Só reproduz o vídeo de fundo quando a seção está visível (economia de CPU/bateria)
+  useEffect(() => {
+    const el = sectionRef.current;
+    const vid = videoRef.current;
+    if (!el || !vid) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) vid.play().catch(() => {});
+        else vid.pause();
+      },
+      { threshold: 0.05 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
 
   const active = projects[activeIndex];
 
@@ -180,17 +198,19 @@ export function Portfolio() {
             'radial-gradient(ellipse at top, hsl(220 50% 12%) 0%, hsl(220 50% 6%) 60%, hsl(220 50% 4%) 100%)',
         }}
       />
-      {/* Background video — visible on all devices (mobile included) */}
+      {/* Background video — leve: só toca quando a seção está na tela */}
       <video
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-90"
+        ref={videoRef}
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+        style={{ opacity: isLight ? 0.7 : 0.9 }}
         src="/portfolio-bg.mp4"
-        autoPlay
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         aria-hidden
       />
+
       {/* Soft dark overlay — light so the video keeps showing through */}
       <div
         aria-hidden
@@ -242,9 +262,11 @@ export function Portfolio() {
           {/* Featured card — flutuando sobre o vídeo */}
           <motion.div
             className="relative w-[92vw] max-w-[560px] md:max-w-[720px] aspect-[4/3]"
-            animate={{ y: [0, -12, 0] }}
+            style={{ willChange: 'transform' }}
+            animate={isLight ? undefined : { y: [0, -12, 0] }}
             transition={{ duration: 5, ease: 'easeInOut', repeat: Infinity }}
           >
+
 
             <AnimatePresence mode="popLayout" custom={direction}>
               <motion.a
@@ -277,7 +299,10 @@ export function Portfolio() {
                   alt={active.title}
                   className="w-full h-full object-cover"
                   draggable={false}
+                  loading="eager"
+                  decoding="async"
                 />
+
                 <div
                   className="absolute inset-0"
                   style={{

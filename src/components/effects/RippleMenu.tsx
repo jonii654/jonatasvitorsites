@@ -5,7 +5,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAnalytics } from '@/hooks/use-analytics';
 import jonatas1 from '@/assets/jonatas-photo-1.jpg';
 import jonatas2 from '@/assets/jonatas-photo-2.jpg';
-import portfolioVivendo from '@/assets/portfolio-vivendo.png';
+import portfolioVivendo from '@/assets/portfolio-vivendo.webp';
 import portfolioCsa from '@/assets/portfolio-csa.jpg';
 
 interface NavItem { label: string; href: string; }

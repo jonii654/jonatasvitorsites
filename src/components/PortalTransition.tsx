@@ -9,8 +9,8 @@ import {
 
 import { useDeviceTier } from '@/hooks/use-device-tier';
 import { useIsMobile } from '@/hooks/use-mobile';
-import handLeftImg from '@/assets/hand-left-realistic.png';
-import handRightImg from '@/assets/hand-right-realistic.png';
+import handLeftImg from '@/assets/hand-left-realistic.webp';
+import handRightImg from '@/assets/hand-right-realistic.webp';
 
 /**
  * Portal dimensional inspirado em "A Criação de Adão":
@@ -41,13 +41,15 @@ function HumanHand({
         draggable={false}
         width={1024}
         height={640}
-        loading="lazy"
+        loading="eager"
         decoding="async"
+        fetchPriority="high"
         className="w-full h-auto select-none"
         style={{
           transformOrigin: side === 'left' ? 'right center' : 'left center',
         }}
       />
+
     </div>
   );
 }
@@ -64,51 +66,65 @@ export function PortalTransition() {
     offset: ['start start', 'end end'],
   });
 
-  // Suaviza o progresso — movimento orgânico das mãos
+  // Suaviza o progresso — movimento orgânico das mãos (leve)
   const progress = useSpring(scrollYProgress, {
-    stiffness: 90,
-    damping: 24,
-    mass: 0.4,
-    restDelta: 0.001,
+    stiffness: 120,
+    damping: 26,
+    mass: 0.3,
+    restDelta: 0.002,
   });
 
-  // Mãos entram das laterais e SE TOCAM no centro (gap = 0)
-  const handLeftX = useTransform(progress, [0, 0.55], ['-70vw', '0vw']);
-  const handRightX = useTransform(progress, [0, 0.55], ['70vw', '0vw']);
-  const handScale = useTransform(progress, [0, 0.55, 0.62], [0.88, 1.02, 1.08]);
-  // Mãos permanecem visíveis até depois do toque; somem no flash
+  // ETAPA 1 — Mãos entram das laterais e SE TOCAM no centro em 0.40
+  const TOUCH = 0.4;
+  // ETAPA 2 — pausa de contato (mãos encostadas) até 0.52
+  const HOLD = 0.52;
+
+  const handLeftX = useTransform(progress, [0, TOUCH], ['-70vw', '5vw']);
+  const handRightX = useTransform(progress, [0, TOUCH], ['70vw', '-5vw']);
+  // Mãos "respiram" só depois de encostar, sem antecipar a explosão
+  const handScale = useTransform(progress, [0, TOUCH, HOLD], [0.9, 1, 1.04]);
+  // Mãos ficam visíveis durante todo o contato e somem no flash
   const handOpacity = useTransform(
     progress,
-    [0, 0.08, 0.58, 0.66],
+    [0, 0.06, HOLD, HOLD + 0.06],
     [0, 1, 1, 0],
   );
   // Rotação sutil ao aproximar — mãos ficam horizontais no toque
-  const handLeftRot = useTransform(progress, [0, 0.55], [-6, 0]);
-  const handRightRot = useTransform(progress, [0, 0.55], [6, 0]);
+  const handLeftRot = useTransform(progress, [0, TOUCH], [-6, 0]);
+  const handRightRot = useTransform(progress, [0, TOUCH], [6, 0]);
 
-  // Flash do toque: pico curtíssimo (faísca) — DEPOIS do contato
+  // ETAPA 3 — Flash SÓ depois do contato manter-se (nunca antes do toque)
   const flashOpacity = useTransform(
     progress,
-    [0.55, 0.58, 0.63],
+    [HOLD, HOLD + 0.03, HOLD + 0.09],
     [0, 1, 0],
   );
 
-  // Onda de choque expandindo do ponto de toque — só após o toque
-  const shockScale = useTransform(progress, [0.57, 0.72], [0, 16]);
-  const shockOpacity = useTransform(progress, [0.57, 0.6, 0.72], [0, 0.95, 0]);
+  // Onda de choque expandindo do ponto de toque — só após o flash
+  const shockScale = useTransform(progress, [HOLD + 0.02, 0.82], [0, 16]);
+  const shockOpacity = useTransform(
+    progress,
+    [HOLD + 0.02, HOLD + 0.08, 0.82],
+    [0, 0.95, 0],
+  );
 
   // Núcleo cresce rápido — "sugando" para dentro após o flash
-  const finalScale = isLight ? 26 : 50;
-  const coreOpacity = useTransform(progress, [0.58, 0.62, 0.74, 0.82], [0, 1, 1, 0]);
+  const finalScale = isLight ? 26 : 46;
+  const coreOpacity = useTransform(
+    progress,
+    [HOLD + 0.03, HOLD + 0.1, 0.9, 0.99],
+    [0, 1, 1, 0],
+  );
   const coreScale = useTransform(
     progress,
-    [0.58, 0.68, 0.76],
+    [HOLD + 0.03, 0.8, 0.95],
     [0, 10, finalScale],
   );
-  const coreRotate = useTransform(progress, [0.58, 0.82], [0, 90]);
+  const coreRotate = useTransform(progress, [HOLD + 0.03, 0.99], [0, 80]);
 
-  // Stage some logo após o núcleo preencher — emenda direta no DesignStacking
-  const stageOpacity = useTransform(progress, [0.66, 0.76], [1, 0]);
+  // Stage some só no fim — emenda direta no DesignStacking
+  const stageOpacity = useTransform(progress, [0.9, 0.995], [1, 0]);
+
 
   if (reduced) return null;
 
@@ -123,8 +139,9 @@ export function PortalTransition() {
       ref={sectionRef}
       aria-label="Transição portal dimensional"
       className="relative w-full"
-      style={{ height: isMobile ? '60vh' : '70vh' }}
+      style={{ height: isMobile ? '200vh' : '250vh' }}
     >
+
       <motion.div
         className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center"
         style={{
@@ -217,8 +234,9 @@ export function PortalTransition() {
           }}
         />
 
-        {/* Sparks radiais no impacto */}
-        <Sparks progress={progress} />
+        {/* Sparks radiais no impacto — depois do toque */}
+        <Sparks progress={progress} start={HOLD + 0.02} count={isLight ? 8 : 14} />
+
 
         {/* Flash branco do impacto */}
         <motion.div
@@ -264,16 +282,23 @@ export function PortalTransition() {
   );
 }
 
-function Sparks({ progress }: { progress: import('framer-motion').MotionValue<number> }) {
-  const N = 16;
-  const sparks = Array.from({ length: N }, (_, i) => {
-    const angle = (i / N) * Math.PI * 2;
+function Sparks({
+  progress,
+  start,
+  count,
+}: {
+  progress: import('framer-motion').MotionValue<number>;
+  start: number;
+  count: number;
+}) {
+  const sparks = Array.from({ length: count }, (_, i) => {
+    const angle = (i / count) * Math.PI * 2;
     return { angle, dist: 120 + (i % 3) * 50, color: i % 2 === 0 ? 'hsl(195 100% 60%)' : 'hsl(155 100% 60%)' };
   });
   return (
     <>
       {sparks.map((s, i) => (
-        <Spark key={i} progress={progress} angle={s.angle} dist={s.dist} color={s.color} />
+        <Spark key={i} progress={progress} start={start} angle={s.angle} dist={s.dist} color={s.color} />
       ))}
     </>
   );
@@ -281,19 +306,23 @@ function Sparks({ progress }: { progress: import('framer-motion').MotionValue<nu
 
 function Spark({
   progress,
+  start,
   angle,
   dist,
   color,
 }: {
   progress: import('framer-motion').MotionValue<number>;
+  start: number;
   angle: number;
   dist: number;
   color: string;
 }) {
-  const x = useTransform(progress, [0.57, 0.72], [0, Math.cos(angle) * dist]);
-  const y = useTransform(progress, [0.57, 0.72], [0, Math.sin(angle) * dist]);
-  const opacity = useTransform(progress, [0.57, 0.6, 0.72], [0, 1, 0]);
-  const scale = useTransform(progress, [0.57, 0.72], [0.6, 1.6]);
+  const end = start + 0.15;
+  const x = useTransform(progress, [start, end], [0, Math.cos(angle) * dist]);
+  const y = useTransform(progress, [start, end], [0, Math.sin(angle) * dist]);
+  const opacity = useTransform(progress, [start, start + 0.03, end], [0, 1, 0]);
+  const scale = useTransform(progress, [start, end], [0.6, 1.6]);
+
   return (
     <motion.div
       aria-hidden
