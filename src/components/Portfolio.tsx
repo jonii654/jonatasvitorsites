@@ -102,6 +102,24 @@ export function Portfolio() {
   const touchStartX = useRef(0);
   const tier = useDeviceTier();
   const isLight = tier === 'light';
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Só reproduz o vídeo de fundo quando a seção está visível (economia de CPU/bateria)
+  useEffect(() => {
+    const el = sectionRef.current;
+    const vid = videoRef.current;
+    if (!el || !vid) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) vid.play().catch(() => {});
+        else vid.pause();
+      },
+      { threshold: 0.05 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
 
   const active = projects[activeIndex];
 
