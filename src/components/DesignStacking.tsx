@@ -75,48 +75,53 @@ export function DesignStacking() {
           gsap.set(bgTextRef.current, { scale: 1, opacity: 0.9 });
 
           const tl = gsap.timeline({
-            defaults: { ease: 'power2.inOut', force3D: true },
+            defaults: { ease: 'none', force3D: true },
             scrollTrigger: {
               trigger: wrapperRef.current,
               start: 'top top',
               end: 'bottom bottom',
-              scrub: mobile ? 1.6 : 1.4,
+              scrub: mobile ? 0.6 : 0.9,
               fastScrollEnd: true,
               invalidateOnRefresh: true,
             },
           });
 
           // Heading desaparece e watermark ENCOLHE ao rolar (fica legível)
-          tl.to(headingRef.current, { autoAlpha: 0, y: -24, duration: 0.4, ease: 'none' }, 0)
+          tl.to(headingRef.current, { autoAlpha: 0, y: -24, duration: 0.4 }, 0)
             .to(
               bgTextRef.current,
               {
                 scale: mobile ? 0.45 : 0.6,
                 opacity: 0.35,
-                duration: 4.6,
-                ease: 'none',
+                duration: 5,
               },
               0,
             );
 
-          // Pilot card sai subindo enquanto card 1 entra de baixo
+          // Sequência: pilot → card1 → card2 → card3 → card4
+          // Cada troca ocupa um slot igual, com "hold" garantido em cada card.
+          const SLOT = 1;        // duração de cada bloco de leitura
+          const MOVE = 0.55;     // duração da subida/entrada
+          const first = 0.5;     // início da primeira troca
+
           if (pilotRef.current) {
-            tl.to(pilotRef.current, { yPercent: -110, duration: 0.7 }, 0.4);
+            tl.to(pilotRef.current, { yPercent: -110, duration: MOVE }, first);
           }
-          // Card 1 entra
-          tl.to(stackRefs.current[0], { yPercent: 0, duration: 0.7 }, 0.5);
-          // Card 1 sobe saindo / Card 2 entra
-          tl.to(stackRefs.current[0], { yPercent: -110, duration: 0.7 }, 1.5)
-            .to(stackRefs.current[1], { yPercent: 0, duration: 0.7 }, 1.6);
-          // Card 2 sobe / Card 3 entra
-          tl.to(stackRefs.current[1], { yPercent: -110, duration: 0.7 }, 2.5)
-            .to(stackRefs.current[2], { yPercent: 0, duration: 0.7 }, 2.6);
-          // Card 3 sobe / Card 4 (Artesanal) entra — antecipa no mobile
-          const card4In = mobile ? 3.2 : 3.6;
-          tl.to(stackRefs.current[2], { yPercent: -110, duration: 0.7 }, card4In - 0.4)
-            .to(stackRefs.current[3], { yPercent: 0, duration: 0.7 }, card4In);
-          // Hold do card 4 totalmente visível antes de sair da seção
-          tl.to(stackRefs.current[3], { yPercent: 0, duration: 1.6 }, card4In + 0.9);
+          tl.to(stackRefs.current[0], { yPercent: 0, duration: MOVE }, first);
+
+          for (let i = 1; i < stackRefs.current.length; i++) {
+            const at = first + i * SLOT;
+            tl.to(stackRefs.current[i - 1], { yPercent: -110, duration: MOVE }, at)
+              .to(stackRefs.current[i], { yPercent: 0, duration: MOVE }, at);
+          }
+
+          // Hold final: último card 100% visível até o fim da seção
+          const lastAt = first + (stackRefs.current.length - 1) * SLOT + MOVE;
+          tl.to(stackRefs.current[stackRefs.current.length - 1], {
+            yPercent: 0,
+            duration: SLOT * 1.2,
+          }, lastAt);
+
 
         }
       );
