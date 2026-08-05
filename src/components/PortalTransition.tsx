@@ -101,10 +101,10 @@ export function PortalTransition() {
   );
 
   // Onda de choque expandindo do ponto de toque — só após o flash
-  const shockScale = useTransform(progress, [HOLD + 0.02, 0.76], [0, 16]);
+  const shockScale = useTransform(progress, [HOLD + 0.02, 0.82], [0, 16]);
   const shockOpacity = useTransform(
     progress,
-    [HOLD + 0.02, HOLD + 0.06, 0.76],
+    [HOLD + 0.02, HOLD + 0.08, 0.82],
     [0, 0.95, 0],
   );
 
@@ -112,18 +112,18 @@ export function PortalTransition() {
   const finalScale = isLight ? 26 : 46;
   const coreOpacity = useTransform(
     progress,
-    [HOLD + 0.03, HOLD + 0.08, 0.78, 0.86],
+    [HOLD + 0.03, HOLD + 0.1, 0.9, 0.99],
     [0, 1, 1, 0],
   );
   const coreScale = useTransform(
     progress,
-    [HOLD + 0.03, 0.7, 0.8],
+    [HOLD + 0.03, 0.8, 0.95],
     [0, 10, finalScale],
   );
-  const coreRotate = useTransform(progress, [HOLD + 0.03, 0.86], [0, 80]);
+  const coreRotate = useTransform(progress, [HOLD + 0.03, 0.99], [0, 80]);
 
-  // Stage some logo após o núcleo preencher — emenda direta no DesignStacking
-  const stageOpacity = useTransform(progress, [0.72, 0.82], [1, 0]);
+  // Stage some só no fim — emenda direta no DesignStacking
+  const stageOpacity = useTransform(progress, [0.9, 0.995], [1, 0]);
 
 
   if (reduced) return null;
@@ -139,8 +139,9 @@ export function PortalTransition() {
       ref={sectionRef}
       aria-label="Transição portal dimensional"
       className="relative w-full"
-      style={{ height: isMobile ? '60vh' : '70vh' }}
+      style={{ height: isMobile ? '200vh' : '250vh' }}
     >
+
       <motion.div
         className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center"
         style={{
