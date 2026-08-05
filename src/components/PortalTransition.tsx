@@ -79,8 +79,8 @@ export function PortalTransition() {
   // ETAPA 2 — pausa de contato (mãos encostadas) até 0.52
   const HOLD = 0.52;
 
-  const handLeftX = useTransform(progress, [0, TOUCH], ['-70vw', '0vw']);
-  const handRightX = useTransform(progress, [0, TOUCH], ['70vw', '0vw']);
+  const handLeftX = useTransform(progress, [0, TOUCH], ['-70vw', '5vw']);
+  const handRightX = useTransform(progress, [0, TOUCH], ['70vw', '-5vw']);
   // Mãos "respiram" só depois de encostar, sem antecipar a explosão
   const handScale = useTransform(progress, [0, TOUCH, HOLD], [0.9, 1, 1.04]);
   // Mãos ficam visíveis durante todo o contato e somem no flash
