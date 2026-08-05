@@ -233,8 +233,9 @@ export function PortalTransition() {
           }}
         />
 
-        {/* Sparks radiais no impacto */}
-        <Sparks progress={progress} />
+        {/* Sparks radiais no impacto — depois do toque */}
+        <Sparks progress={progress} start={HOLD + 0.02} count={isLight ? 8 : 14} />
+
 
         {/* Flash branco do impacto */}
         <motion.div
