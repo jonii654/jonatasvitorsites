@@ -9,8 +9,8 @@ import {
 
 import { useDeviceTier } from '@/hooks/use-device-tier';
 import { useIsMobile } from '@/hooks/use-mobile';
-import handLeftImg from '@/assets/hand-left-realistic.png';
-import handRightImg from '@/assets/hand-right-realistic.png';
+import handLeftImg from '@/assets/hand-left-realistic.webp';
+import handRightImg from '@/assets/hand-right-realistic.webp';
 
 /**
  * Portal dimensional inspirado em "A Criação de Adão":
