@@ -227,7 +227,7 @@ export function DesignStacking() {
                 className="absolute inset-0 rounded-2xl overflow-hidden border border-foreground/10 shadow-[0_30px_80px_rgba(0,0,0,0.7)]"
                 style={{ willChange: 'transform, opacity', zIndex: i + 1 }}
               >
-                <img src={card.img} alt={card.label} className="w-full h-full object-cover" loading="lazy" />
+                <img src={card.img} alt={card.label} className="w-full h-full object-cover" loading="eager" decoding="async" draggable={false} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
                   <span className="text-foreground font-display font-bold text-xl md:text-2xl">
