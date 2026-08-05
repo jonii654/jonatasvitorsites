@@ -281,16 +281,23 @@ export function PortalTransition() {
   );
 }
 
-function Sparks({ progress }: { progress: import('framer-motion').MotionValue<number> }) {
-  const N = 16;
-  const sparks = Array.from({ length: N }, (_, i) => {
-    const angle = (i / N) * Math.PI * 2;
+function Sparks({
+  progress,
+  start,
+  count,
+}: {
+  progress: import('framer-motion').MotionValue<number>;
+  start: number;
+  count: number;
+}) {
+  const sparks = Array.from({ length: count }, (_, i) => {
+    const angle = (i / count) * Math.PI * 2;
     return { angle, dist: 120 + (i % 3) * 50, color: i % 2 === 0 ? 'hsl(195 100% 60%)' : 'hsl(155 100% 60%)' };
   });
   return (
     <>
       {sparks.map((s, i) => (
-        <Spark key={i} progress={progress} angle={s.angle} dist={s.dist} color={s.color} />
+        <Spark key={i} progress={progress} start={start} angle={s.angle} dist={s.dist} color={s.color} />
       ))}
     </>
   );
@@ -298,19 +305,23 @@ function Sparks({ progress }: { progress: import('framer-motion').MotionValue<nu
 
 function Spark({
   progress,
+  start,
   angle,
   dist,
   color,
 }: {
   progress: import('framer-motion').MotionValue<number>;
+  start: number;
   angle: number;
   dist: number;
   color: string;
 }) {
-  const x = useTransform(progress, [0.57, 0.72], [0, Math.cos(angle) * dist]);
-  const y = useTransform(progress, [0.57, 0.72], [0, Math.sin(angle) * dist]);
-  const opacity = useTransform(progress, [0.57, 0.6, 0.72], [0, 1, 0]);
-  const scale = useTransform(progress, [0.57, 0.72], [0.6, 1.6]);
+  const end = start + 0.15;
+  const x = useTransform(progress, [start, end], [0, Math.cos(angle) * dist]);
+  const y = useTransform(progress, [start, end], [0, Math.sin(angle) * dist]);
+  const opacity = useTransform(progress, [start, start + 0.03, end], [0, 1, 0]);
+  const scale = useTransform(progress, [start, end], [0.6, 1.6]);
+
   return (
     <motion.div
       aria-hidden
