@@ -66,51 +66,65 @@ export function PortalTransition() {
     offset: ['start start', 'end end'],
   });
 
-  // Suaviza o progresso — movimento orgânico das mãos
+  // Suaviza o progresso — movimento orgânico das mãos (leve)
   const progress = useSpring(scrollYProgress, {
-    stiffness: 90,
-    damping: 24,
-    mass: 0.4,
-    restDelta: 0.001,
+    stiffness: 120,
+    damping: 26,
+    mass: 0.3,
+    restDelta: 0.002,
   });
 
-  // Mãos entram das laterais e SE TOCAM no centro (gap = 0)
-  const handLeftX = useTransform(progress, [0, 0.55], ['-70vw', '0vw']);
-  const handRightX = useTransform(progress, [0, 0.55], ['70vw', '0vw']);
-  const handScale = useTransform(progress, [0, 0.55, 0.62], [0.88, 1.02, 1.08]);
-  // Mãos permanecem visíveis até depois do toque; somem no flash
+  // ETAPA 1 — Mãos entram das laterais e SE TOCAM no centro em 0.40
+  const TOUCH = 0.4;
+  // ETAPA 2 — pausa de contato (mãos encostadas) até 0.52
+  const HOLD = 0.52;
+
+  const handLeftX = useTransform(progress, [0, TOUCH], ['-70vw', '0vw']);
+  const handRightX = useTransform(progress, [0, TOUCH], ['70vw', '0vw']);
+  // Mãos "respiram" só depois de encostar, sem antecipar a explosão
+  const handScale = useTransform(progress, [0, TOUCH, HOLD], [0.9, 1, 1.04]);
+  // Mãos ficam visíveis durante todo o contato e somem no flash
   const handOpacity = useTransform(
     progress,
-    [0, 0.08, 0.58, 0.66],
+    [0, 0.06, HOLD, HOLD + 0.06],
     [0, 1, 1, 0],
   );
   // Rotação sutil ao aproximar — mãos ficam horizontais no toque
-  const handLeftRot = useTransform(progress, [0, 0.55], [-6, 0]);
-  const handRightRot = useTransform(progress, [0, 0.55], [6, 0]);
+  const handLeftRot = useTransform(progress, [0, TOUCH], [-6, 0]);
+  const handRightRot = useTransform(progress, [0, TOUCH], [6, 0]);
 
-  // Flash do toque: pico curtíssimo (faísca) — DEPOIS do contato
+  // ETAPA 3 — Flash SÓ depois do contato manter-se (nunca antes do toque)
   const flashOpacity = useTransform(
     progress,
-    [0.55, 0.58, 0.63],
+    [HOLD, HOLD + 0.03, HOLD + 0.09],
     [0, 1, 0],
   );
 
-  // Onda de choque expandindo do ponto de toque — só após o toque
-  const shockScale = useTransform(progress, [0.57, 0.72], [0, 16]);
-  const shockOpacity = useTransform(progress, [0.57, 0.6, 0.72], [0, 0.95, 0]);
+  // Onda de choque expandindo do ponto de toque — só após o flash
+  const shockScale = useTransform(progress, [HOLD + 0.02, 0.76], [0, 16]);
+  const shockOpacity = useTransform(
+    progress,
+    [HOLD + 0.02, HOLD + 0.06, 0.76],
+    [0, 0.95, 0],
+  );
 
   // Núcleo cresce rápido — "sugando" para dentro após o flash
-  const finalScale = isLight ? 26 : 50;
-  const coreOpacity = useTransform(progress, [0.58, 0.62, 0.74, 0.82], [0, 1, 1, 0]);
+  const finalScale = isLight ? 26 : 46;
+  const coreOpacity = useTransform(
+    progress,
+    [HOLD + 0.03, HOLD + 0.08, 0.78, 0.86],
+    [0, 1, 1, 0],
+  );
   const coreScale = useTransform(
     progress,
-    [0.58, 0.68, 0.76],
+    [HOLD + 0.03, 0.7, 0.8],
     [0, 10, finalScale],
   );
-  const coreRotate = useTransform(progress, [0.58, 0.82], [0, 90]);
+  const coreRotate = useTransform(progress, [HOLD + 0.03, 0.86], [0, 80]);
 
   // Stage some logo após o núcleo preencher — emenda direta no DesignStacking
-  const stageOpacity = useTransform(progress, [0.66, 0.76], [1, 0]);
+  const stageOpacity = useTransform(progress, [0.72, 0.82], [1, 0]);
+
 
   if (reduced) return null;
 
