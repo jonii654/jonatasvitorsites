@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "jonatas-vitor-sites-that-convert",
+      "version": "0.1.0",
+      "title": "Jonatas Vitor: Sites That Convert"
+    },
+    "tools": [
+      {
+        "name": "list_services",
+        "title": "Listar serviços",
+        "description": "Lista os serviços de criação de sites oferecidos por Jônatas Vitor, com descrição e prazo médio.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_portfolio",
+        "title": "Listar portfólio",
+        "description": "Lista os projetos e protótipos de sites já criados por Jônatas Vitor. Filtre por categoria se necessário.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "Filtro opcional por categoria, ex.: 'Landing Page'."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_faq",
+        "title": "Buscar no FAQ",
+        "description": "Retorna as perguntas frequentes sobre prazos, pagamento, suporte e responsividade. Use 'query' para filtrar.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Termo de busca opcional para filtrar perguntas e respostas."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_contact_info",
+        "title": "Obter contato",
+        "description": "Retorna os canais de contato públicos de Jônatas Vitor (WhatsApp, Instagram e site) para orçamentos.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
