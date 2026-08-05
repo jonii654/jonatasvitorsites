@@ -180,17 +180,19 @@ export function Portfolio() {
             'radial-gradient(ellipse at top, hsl(220 50% 12%) 0%, hsl(220 50% 6%) 60%, hsl(220 50% 4%) 100%)',
         }}
       />
-      {/* Background video — visible on all devices (mobile included) */}
+      {/* Background video — leve: só toca quando a seção está na tela */}
       <video
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-90"
+        ref={videoRef}
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+        style={{ opacity: isLight ? 0.7 : 0.9 }}
         src="/portfolio-bg.mp4"
-        autoPlay
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         aria-hidden
       />
+
       {/* Soft dark overlay — light so the video keeps showing through */}
       <div
         aria-hidden
