@@ -299,7 +299,10 @@ export function Portfolio() {
                   alt={active.title}
                   className="w-full h-full object-cover"
                   draggable={false}
+                  loading="eager"
+                  decoding="async"
                 />
+
                 <div
                   className="absolute inset-0"
                   style={{
