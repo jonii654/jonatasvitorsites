@@ -71,10 +71,13 @@ export function ExpandingBars() {
             : { x: 0, y: isLight ? 48 : 110, scale: 0.88 };
 
         const timeline = gsap.timeline({
+          paused: true,
           scrollTrigger: {
             trigger: card,
             start: 'top 88%',
             once: true,
+            onEnter: () => timeline.play(),
+            onEnterBack: () => timeline.play(),
           },
           defaults: { force3D: true },
         });
@@ -92,6 +95,8 @@ export function ExpandingBars() {
           );
         }
       });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     }, sectionRef);
     return () => ctx.revert();
   }, [isLight]);
