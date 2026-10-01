@@ -56,14 +56,14 @@ export function BenefitsBar() {
     <div className="py-20 md:py-28" ref={sectionRef}>
       <div className="container mx-auto px-4">
         {/* Desktop Layout */}
-        <div className="hidden md:flex justify-center items-center gap-0">
+        <div className="hidden md:flex max-w-6xl mx-auto justify-center items-center gap-0">
           {benefits.map((item, i) => (
             <div key={i} className="flex items-center">
               {i > 0 && (
-                <svg className="mx-5 h-8 w-24 lg:mx-8 lg:w-32 overflow-visible" viewBox="0 0 84 24" fill="none" aria-hidden>
+                <svg className="mx-3 h-8 w-16 lg:mx-5 lg:w-20 overflow-visible flex-none" viewBox="0 0 84 24" fill="none" aria-hidden>
                   <path d="M2 12H82M72 3L82 12L72 21" className="stroke-primary/15" strokeWidth="2" />
                   <path
-                    ref={el => { if (el) arrowRefs.current.push(el); }}
+                    ref={el => { if (el) arrowRefs.current[i - 1] = el; }}
                     d="M2 12H82M72 3L82 12L72 21"
                     className="stroke-primary"
                     strokeWidth="2.5"
@@ -90,7 +90,7 @@ export function BenefitsBar() {
                 </div>
 
                 <span
-                  className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground whitespace-nowrap"
+                  className="text-xl lg:text-2xl font-bold text-foreground whitespace-nowrap"
                 >
                   {item.text}
                 </span>
@@ -107,7 +107,7 @@ export function BenefitsBar() {
                 <svg className="my-3 h-16 w-8 overflow-visible" viewBox="0 0 24 84" fill="none" aria-hidden>
                   <path d="M12 2V82M3 72L12 82L21 72" className="stroke-primary/15" strokeWidth="2" />
                   <path
-                    ref={el => { if (el) arrowRefs.current.push(el); }}
+                    ref={el => { if (el) arrowRefs.current[i + 1] = el; }}
                     d="M12 2V82M3 72L12 82L21 72"
                     className="stroke-primary"
                     strokeWidth="2.5"
