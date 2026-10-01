@@ -80,8 +80,7 @@ export function DesignStacking() {
               trigger: wrapperRef.current,
               start: 'top top',
               end: 'bottom bottom',
-              scrub: mobile ? 0.6 : 0.9,
-              fastScrollEnd: true,
+              scrub: mobile ? 0.45 : 0.7,
               invalidateOnRefresh: true,
             },
           });
@@ -100,9 +99,9 @@ export function DesignStacking() {
 
           // Sequência: pilot → card1 → card2 → card3 → card4
           // Cada troca ocupa um slot igual, com "hold" garantido em cada card.
-          const SLOT = 1;        // duração de cada bloco de leitura
-          const MOVE = 0.55;     // duração da subida/entrada
-          const first = 0.5;     // início da primeira troca
+          const SLOT = 1;
+          const MOVE = mobile ? 0.42 : 0.48;
+          const first = 0.5;
 
           if (pilotRef.current) {
             tl.to(pilotRef.current, { yPercent: -110, duration: MOVE }, first);
@@ -116,10 +115,12 @@ export function DesignStacking() {
           }
 
           // Hold final: último card 100% visível até o fim da seção
+          const lastCard = stackRefs.current[stackRefs.current.length - 1];
           const lastAt = first + (stackRefs.current.length - 1) * SLOT + MOVE;
+          if (!lastCard) return;
           tl.to(stackRefs.current[stackRefs.current.length - 1], {
             yPercent: 0,
-            duration: SLOT * 1.2,
+            duration: SLOT * 1.6,
           }, lastAt);
 
 
@@ -229,12 +230,9 @@ export function DesignStacking() {
               >
                 <img src={card.img} alt={card.label} className="w-full h-full object-cover" loading="eager" decoding="async" draggable={false} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
+                <div className="absolute bottom-5 left-5 right-5">
                   <span className="text-foreground font-display font-bold text-xl md:text-2xl">
                     {card.label}
-                  </span>
-                  <span className="text-foreground/60 font-mono text-xs">
-                    0{i + 1} / 0{STACK_CARDS.length}
                   </span>
                 </div>
               </div>

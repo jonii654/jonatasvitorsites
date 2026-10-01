@@ -1,6 +1,8 @@
 import { CheckCircle2 } from 'lucide-react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useDeviceTier } from '@/hooks/use-device-tier';
 
 const benefits = [
   { icon: 'primary', text: 'Design Premium' },
@@ -9,57 +11,72 @@ const benefits = [
 ];
 
 export function BenefitsBar() {
+  const tier = useDeviceTier();
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
-  });
+  const itemRefs = useRef<HTMLDivElement[]>([]);
+  const arrowRefs = useRef<SVGPathElement[]>([]);
 
-  // Section reveal
-  const opacity = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [0, 1, 1, 1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [0.9, 1, 1, 1, 0.9]);
-  const y = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [40, 0, 0, -40]);
+  useLayoutEffect(() => {
+    if (!sectionRef.current) return;
+    const ctx = gsap.context(() => {
+      gsap.from(itemRefs.current, {
+        opacity: 0,
+        y: tier === 'light' ? 14 : 24,
+        duration: 0.55,
+        stagger: 0.14,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 82%',
+          once: true,
+        },
+      });
 
-  // Light progress connecting the icons (0 → 1 as user scrolls through the section)
-  const rawProgress = useTransform(scrollYProgress, [0.3, 0.7], [0, 1]);
-  const lightProgress = useSpring(rawProgress, { stiffness: 80, damping: 22, mass: 0.4 });
-  const scaleDesktop = useTransform(lightProgress, (p) => p);
-  const scaleMobile = useTransform(lightProgress, (p) => p);
+      arrowRefs.current.forEach((path, index) => {
+        gsap.fromTo(
+          path,
+          { strokeDasharray: 1, strokeDashoffset: 1 },
+          {
+            strokeDashoffset: 0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: path,
+              start: `top ${78 - index * 4}%`,
+              end: `top ${58 - index * 4}%`,
+              scrub: tier === 'light' ? 0.35 : 0.65,
+            },
+          },
+        );
+      });
+    }, sectionRef);
+    return () => ctx.revert();
+  }, [tier]);
 
   return (
     <div className="py-20 md:py-28" ref={sectionRef}>
-      <motion.div
-        style={{ opacity, scale, y }}
-        className="container mx-auto px-4"
-      >
+      <div className="container mx-auto px-4">
         {/* Desktop Layout */}
-        <div className="hidden md:flex justify-center items-center gap-0">
+        <div className="hidden md:flex max-w-6xl mx-auto justify-center items-center gap-0">
           {benefits.map((item, i) => (
             <div key={i} className="flex items-center">
-              {/* Horizontal light connecting icons (scroll-driven) */}
               {i > 0 && (
-                <div
-                  className="relative w-16 lg:w-24 h-[2px] overflow-visible"
-                  style={{
-                    background: 'hsl(195 100% 50% / 0.12)',
-                  }}
-                >
-                  <motion.div
-                    className="absolute inset-y-0 left-0 h-full origin-left"
-                    style={{
-                      scaleX: scaleDesktop,
-                      background: 'linear-gradient(90deg, hsl(195 100% 60%), hsl(155 100% 55%), hsl(195 100% 60%))',
-                      boxShadow: '0 0 10px hsl(195 100% 55% / 0.7), 0 0 24px hsl(155 100% 55% / 0.5)',
-                    }}
+                <svg className="mx-3 h-8 w-16 lg:mx-5 lg:w-20 overflow-visible flex-none" viewBox="0 0 84 24" fill="none" aria-hidden>
+                  <path d="M2 12H82M72 3L82 12L72 21" className="stroke-primary/15" strokeWidth="2" />
+                  <path
+                    ref={el => { if (el) arrowRefs.current[i - 1] = el; }}
+                    d="M2 12H82M72 3L82 12L72 21"
+                    className="stroke-primary"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    pathLength="1"
+                    style={{ filter: 'drop-shadow(0 0 7px hsl(var(--primary) / 0.8))' }}
                   />
-                </div>
+                </svg>
               )}
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.5 }}
+              <div
+                ref={el => { if (el) itemRefs.current[i] = el; }}
                 className="flex items-center gap-3"
               >
                 <div className="relative">
@@ -73,11 +90,11 @@ export function BenefitsBar() {
                 </div>
 
                 <span
-                  className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground whitespace-nowrap"
+                  className="text-xl lg:text-2xl font-bold text-foreground whitespace-nowrap"
                 >
                   {item.text}
                 </span>
-              </motion.div>
+              </div>
             </div>
           ))}
         </div>
@@ -86,30 +103,24 @@ export function BenefitsBar() {
         <div className="flex md:hidden flex-col items-center">
           {benefits.map((item, i) => (
             <div key={i} className="flex flex-col items-center">
-              {/* Vertical light connecting icons (scroll-driven) */}
               {i > 0 && (
-                <div
-                  className="relative w-[2px] h-10 overflow-visible"
-                  style={{
-                    background: 'hsl(195 100% 50% / 0.12)',
-                  }}
-                >
-                  <motion.div
-                    className="absolute inset-x-0 top-0 w-full origin-top"
-                    style={{
-                      scaleY: scaleMobile,
-                      background: 'linear-gradient(180deg, hsl(195 100% 60%), hsl(155 100% 55%), hsl(195 100% 60%))',
-                      boxShadow: '0 0 10px hsl(195 100% 55% / 0.7), 0 0 24px hsl(155 100% 55% / 0.5)',
-                    }}
+                <svg className="my-3 h-16 w-8 overflow-visible" viewBox="0 0 24 84" fill="none" aria-hidden>
+                  <path d="M12 2V82M3 72L12 82L21 72" className="stroke-primary/15" strokeWidth="2" />
+                  <path
+                    ref={el => { if (el) arrowRefs.current[i + 1] = el; }}
+                    d="M12 2V82M3 72L12 82L21 72"
+                    className="stroke-primary"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    pathLength="1"
+                    style={{ filter: 'drop-shadow(0 0 7px hsl(var(--primary) / 0.8))' }}
                   />
-                </div>
+                </svg>
               )}
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.5 }}
+              <div
+                ref={el => { if (el) itemRefs.current[i + benefits.length] = el; }}
                 className="flex items-center gap-3 py-2"
               >
                 <div className="relative">
@@ -127,11 +138,11 @@ export function BenefitsBar() {
                 >
                   {item.text}
                 </span>
-              </motion.div>
+              </div>
             </div>
           ))}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
