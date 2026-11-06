@@ -59,7 +59,12 @@ export function ExpandingBars() {
       tl.fromTo('.ki-burst', { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.8, ease: 'back.out(2)' })
         .to({}, { duration: 0.6 });
     }, el);
-    return () => ctx.revert();
+    const ro = new ResizeObserver(() => ScrollTrigger.refresh());
+    ro.observe(document.body);
+    return () => {
+      ro.disconnect();
+      ctx.revert();
+    };
   }, [isLight]);
 
   return (
