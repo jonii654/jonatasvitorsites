@@ -1,141 +1,130 @@
 import { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { MessageSquare, Palette, Rocket, type LucideIcon } from 'lucide-react';
 import { useDeviceTier } from '@/hooks/use-device-tier';
 
-interface Step {
-  icon: LucideIcon;
-  number: string;
-  title: string;
-  description: string;
-  accent: string;
-}
-
-const steps: Step[] = [
+const steps = [
   {
-    icon: MessageSquare,
-    number: '01',
     title: 'Conversa inicial',
-    description:
-      'Entendo seu negócio, público-alvo e objetivos para criar uma estratégia personalizada.',
-    accent: 'hsl(195 100% 50%)',
+    description: 'Entendo seu negócio, público-alvo e objetivos para criar uma estratégia personalizada.',
   },
   {
-    icon: Palette,
-    number: '02',
     title: 'Design & Desenvolvimento',
     description: 'Crio o layout focado em conversão com design moderno e responsivo.',
-    accent: 'hsl(195 100% 55%)',
   },
   {
-    icon: Rocket,
-    number: '03',
     title: 'Lançamento',
     description: 'Entrego seu site pronto, otimizado para SEO e velocidade máxima.',
-    accent: 'hsl(155 100% 50%)',
   },
 ];
 
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Thin vertical bars that expand into full cards as they enter the viewport.
- * GSAP ScrollTrigger drives flex/opacity scrub.
+ * Pinned black stage: each step is "handwritten" (SVG stroke draw + clip reveal)
+ * as the user scrolls; ends with a ki energy burst.
  */
 export function ExpandingBars() {
-  const tier = useDeviceTier();
-  const isLight = tier === 'light';
+  const isLight = useDeviceTier() === 'light';
   const sectionRef = useRef<HTMLElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<HTMLDivElement[]>([]);
 
   useLayoutEffect(() => {
-    if (!sectionRef.current) return;
+    const el = sectionRef.current;
+    if (!el) return;
     const ctx = gsap.context(() => {
-      // Header reveal (both tiers)
-      gsap.from(headerRef.current, {
-        opacity: 0,
-        y: 24,
-        duration: 0.6,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: headerRef.current, start: 'top 85%', once: true },
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: el,
+          start: 'top top',
+          end: isLight ? '+=220%' : '+=300%',
+          pin: true,
+          scrub: isLight ? 0.4 : 0.8,
+          invalidateOnRefresh: true,
+        },
       });
 
-      cardsRef.current.forEach((card, index) => {
-        const distance = isLight ? 38 : 150;
-        const from = index === 0
-          ? { x: -distance, y: 0, scale: 1 }
-          : index === 1
-            ? { x: distance, y: 0, scale: 1 }
-            : { x: 0, y: isLight ? 48 : 110, scale: 0.88 };
-
-        const timeline = gsap.timeline({
-          paused: true,
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 88%',
-            once: true,
-            onEnter: () => timeline.play(),
-            onEnterBack: () => timeline.play(),
-          },
-          defaults: { force3D: true },
-        });
-
-        if (index < 2 && !isLight) {
-          const brakeX = index === 0 ? 24 : -24;
-          timeline
-            .fromTo(card, { ...from, opacity: 0 }, { x: brakeX, opacity: 1, duration: 0.72, ease: 'power3.out' })
-            .to(card, { x: 0, duration: 0.42, ease: 'back.out(1.8)' });
-        } else {
-          timeline.fromTo(
-            card,
-            { ...from, opacity: 0 },
-            { x: 0, y: 0, scale: 1, opacity: 1, duration: isLight ? 0.55 : 0.8, ease: 'back.out(1.35)' },
-          );
-        }
+      gsap.utils.toArray<HTMLElement>('.hw-step').forEach((step) => {
+        const title = step.querySelector<SVGTextElement>('.hw-title')!;
+        const desc = step.querySelector<HTMLElement>('.hw-desc')!;
+        const pencil = step.querySelector<HTMLElement>('.hw-pencil')!;
+        tl.fromTo(step, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 })
+          .fromTo(title, { strokeDashoffset: 1600, fillOpacity: 0 }, { strokeDashoffset: 0, duration: 1 })
+          .to(title, { fillOpacity: 1, duration: 0.3 })
+          .fromTo(desc, { clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: 1 }, '<')
+          .fromTo(pencil, { left: '0%', autoAlpha: 1 }, { left: '100%', duration: 1 }, '<')
+          .to(pencil, { autoAlpha: 0, duration: 0.1 })
+          .to({}, { duration: 0.3 });
       });
 
-      requestAnimationFrame(() => ScrollTrigger.refresh());
-    }, sectionRef);
+      tl.fromTo('.ki-burst', { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.8, ease: 'back.out(2)' })
+        .to({}, { duration: 0.6 });
+    }, el);
     return () => ctx.revert();
   }, [isLight]);
 
   return (
-    <section id="servicos" ref={sectionRef} className="py-20 md:py-32 relative overflow-hidden">
-      <div className="container mx-auto px-4">
-        <div ref={headerRef} className="text-center mb-12 md:mb-16">
-          <span className="section-label">Como funciona</span>
-          <h2 className="section-title">Simples e direto ao ponto</h2>
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-3 md:gap-6 max-w-6xl mx-auto">
-          {steps.map((step, i) => (
-            <div
-              key={i}
-              ref={el => { if (el) cardsRef.current[i] = el; }}
-              className="glass-card relative min-h-[270px] md:min-h-[360px] p-6 md:p-8 flex flex-col"
-              style={{
-                background: `linear-gradient(180deg, ${step.accent.replace(')', ' / 0.15)')} 0%, hsl(220 50% 10%) 100%)`,
-                borderTop: `2px solid ${step.accent}`,
-                willChange: 'transform, opacity',
-              }}
-            >
-              <div className="flex items-start justify-between">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: step.accent.replace(')', ' / 0.2)') }}>
-                  <step.icon className="w-7 h-7" style={{ color: step.accent }} />
-                </div>
-                <span className="text-xs font-mono tracking-widest" style={{ color: step.accent }}>{step.number}</span>
-              </div>
-
-              <div className="mt-auto pt-12">
-                <h3 className="text-xl md:text-2xl font-bold text-foreground mb-2">{step.title}</h3>
-                <p className="text-sm md:text-base text-muted-foreground">{step.description}</p>
-              </div>
+    <div className="relative">
+    <section
+      ref={sectionRef}
+      id="servicos"
+      className="relative h-screen w-full overflow-hidden bg-[hsl(0_0%_0%)] text-foreground"
+      aria-label="Como funciona"
+    >
+      <div className="mx-auto flex h-full max-w-4xl flex-col justify-center gap-6 px-6 md:gap-10">
+        <h2 className="sr-only">Simples e direto ao ponto</h2>
+        {steps.map((s) => (
+          <div key={s.title} className="hw-step invisible">
+            <svg viewBox="0 0 900 90" className="h-12 w-full md:h-20" aria-label={s.title} role="img">
+              <text
+                x="0"
+                y="68"
+                className="hw-title"
+                style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: 76,
+                  fontWeight: 700,
+                  fill: 'hsl(var(--foreground))',
+                  stroke: 'hsl(var(--foreground))',
+                  strokeWidth: 1.4,
+                  strokeDasharray: 1600,
+                }}
+              >
+                {s.title}
+              </text>
+            </svg>
+            <div className="relative mt-1 inline-block">
+              <p
+                className="hw-desc text-base leading-snug text-muted-foreground md:text-2xl"
+                style={{ fontFamily: "'Caveat', cursive" }}
+              >
+                {s.description}
+              </p>
+              <span className="hw-pencil pointer-events-none absolute top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-primary opacity-0 shadow-[0_0_12px_hsl(var(--primary))]" />
             </div>
-          ))}
+          </div>
+        ))}
+
+        <div className="ki-burst invisible pointer-events-none relative mx-auto mt-2 h-32 w-32 md:h-44 md:w-44" aria-hidden>
+          <div className={`absolute inset-0 rounded-full bg-[radial-gradient(circle,hsl(50_100%_70%)_0%,hsl(45_100%_55%/0.6)_35%,transparent_70%)] ${isLight ? '' : 'animate-pulse'}`} />
+          {!isLight && (
+            <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full animate-[spin_6s_linear_infinite]">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <path
+                  key={i}
+                  d="M50 50 L54 30 L49 28 L55 6"
+                  stroke="hsl(50 100% 75%)"
+                  strokeWidth="1.5"
+                  fill="none"
+                  transform={`rotate(${i * 45} 50 50)`}
+                />
+              ))}
+            </svg>
+          )}
+          <span className="absolute inset-0 flex items-center justify-center text-4xl md:text-6xl">⚡</span>
         </div>
       </div>
     </section>
+    </div>
   );
 }
