@@ -79,7 +79,7 @@ export function ExpandingBars() {
         <h2 className="sr-only">Simples e direto ao ponto</h2>
         {steps.map((s) => (
           <div key={s.title} className="hw-step invisible">
-            <svg viewBox="0 0 900 90" className="h-12 w-full md:h-20" aria-label={s.title} role="img">
+            <svg viewBox="0 0 900 90" preserveAspectRatio="xMinYMid meet" className="h-12 w-full md:h-20" aria-label={s.title} role="img">
               <text
                 x="0"
                 y="68"
