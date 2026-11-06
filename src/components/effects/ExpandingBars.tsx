@@ -64,6 +64,7 @@ export function ExpandingBars() {
   }, [isLight]);
 
   return (
+    <div className="relative">
     <section
       ref={sectionRef}
       id="servicos"
@@ -124,5 +125,6 @@ export function ExpandingBars() {
         </div>
       </div>
     </section>
+    </div>
   );
 }
