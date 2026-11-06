@@ -37,8 +37,7 @@ export function ExpandingBars() {
         scrollTrigger: {
           trigger: el,
           start: 'top top',
-          end: isLight ? '+=220%' : '+=300%',
-          pin: true,
+          end: 'bottom bottom',
           scrub: isLight ? 0.4 : 0.8,
           invalidateOnRefresh: true,
         },
@@ -64,13 +63,13 @@ export function ExpandingBars() {
   }, [isLight]);
 
   return (
-    <div className="relative">
     <section
       ref={sectionRef}
       id="servicos"
-      className="relative h-screen w-full overflow-hidden bg-[hsl(0_0%_0%)] text-foreground"
+      className={`relative w-full bg-[hsl(0_0%_0%)] text-foreground ${isLight ? 'h-[320vh]' : 'h-[400vh]'}`}
       aria-label="Como funciona"
     >
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
       <div className="mx-auto flex h-full max-w-4xl flex-col justify-center gap-6 px-6 md:gap-10">
         <h2 className="sr-only">Simples e direto ao ponto</h2>
         {steps.map((s) => (
@@ -124,7 +123,7 @@ export function ExpandingBars() {
           <span className="absolute inset-0 flex items-center justify-center text-4xl md:text-6xl">⚡</span>
         </div>
       </div>
+      </div>
     </section>
-    </div>
   );
 }
