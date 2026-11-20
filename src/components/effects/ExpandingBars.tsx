@@ -85,9 +85,10 @@ export function ExpandingBars() {
                 y="68"
                 className="hw-title"
                 style={{
-                  fontFamily: "'Caveat', cursive",
-                  fontSize: 76,
-                  fontWeight: 700,
+                  fontFamily: 'inherit',
+                  fontSize: 64,
+                  fontWeight: 900,
+                  letterSpacing: '-0.025em',
                   fill: 'hsl(var(--foreground))',
                   stroke: 'hsl(var(--foreground))',
                   strokeWidth: 1.4,
@@ -99,8 +100,7 @@ export function ExpandingBars() {
             </svg>
             <div className="relative mt-1 inline-block">
               <p
-                className="hw-desc text-base leading-snug text-muted-foreground md:text-2xl"
-                style={{ fontFamily: "'Caveat', cursive" }}
+                className="hw-desc text-sm md:text-base text-muted-foreground leading-relaxed"
               >
                 {s.description}
               </p>

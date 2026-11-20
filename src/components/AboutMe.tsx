@@ -44,7 +44,7 @@ export function AboutMe() {
               {/* v5 - Word-by-word reveal */}
               <div className="space-y-4 text-base md:text-lg leading-relaxed">
                 <WordRevealText
-                  text="Tenho 21 anos e sou especialista em criar landing pages que realmente convertem."
+                  text="Tenho 22 anos e sou especialista em criar landing pages que realmente convertem."
                   className="block"
                 />
                 <WordRevealText

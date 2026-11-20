@@ -11,8 +11,8 @@ export function Preloader({ onFinish }: PreloaderProps) {
 
   useEffect(() => {
     const start = performance.now();
-    const MIN = 3000; // duração mínima da animação
-    const MAX = 6000; // nunca segura o visitante mais que isso
+    const MIN = 9000; // duração mínima da animação
+    const MAX = 12000; // nunca segura o visitante mais que isso
     let ready = document.readyState === 'complete';
     const onLoad = () => { ready = true; };
     if (!ready) window.addEventListener('load', onLoad, { once: true });

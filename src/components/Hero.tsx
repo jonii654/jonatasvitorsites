@@ -215,7 +215,7 @@ export function Hero() {
           {cornerCards.map((c, i) => (
             <motion.div
               key={i}
-              className={`absolute ${c.pos} ${c.size} rounded-xl shadow-2xl overflow-hidden border opacity-40 md:opacity-100`}
+              className={`absolute ${c.pos} ${c.size} rounded-xl shadow-2xl overflow-hidden border opacity-75 md:opacity-100`}
               style={{
                 borderColor: c.accent.replace(')', ' / 0.4)'),
                 boxShadow: `0 18px 50px hsl(220 50% 4% / 0.65), 0 0 48px ${c.accent.replace(')', ' / 0.3)')}`,
@@ -238,11 +238,12 @@ export function Hero() {
                 loading="eager"
                 decoding="async"
                 className="w-full h-full object-cover object-top"
+                style={{ filter: 'brightness(1.15) contrast(1.05)' }}
               />
               <div
                 className="absolute inset-0"
                 style={{
-                  background: `linear-gradient(135deg, ${c.accent.replace(')', ' / 0.15)')} 0%, hsl(220 50% 4% / 0.55) 100%)`,
+                  background: `linear-gradient(135deg, ${c.accent.replace(')', ' / 0.15)')} 0%, hsl(220 50% 4% / 0.25) 100%)`,
                 }}
               />
             </motion.div>

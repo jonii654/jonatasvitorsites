@@ -85,7 +85,7 @@ export function StickerAvatar({ src, alt, name, role }: StickerAvatarProps) {
         delay={0.8}
       >
         <Star className="w-3.5 h-3.5 fill-current" />
-        <span>21 anos</span>
+        <span>22 anos</span>
       </Sticker>
 
       <Sticker
