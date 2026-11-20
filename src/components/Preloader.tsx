@@ -11,21 +11,32 @@ export function Preloader({ onFinish }: PreloaderProps) {
 
   useEffect(() => {
     const start = performance.now();
-    const DURATION = 12000;
+    const MIN = 3000; // duração mínima da animação
+    const MAX = 6000; // nunca segura o visitante mais que isso
+    let ready = document.readyState === 'complete';
+    const onLoad = () => { ready = true; };
+    if (!ready) window.addEventListener('load', onLoad, { once: true });
     let raf = 0;
+    let done = false;
     const tick = (t: number) => {
-      const p = Math.min(1, (t - start) / DURATION);
-      // ease in-out cubic — progresso suave, sem saltos
+      const el = t - start;
+      const finish = (ready && el >= MIN) || el >= MAX;
+      // até ficar pronto, avança suave até 90%; depois completa
+      const p = finish ? 1 : Math.min(0.9, el / MIN * 0.9);
       const eased = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
       setProgress(Math.round(eased * 100));
-      if (p < 1) raf = requestAnimationFrame(tick);
-      else {
-        setTimeout(() => setVisible(false), 700);
-        setTimeout(onFinish, 1500);
+      if (!finish) raf = requestAnimationFrame(tick);
+      else if (!done) {
+        done = true;
+        setTimeout(() => setVisible(false), 400);
+        setTimeout(onFinish, 900);
       }
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('load', onLoad);
+    };
   }, [onFinish]);
 
 
